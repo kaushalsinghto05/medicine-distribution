@@ -14,6 +14,11 @@ import {
   OrderingRules,
   DistributorApprovalStatus,
   AuditTrailEntry,
+  WasteDisposalPartner,
+  WasteDisposalRequest,
+  WasteReturnRequest,
+  ComplianceLedgerEntry,
+  ManufacturerWasteConfig,
 } from '../types';
 import {
   SEED_TENANTS,
@@ -22,6 +27,11 @@ import {
   SEED_ORDERS,
   SEED_RETURN_REQUESTS,
   SEED_LOGISTICS_PARTNERS,
+  SEED_WASTE_PARTNERS,
+  SEED_WASTE_DISPOSAL_REQUESTS,
+  SEED_WASTE_RETURN_REQUESTS,
+  SEED_COMPLIANCE_LEDGER,
+  SEED_WASTE_CONFIGS,
 } from '../data/seedData';
 import { deductBatchInventory, restockBatchInventory } from '../engine/inventoryEngine';
 import { validateOrderQuantity } from '../engine/rulesEngine';
@@ -59,18 +69,31 @@ interface StoreContextType {
   cart: CartItem[];
   toasts: ToastMessage[];
 
+  // Waste Management State
+  wastePartners: WasteDisposalPartner[];
+  wasteDisposalRequests: WasteDisposalRequest[];
+  wasteReturnRequests: WasteReturnRequest[];
+  complianceLedger: ComplianceLedgerEntry[];
+  wasteConfigs: Record<string, ManufacturerWasteConfig>;
+
   // Tenant Isolation Scoped Data
   tenantMedicines: Medicine[];
   tenantOrders: Order[];
   tenantDistributors: Distributor[];
   tenantReturnRequests: ReturnRequest[];
   tenantLogisticsPartners: LogisticsPartner[];
+  tenantWastePartners: WasteDisposalPartner[];
+  tenantWasteDisposalRequests: WasteDisposalRequest[];
+  tenantWasteReturnRequests: WasteReturnRequest[];
+  tenantComplianceLedger: ComplianceLedgerEntry[];
+  currentTenantWasteConfig: ManufacturerWasteConfig;
 
   // Distributor Isolation Scoped Data
   distributorAuthorizedTenants: Tenant[];
   distributorMedicines: Medicine[]; // STRICT: only authorized manufacturers!
   distributorOrders: Order[];
   distributorReturnRequests: ReturnRequest[];
+  distributorWasteRequests: WasteReturnRequest[];
 
   // Notification Toast Actions
   addToast: (type: ToastMessage['type'], title: string, description?: string) => void;
@@ -96,6 +119,37 @@ interface StoreContextType {
   rejectReturnRequest: (requestId: string, note?: string) => void;
   addLogisticsPartner: (partnerData: Omit<LogisticsPartner, 'id' | 'tenantId'>) => void;
 
+  // Waste Management Actions
+  raiseDisposalRequest: (params: {
+    batchId: string;
+    medicineId: string;
+    quantity: number;
+    partnerId: string;
+    scheduledDate: string;
+    disposalMethod?: string;
+    notes?: string;
+  }) => void;
+  scheduleDisposalPickup: (requestId: string, pickupDate: string, partnerId: string) => void;
+  completeDisposalWithCertificate: (params: {
+    requestId: string;
+    certificateNumber: string;
+    certificateFileMockName?: string;
+    notes?: string;
+  }) => void;
+  triggerBatchRecall: (params: {
+    batchId: string;
+    medicineId: string;
+    recallReason: string;
+  }) => void;
+  approveDistributorWasteReturn: (params: {
+    requestId: string;
+    compensationType: 'replace_stock' | 'credit_note' | 'none_recall';
+    creditAmount?: number;
+    notes?: string;
+  }) => void;
+  rejectDistributorWasteReturn: (requestId: string, reason: string) => void;
+  updateWasteConfig: (tenantId: string, config: Partial<ManufacturerWasteConfig>) => void;
+
   // Distributor Actions
   requestAccessToTenant: (tenantId: string, form20B: string, form21B: string) => void;
   addToCart: (item: CartItem) => void;
@@ -114,6 +168,17 @@ interface StoreContextType {
     items: { medicineId: string; batchId: string; quantity: number; reason: string }[],
     distributorNote: string
   ) => void;
+  createDistributorWasteRequest: (params: {
+    tenantId: string;
+    medicineId: string;
+    batchId: string;
+    batchNumber: string;
+    quantity: number;
+    packagingUnit: string;
+    reason: 'expired' | 'damaged_transit' | 'near_expiry_return' | 'recall';
+    photoEvidenceUrl?: string;
+    distributorNotes?: string;
+  }) => void;
 
   // System Helpers
   resetToSeedData: () => void;
@@ -124,6 +189,7 @@ interface StoreContextType {
   } | null;
   setPresetDemoTarget: (target: { medicineId?: string; targetQty?: number; description?: string } | null) => void;
 }
+
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
@@ -186,6 +252,21 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [logisticsPartners, setLogisticsPartners] = useState<LogisticsPartner[]>(() =>
     loadFromStorage<LogisticsPartner[]>('logisticsPartners', SEED_LOGISTICS_PARTNERS)
   );
+  const [wastePartners, setWastePartners] = useState<WasteDisposalPartner[]>(() =>
+    loadFromStorage<WasteDisposalPartner[]>('wastePartners', SEED_WASTE_PARTNERS)
+  );
+  const [wasteDisposalRequests, setWasteDisposalRequests] = useState<WasteDisposalRequest[]>(() =>
+    loadFromStorage<WasteDisposalRequest[]>('wasteDisposalRequests', SEED_WASTE_DISPOSAL_REQUESTS)
+  );
+  const [wasteReturnRequests, setWasteReturnRequests] = useState<WasteReturnRequest[]>(() =>
+    loadFromStorage<WasteReturnRequest[]>('wasteReturnRequests', SEED_WASTE_RETURN_REQUESTS)
+  );
+  const [complianceLedger, setComplianceLedger] = useState<ComplianceLedgerEntry[]>(() =>
+    loadFromStorage<ComplianceLedgerEntry[]>('complianceLedger', SEED_COMPLIANCE_LEDGER)
+  );
+  const [wasteConfigs, setWasteConfigs] = useState<Record<string, ManufacturerWasteConfig>>(() =>
+    loadFromStorage<Record<string, ManufacturerWasteConfig>>('wasteConfigs', SEED_WASTE_CONFIGS)
+  );
   const [cart, setCart] = useState<CartItem[]>(() =>
     loadFromStorage<CartItem[]>('cart', [])
   );
@@ -215,6 +296,11 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   useEffect(() => saveToStorage('orders', orders), [orders]);
   useEffect(() => saveToStorage('returnRequests', returnRequests), [returnRequests]);
   useEffect(() => saveToStorage('logisticsPartners', logisticsPartners), [logisticsPartners]);
+  useEffect(() => saveToStorage('wastePartners', wastePartners), [wastePartners]);
+  useEffect(() => saveToStorage('wasteDisposalRequests', wasteDisposalRequests), [wasteDisposalRequests]);
+  useEffect(() => saveToStorage('wasteReturnRequests', wasteReturnRequests), [wasteReturnRequests]);
+  useEffect(() => saveToStorage('complianceLedger', complianceLedger), [complianceLedger]);
+  useEffect(() => saveToStorage('wasteConfigs', wasteConfigs), [wasteConfigs]);
   useEffect(() => saveToStorage('cart', cart), [cart]);
 
   // Current Entities
@@ -246,6 +332,31 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const tenantLogisticsPartners = useMemo(() => {
     return logisticsPartners.filter((lp) => lp.tenantId === activeTenantId);
   }, [logisticsPartners, activeTenantId]);
+
+  const tenantWastePartners = useMemo(() => {
+    return wastePartners.filter((wp) => wp.tenantId === activeTenantId);
+  }, [wastePartners, activeTenantId]);
+
+  const tenantWasteDisposalRequests = useMemo(() => {
+    return wasteDisposalRequests.filter((wdr) => wdr.tenantId === activeTenantId);
+  }, [wasteDisposalRequests, activeTenantId]);
+
+  const tenantWasteReturnRequests = useMemo(() => {
+    return wasteReturnRequests.filter((wrr) => wrr.tenantId === activeTenantId);
+  }, [wasteReturnRequests, activeTenantId]);
+
+  const tenantComplianceLedger = useMemo(() => {
+    return complianceLedger.filter((entry) => entry.tenantId === activeTenantId);
+  }, [complianceLedger, activeTenantId]);
+
+  const currentTenantWasteConfig = useMemo(() => {
+    return wasteConfigs[activeTenantId] || {
+      nearExpiryThresholdDays: 60,
+      defaultWastePartnerId: tenantWastePartners[0]?.id || '',
+      defaultCompensationPolicy: 'credit_note',
+      requirePhotoEvidence: true,
+    };
+  }, [wasteConfigs, activeTenantId, tenantWastePartners]);
 
   // --- STRICT DISTRIBUTOR ISOLATION SCOPES (Marketplace) ---
   const distributorAuthorizedTenants = useMemo(() => {
@@ -281,6 +392,10 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const distributorReturnRequests = useMemo(() => {
     return returnRequests.filter((r) => r.distributorId === activeDistributorId);
   }, [returnRequests, activeDistributorId]);
+
+  const distributorWasteRequests = useMemo(() => {
+    return wasteReturnRequests.filter((w) => w.distributorId === activeDistributorId);
+  }, [wasteReturnRequests, activeDistributorId]);
 
   // --- MANUFACTURER ACTIONS ---
   const createMedicine = (newMed: Omit<Medicine, 'id' | 'createdAt' | 'updatedAt'>) => {
@@ -610,6 +725,419 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     addToast('success', 'Carrier Partner Added', `${newPartner.name} added to approved freight roster.`);
   };
 
+  // --- WASTE & EXPIRED MEDICINE MANAGEMENT ACTIONS ---
+  const raiseDisposalRequest = (params: {
+    batchId: string;
+    medicineId: string;
+    quantity: number;
+    partnerId: string;
+    scheduledDate: string;
+    disposalMethod?: string;
+    notes?: string;
+  }) => {
+    const targetMed = medicines.find((m) => m.id === params.medicineId);
+    const targetBatch = targetMed?.batches.find((b) => b.id === params.batchId);
+    if (!targetMed || !targetBatch) {
+      addToast('error', 'Batch Not Found', 'Could not locate medicine or batch to raise disposal request.');
+      return;
+    }
+
+    const partner = wastePartners.find((wp) => wp.id === params.partnerId);
+    const partnerName = partner?.name || 'Authorized CPCB Disposal Agency';
+    const requestId = `WDR-2026-${Math.floor(100 + Math.random() * 900)}`;
+    const now = new Date().toISOString();
+
+    const estimatedLoss = params.quantity * (targetBatch.costPrice || targetBatch.mrp * 0.5);
+
+    const newRequest: WasteDisposalRequest = {
+      id: requestId,
+      tenantId: activeTenantId,
+      batchId: targetBatch.id,
+      medicineId: targetMed.id,
+      medicineName: targetMed.name,
+      batchNumber: targetBatch.batchNumber,
+      quantity: params.quantity,
+      packagingUnit: targetBatch.packagingUnit,
+      estimatedLossAmount: estimatedLoss,
+      partnerId: params.partnerId,
+      partnerName,
+      pickupScheduledDate: params.scheduledDate,
+      status: 'pickup_scheduled',
+      notes: params.notes || 'Quarantined stock scheduled for bio-medical hazardous waste pickup.',
+      createdAt: now,
+      disposalMethod: params.disposalMethod || 'High-temp Incineration (1100°C)',
+    };
+
+    // Update batch status to flagged_for_disposal and deduct from available quantity if still present
+    setMedicines((prev) =>
+      prev.map((m) => {
+        if (m.id !== params.medicineId) return m;
+        return {
+          ...m,
+          batches: m.batches.map((b) => {
+            if (b.id !== params.batchId) return b;
+            return {
+              ...b,
+              status: 'flagged_for_disposal',
+              availableQuantity: Math.max(0, b.availableQuantity - params.quantity),
+              flaggedQuantity: (b.flaggedQuantity || 0) + params.quantity,
+            };
+          }),
+        };
+      })
+    );
+
+    setWasteDisposalRequests((prev) => [newRequest, ...prev]);
+
+    // Append to immutable compliance ledger
+    const ledgerEntry: ComplianceLedgerEntry = {
+      id: `CMP-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+      timestamp: now,
+      tenantId: activeTenantId,
+      actorId: 'usr-acme-admin-01',
+      actorName: `${currentTenant.shortName} Authorized Officer`,
+      actorRole: 'manufacturer_admin',
+      actionType: 'flagged_disposal',
+      batchId: targetBatch.id,
+      batchNumber: targetBatch.batchNumber,
+      medicineName: targetMed.name,
+      quantity: params.quantity,
+      notes: `Disposal request ${requestId} created. Assigned partner: ${partnerName}. Scheduled for ${params.scheduledDate}.`,
+      ipAddress: '192.168.1.104',
+      hashSignature: `sha256:${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`,
+    };
+
+    setComplianceLedger((prev) => [ledgerEntry, ...prev]);
+    addToast('success', 'Disposal Request Scheduled', `Request ${requestId} assigned to ${partnerName}.`);
+  };
+
+  const scheduleDisposalPickup = (requestId: string, pickupDate: string, partnerId: string) => {
+    const partner = wastePartners.find((wp) => wp.id === partnerId);
+    setWasteDisposalRequests((prev) =>
+      prev.map((r) => {
+        if (r.id !== requestId) return r;
+        return {
+          ...r,
+          partnerId,
+          partnerName: partner?.name || r.partnerName,
+          pickupScheduledDate: pickupDate,
+          status: 'pickup_scheduled',
+        };
+      })
+    );
+    addToast('info', 'Pickup Rescheduled', `Pickup date updated to ${pickupDate}.`);
+  };
+
+  const completeDisposalWithCertificate = (params: {
+    requestId: string;
+    certificateNumber: string;
+    certificateFileMockName?: string;
+    notes?: string;
+  }) => {
+    const targetReq = wasteDisposalRequests.find((r) => r.id === params.requestId);
+    if (!targetReq) return;
+
+    const now = new Date().toISOString();
+    const certNumber = params.certificateNumber.trim() || `COD-${currentTenant.shortName.toUpperCase()}-${Math.floor(100000 + Math.random() * 900000)}`;
+
+    setWasteDisposalRequests((prev) =>
+      prev.map((r) => {
+        if (r.id !== params.requestId) return r;
+        return {
+          ...r,
+          status: 'destroyed',
+          certificateNumber: certNumber,
+          certificateUrl: params.certificateFileMockName || 'certificate-of-destruction.pdf',
+          certificateUploadedAt: now,
+          completedAt: now,
+          notes: params.notes || r.notes,
+        };
+      })
+    );
+
+    // Update batch to disposed
+    setMedicines((prev) =>
+      prev.map((m) => {
+        if (m.id !== targetReq.medicineId) return m;
+        return {
+          ...m,
+          batches: m.batches.map((b) => {
+            if (b.id !== targetReq.batchId) return b;
+            return {
+              ...b,
+              status: 'disposed',
+              location: 'facility_destroyed',
+              flaggedQuantity: 0,
+            };
+          }),
+        };
+      })
+    );
+
+    // Immutable compliance ledger entry
+    const ledgerEntry: ComplianceLedgerEntry = {
+      id: `CMP-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+      timestamp: now,
+      tenantId: activeTenantId,
+      actorId: 'usr-acme-admin-01',
+      actorName: `${currentTenant.shortName} Authorized Officer`,
+      actorRole: 'manufacturer_admin',
+      actionType: 'certificate_issued',
+      batchId: targetReq.batchId,
+      batchNumber: targetReq.batchNumber,
+      medicineName: targetReq.medicineName,
+      quantity: targetReq.quantity,
+      certificateRef: certNumber,
+      notes: `Certificate of Destruction ${certNumber} verified & sealed into regulatory audit ledger. Physical destruction confirmed.`,
+      ipAddress: '192.168.1.104',
+      hashSignature: `sha256:${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`,
+    };
+
+    setComplianceLedger((prev) => [ledgerEntry, ...prev]);
+    addToast('success', 'Disposal Certified', `Certificate of Destruction #${certNumber} linked to immutable audit trail.`);
+  };
+
+  const triggerBatchRecall = (params: {
+    batchId: string;
+    medicineId: string;
+    recallReason: string;
+  }) => {
+    const targetMed = medicines.find((m) => m.id === params.medicineId);
+    const targetBatch = targetMed?.batches.find((b) => b.id === params.batchId);
+    if (!targetMed || !targetBatch) {
+      addToast('error', 'Batch Not Found', 'Target batch for recall was not found.');
+      return;
+    }
+
+    const now = new Date().toISOString();
+
+    // 1. Mark batch as recalled and 0 out available stock
+    setMedicines((prev) =>
+      prev.map((m) => {
+        if (m.id !== params.medicineId) return m;
+        return {
+          ...m,
+          batches: m.batches.map((b) => {
+            if (b.id !== params.batchId) return b;
+            return {
+              ...b,
+              status: 'recalled',
+              recalled: true,
+              recallReason: params.recallReason,
+              availableQuantity: 0,
+              flaggedQuantity: (b.flaggedQuantity || 0) + b.availableQuantity,
+            };
+          }),
+        };
+      })
+    );
+
+    // 2. Find all distributors who received this batch in fulfilled orders
+    const affectedOrders = orders.filter(
+      (o) =>
+        o.tenantId === activeTenantId &&
+        o.status !== 'cancelled' &&
+        o.items.some((it) => it.batchId === params.batchId)
+    );
+
+    const autoRequests: WasteReturnRequest[] = [];
+    const notifiedDistributorIds = new Set<string>();
+
+    affectedOrders.forEach((ord) => {
+      const lineItem = ord.items.find((it) => it.batchId === params.batchId);
+      if (!lineItem) return;
+
+      const dist = distributors.find((d) => d.id === ord.distributorId);
+      notifiedDistributorIds.add(ord.distributorId);
+
+      autoRequests.push({
+        id: `WRR-2026-${Math.floor(100 + Math.random() * 900)}`,
+        tenantId: activeTenantId,
+        distributorId: ord.distributorId,
+        distributorName: dist?.name || ord.distributorId,
+        medicineId: targetMed.id,
+        medicineName: targetMed.name,
+        batchId: targetBatch.id,
+        batchNumber: targetBatch.batchNumber,
+        quantity: lineItem.fulfilledQuantity,
+        packagingUnit: targetBatch.packagingUnit,
+        reason: 'recall',
+        status: 'approved',
+        compensationType: 'none_recall',
+        distributorNotes: `Auto-generated mandatory recall request for order ${ord.orderNumber}. Reason: ${params.recallReason}`,
+        manufacturerNotes: 'Manufacturer mandatory batch recall. Quarantined for immediate carrier collection.',
+        createdAt: now,
+        resolvedAt: now,
+      });
+    });
+
+    if (autoRequests.length > 0) {
+      setWasteReturnRequests((prev) => [...autoRequests, ...prev]);
+    }
+
+    // 3. Compliance Ledger Entry
+    const ledgerEntry: ComplianceLedgerEntry = {
+      id: `CMP-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+      timestamp: now,
+      tenantId: activeTenantId,
+      actorId: 'usr-acme-admin-01',
+      actorName: `${currentTenant.shortName} Admin`,
+      actorRole: 'manufacturer_admin',
+      actionType: 'batch_recalled',
+      batchId: targetBatch.id,
+      batchNumber: targetBatch.batchNumber,
+      medicineName: targetMed.name,
+      quantity: targetBatch.initialQuantity,
+      notes: `Batch Recall Alert triggered: "${params.recallReason}". Broadcast sent to ${notifiedDistributorIds.size} holding distributor(s).`,
+      ipAddress: '192.168.1.104',
+      hashSignature: `sha256:${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`,
+    };
+
+    setComplianceLedger((prev) => [ledgerEntry, ...prev]);
+
+    addToast(
+      'error',
+      'Batch Recall Broadcasted',
+      `Batch ${targetBatch.batchNumber} recalled. ${notifiedDistributorIds.size} distributors notified and return requests generated.`
+    );
+  };
+
+  const approveDistributorWasteReturn = (params: {
+    requestId: string;
+    compensationType: 'replace_stock' | 'credit_note' | 'none_recall';
+    creditAmount?: number;
+    notes?: string;
+  }) => {
+    const target = wasteReturnRequests.find((r) => r.id === params.requestId);
+    if (!target) return;
+
+    const now = new Date().toISOString();
+
+    setWasteReturnRequests((prev) =>
+      prev.map((r) => {
+        if (r.id !== params.requestId) return r;
+        return {
+          ...r,
+          status: 'disposed_credited',
+          compensationType: params.compensationType,
+          creditAmount: params.creditAmount || (params.compensationType === 'credit_note' ? target.quantity * 85 : 0),
+          manufacturerNotes: params.notes || `Approved with policy: ${params.compensationType.replace(/_/g, ' ')}.`,
+          resolvedAt: now,
+        };
+      })
+    );
+
+    // Ledger entry
+    const ledgerEntry: ComplianceLedgerEntry = {
+      id: `CMP-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+      timestamp: now,
+      tenantId: activeTenantId,
+      actorId: 'usr-acme-admin-01',
+      actorName: `${currentTenant.shortName} Admin`,
+      actorRole: 'manufacturer_admin',
+      actionType: 'distributor_waste_credited',
+      batchId: target.batchId,
+      batchNumber: target.batchNumber,
+      medicineName: target.medicineName,
+      quantity: target.quantity,
+      notes: `Approved distributor waste return ${target.id} from ${target.distributorName}. Compensation: ${params.compensationType}.`,
+      ipAddress: '192.168.1.104',
+      hashSignature: `sha256:${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`,
+    };
+
+    setComplianceLedger((prev) => [ledgerEntry, ...prev]);
+    addToast('success', 'Waste Return Approved', `Request ${target.id} approved (${params.compensationType.replace(/_/g, ' ')}).`);
+  };
+
+  const rejectDistributorWasteReturn = (requestId: string, reason: string) => {
+    const now = new Date().toISOString();
+    setWasteReturnRequests((prev) =>
+      prev.map((r) => {
+        if (r.id !== requestId) return r;
+        return {
+          ...r,
+          status: 'rejected',
+          rejectionReason: reason,
+          resolvedAt: now,
+        };
+      })
+    );
+    addToast('warning', 'Waste Request Rejected', `Request ${requestId} rejected: ${reason}`);
+  };
+
+  const updateWasteConfig = (tenantId: string, config: Partial<ManufacturerWasteConfig>) => {
+    setWasteConfigs((prev) => {
+      const existing = prev[tenantId] || {
+        nearExpiryThresholdDays: 60,
+        defaultWastePartnerId: '',
+        defaultCompensationPolicy: 'credit_note',
+        requirePhotoEvidence: true,
+      };
+      return {
+        ...prev,
+        [tenantId]: { ...existing, ...config },
+      };
+    });
+    addToast('success', 'Policy Settings Saved', 'Waste governance policies updated.');
+  };
+
+  const createDistributorWasteRequest = (params: {
+    tenantId: string;
+    medicineId: string;
+    batchId: string;
+    batchNumber: string;
+    quantity: number;
+    packagingUnit: string;
+    reason: 'expired' | 'damaged_transit' | 'near_expiry_return' | 'recall';
+    photoEvidenceUrl?: string;
+    distributorNotes?: string;
+  }) => {
+    const med = medicines.find((m) => m.id === params.medicineId);
+    const requestId = `WRR-2026-${Math.floor(100 + Math.random() * 900)}`;
+    const now = new Date().toISOString();
+
+    const newReq: WasteReturnRequest = {
+      id: requestId,
+      tenantId: params.tenantId,
+      distributorId: activeDistributorId,
+      distributorName: currentDistributor.name,
+      medicineId: params.medicineId,
+      medicineName: med?.name || 'Pharmaceutical Item',
+      batchId: params.batchId,
+      batchNumber: params.batchNumber,
+      quantity: params.quantity,
+      packagingUnit: params.packagingUnit,
+      reason: params.reason,
+      photoEvidenceUrl: params.photoEvidenceUrl || 'evidence-photo.jpg',
+      status: 'requested',
+      distributorNotes: params.distributorNotes,
+      createdAt: now,
+    };
+
+    setWasteReturnRequests((prev) => [newReq, ...prev]);
+
+    // Add entry to compliance ledger
+    const ledgerEntry: ComplianceLedgerEntry = {
+      id: `CMP-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+      timestamp: now,
+      tenantId: params.tenantId,
+      actorId: activeDistributorId,
+      actorName: currentDistributor.name,
+      actorRole: 'distributor',
+      actionType: 'distributor_waste_reported',
+      batchId: params.batchId,
+      batchNumber: params.batchNumber,
+      medicineName: med?.name || 'Pharmaceutical Item',
+      quantity: params.quantity,
+      notes: `Distributor reported ${params.quantity} units for ${params.reason.replace(/_/g, ' ')}. Evidence photo attached.`,
+      ipAddress: '192.168.1.104',
+      hashSignature: `sha256:${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`,
+    };
+
+    setComplianceLedger((prev) => [ledgerEntry, ...prev]);
+    addToast('success', 'Return Request Filed', `Waste Return Request ${requestId} submitted to manufacturer.`);
+  };
+
   // --- DISTRIBUTOR ACTIONS ---
   const requestAccessToTenant = (tenantId: string, form20B: string, form21B: string) => {
     setDistributors((prev) =>
@@ -893,6 +1421,11 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setOrders(SEED_ORDERS);
     setReturnRequests(SEED_RETURN_REQUESTS);
     setLogisticsPartners(SEED_LOGISTICS_PARTNERS);
+    setWastePartners(SEED_WASTE_PARTNERS);
+    setWasteDisposalRequests(SEED_WASTE_DISPOSAL_REQUESTS);
+    setWasteReturnRequests(SEED_WASTE_RETURN_REQUESTS);
+    setComplianceLedger(SEED_COMPLIANCE_LEDGER);
+    setWasteConfigs(SEED_WASTE_CONFIGS);
     setCart([]);
     setActiveTenantId('mfg-acme');
     setActiveDistributorId('dist-medplus');
@@ -920,6 +1453,11 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         orders,
         returnRequests,
         logisticsPartners,
+        wastePartners,
+        wasteDisposalRequests,
+        wasteReturnRequests,
+        complianceLedger,
+        wasteConfigs,
         cart,
         toasts,
         tenantMedicines,
@@ -927,10 +1465,16 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         tenantDistributors,
         tenantReturnRequests,
         tenantLogisticsPartners,
+        tenantWastePartners,
+        tenantWasteDisposalRequests,
+        tenantWasteReturnRequests,
+        tenantComplianceLedger,
+        currentTenantWasteConfig,
         distributorAuthorizedTenants,
         distributorMedicines,
         distributorOrders,
         distributorReturnRequests,
+        distributorWasteRequests,
         addToast,
         removeToast,
         createMedicine,
@@ -946,6 +1490,14 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         approveReturnRequest,
         rejectReturnRequest,
         addLogisticsPartner,
+        raiseDisposalRequest,
+        scheduleDisposalPickup,
+        completeDisposalWithCertificate,
+        triggerBatchRecall,
+        approveDistributorWasteReturn,
+        rejectDistributorWasteReturn,
+        updateWasteConfig,
+        createDistributorWasteRequest,
         requestAccessToTenant,
         addToCart,
         updateCartQuantity,

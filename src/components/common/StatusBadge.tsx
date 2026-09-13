@@ -1,20 +1,54 @@
 import React from 'react';
-import { OrderStatus, DistributorApprovalStatus } from '../../types';
+import { OrderStatus, DistributorApprovalStatus, BatchLifecycleStatus, DisposalRequestStatus, WasteReturnStatus } from '../../types';
+import { AlertTriangle, Flame, ShieldAlert, CheckCircle2 } from 'lucide-react';
 
 interface StatusBadgeProps {
-  status: OrderStatus | DistributorApprovalStatus | 'draft' | 'published' | 'unregistered';
+  status:
+    | OrderStatus
+    | DistributorApprovalStatus
+    | BatchLifecycleStatus
+    | DisposalRequestStatus
+    | WasteReturnStatus
+    | 'draft'
+    | 'published'
+    | 'unregistered';
   size?: 'sm' | 'md' | 'lg';
+  showHazardIcon?: boolean;
 }
 
-export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'md' }) => {
+export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'md', showHazardIcon = true }) => {
   const sizeClasses = {
-    sm: 'text-xs px-2 py-0.5',
+    sm: 'text-[10px] px-2 py-0.5',
     md: 'text-xs px-2.5 py-1',
     lg: 'text-sm px-3 py-1.5',
   };
 
   const getStyle = () => {
     switch (status) {
+      // Waste & Expiry Hazard Accents (amber/rose hazard tone)
+      case 'near_expiry':
+        return 'bg-amber-50 text-amber-800 border-amber-300 font-semibold';
+      case 'expired_damaged':
+        return 'bg-rose-50 text-rose-800 border-rose-300 font-bold';
+      case 'flagged_for_disposal':
+        return 'bg-orange-50 text-orange-900 border-orange-400 font-semibold';
+      case 'collected_for_disposal':
+      case 'pickup_scheduled':
+        return 'bg-amber-100 text-amber-900 border-amber-300';
+      case 'disposed':
+      case 'destroyed':
+      case 'disposed_credited':
+        return 'bg-teal-50 text-teal-800 border-teal-300 font-semibold';
+      case 'recalled':
+        return 'bg-red-100 text-red-900 border-red-400 font-extrabold animate-pulse';
+
+      // Waste Return statuses
+      case 'requested':
+      case 'manufacturer_review':
+        return 'bg-yellow-50 text-yellow-800 border-yellow-300';
+      case 'collection_scheduled':
+        return 'bg-amber-50 text-amber-800 border-amber-300';
+
       // Order Statuses
       case 'new':
         return 'bg-blue-50 text-blue-700 border-blue-200';
@@ -54,16 +88,23 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'md' })
     }
   };
 
+  const isHazard = ['near_expiry', 'expired_damaged', 'flagged_for_disposal', 'recalled'].includes(status);
+
   const formatLabel = () => {
     return status.replace(/_/g, ' ').toUpperCase();
   };
 
+
   return (
     <span
-      className={`inline-flex items-center font-medium rounded-full border ${sizeClasses[size]} ${getStyle()}`}
+      className={`inline-flex items-center gap-1 font-medium rounded-full border ${sizeClasses[size]} ${getStyle()}`}
     >
-      <span className="w-1.5 h-1.5 rounded-full mr-1.5 bg-current opacity-75"></span>
-      {formatLabel()}
+      {isHazard && showHazardIcon ? (
+        <AlertTriangle className="w-3 h-3 shrink-0 text-amber-700 animate-pulse" />
+      ) : (
+        <span className="w-1.5 h-1.5 rounded-full mr-1 bg-current opacity-75"></span>
+      )}
+      <span>{formatLabel()}</span>
     </span>
   );
 };

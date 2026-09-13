@@ -4,7 +4,7 @@ import { Medicine } from '../../../types';
 import { formatCurrency } from '../../../utils/formatters';
 import { computeEffectivePrice } from '../../../engine/pricingEngine';
 import { MedicineDetailModal } from './MedicineDetailModal';
-import { Search, Pill, CheckCircle2, ShieldAlert } from 'lucide-react';
+import { Search, Pill, CheckCircle2, ShieldAlert, AlertTriangle, Clock } from 'lucide-react';
 
 export const BrowseMedicinesScreen: React.FC = () => {
   const {
@@ -238,6 +238,21 @@ export const BrowseMedicinesScreen: React.FC = () => {
                       Max: {med.rules.maxOrderQty}
                     </span>
                   </div>
+
+                  {/* Recalled or Near-Expiry Notice */}
+                  {med.batches.some((b) => b.lifecycleStatus === 'recalled') && (
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-[10px] font-bold animate-pulse">
+                      <AlertTriangle className="w-3 h-3 text-rose-600 shrink-0" />
+                      <span>Batch Recall in Progress</span>
+                    </div>
+                  )}
+                  {!med.batches.some((b) => b.lifecycleStatus === 'recalled') &&
+                    med.batches.some((b) => b.lifecycleStatus === 'near_expiry') && (
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-[10px] font-semibold">
+                        <Clock className="w-3 h-3 text-amber-600 shrink-0" />
+                        <span>Near-Expiry Lots Available</span>
+                      </div>
+                    )}
                 </div>
 
                 {/* Pricing & Stock Footer */}

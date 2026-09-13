@@ -7,6 +7,7 @@ import { RulesScreen } from './screens/RulesScreen';
 import { DistributorManagementScreen } from './screens/DistributorManagementScreen';
 import { OrderManagementScreen } from './screens/OrderManagementScreen';
 import { LogisticsScreen } from './screens/LogisticsScreen';
+import { WasteManagementScreen } from './screens/WasteManagementScreen';
 import {
   LayoutDashboard,
   Pill,
@@ -15,6 +16,7 @@ import {
   Users,
   PackageCheck,
   Truck,
+  AlertTriangle,
 } from 'lucide-react';
 
 interface ManufacturerPortalProps {
@@ -26,10 +28,11 @@ export const ManufacturerPortal: React.FC<ManufacturerPortalProps> = ({
   mobileMenuOpen,
   setMobileMenuOpen,
 }) => {
-  const { currentTenant, tenantReturnRequests, tenantOrders } = useStore();
+  const { currentTenant, tenantReturnRequests, tenantOrders, tenantWasteReturnRequests } = useStore();
   const [activeTab, setActiveTab] = useState<string>('dashboard');
 
   const pendingReturnsCount = tenantReturnRequests.filter((r) => r.status === 'pending').length;
+  const pendingWasteReturnsCount = tenantWasteReturnRequests.filter((r) => r.status === 'requested' || r.status === 'manufacturer_review').length;
   const pendingOrdersCount = tenantOrders.filter((o) =>
     ['new', 'confirmed', 'processing', 'ready_for_dispatch'].includes(o.status)
   ).length;
@@ -46,6 +49,13 @@ export const ManufacturerPortal: React.FC<ManufacturerPortalProps> = ({
       icon: PackageCheck,
       badge: pendingOrdersCount > 0 ? pendingOrdersCount : undefined,
       alertBadge: pendingReturnsCount > 0 ? `${pendingReturnsCount} Return` : undefined,
+    },
+    {
+      id: 'waste',
+      label: 'Waste & Expiry Management',
+      icon: AlertTriangle,
+      isHazard: true,
+      alertBadge: pendingWasteReturnsCount > 0 ? `${pendingWasteReturnsCount} Claim` : undefined,
     },
     { id: 'logistics', label: 'Logistics Partners', icon: Truck },
   ];
@@ -90,14 +100,24 @@ export const ManufacturerPortal: React.FC<ManufacturerPortalProps> = ({
                     onClick={() => handleNavClick(item.id)}
                     className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
                       isActive
-                        ? 'bg-sky-50 text-sky-700 border border-sky-200 shadow-xs font-bold'
+                        ? item.isHazard
+                          ? 'bg-amber-50 text-amber-900 border border-amber-300 shadow-xs font-bold'
+                          : 'bg-sky-50 text-sky-700 border border-sky-200 shadow-xs font-bold'
+                        : item.isHazard
+                        ? 'text-amber-800/80 hover:text-amber-950 hover:bg-amber-50/50'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
                       <Icon
                         className={`w-4 h-4 ${
-                          isActive ? 'text-sky-600' : 'text-slate-400 group-hover:text-slate-600'
+                          isActive
+                            ? item.isHazard
+                              ? 'text-amber-600'
+                              : 'text-sky-600'
+                            : item.isHazard
+                            ? 'text-amber-500'
+                            : 'text-slate-400 group-hover:text-slate-600'
                         }`}
                       />
                       <span>{item.label}</span>
@@ -105,7 +125,9 @@ export const ManufacturerPortal: React.FC<ManufacturerPortalProps> = ({
 
                     <div className="flex items-center gap-1">
                       {item.alertBadge && (
-                        <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-amber-100 text-amber-900">
+                        <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-bold ${
+                          item.isHazard ? 'bg-amber-200 text-amber-900' : 'bg-amber-100 text-amber-900'
+                        }`}>
                           {item.alertBadge}
                         </span>
                       )}
@@ -136,6 +158,7 @@ export const ManufacturerPortal: React.FC<ManufacturerPortalProps> = ({
           {activeTab === 'rules' && <RulesScreen />}
           {activeTab === 'distributors' && <DistributorManagementScreen />}
           {activeTab === 'orders' && <OrderManagementScreen />}
+          {activeTab === 'waste' && <WasteManagementScreen />}
           {activeTab === 'logistics' && <LogisticsScreen />}
         </main>
       </div>

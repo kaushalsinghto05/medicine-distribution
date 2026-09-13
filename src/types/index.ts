@@ -86,6 +86,22 @@ export interface RegulatoryCompliance {
   standardPackagingUnit: string; // strip, box, vial, ampoule, bottle
 }
 
+export type BatchLifecycleStatus = 
+  | 'active'
+  | 'near_expiry'
+  | 'expired'
+  | 'expired_damaged'
+  | 'flagged_for_disposal'
+  | 'collected_for_disposal'
+  | 'disposed'
+  | 'recalled';
+
+export type BatchLocation = 
+  | 'manufacturer_warehouse'
+  | 'with_distributor'
+  | 'in_transit_disposal'
+  | 'facility_destroyed';
+
 export interface Batch {
   id: string;
   medicineId: string;
@@ -98,7 +114,14 @@ export interface Batch {
   packagingUnit: string;
   mrp: number; // Maximum Retail Price in ₹
   costPrice: number; // ₹
+  status?: BatchLifecycleStatus;
+  lifecycleStatus?: BatchLifecycleStatus;
+  location?: BatchLocation;
+  recalled?: boolean;
+  recallReason?: string;
+  flaggedQuantity?: number;
 }
+
 
 export interface SlabPrice {
   minQty: number;
@@ -304,3 +327,144 @@ export interface RuleValidationResult {
   isEligible: boolean;
   eligibilityIssues: string[];
 }
+
+// ----------------------------------------------------
+// Waste & Expired Medicine Management Models
+// ----------------------------------------------------
+
+export type WastePartnerType = 'standard_logistics' | 'certified_waste_disposal';
+
+export interface WasteDisposalPartner extends LogisticsPartner {
+  type: WastePartnerType;
+  cpcbLicenseNumber?: string; // Central Pollution Control Board Hazardous Waste License
+  destructionMethods?: string[]; // e.g., 'High-temp Incineration', 'Autoclaving & Shredding', 'Chemical Inactivation'
+}
+
+export type DisposalRequestStatus = 
+  | 'pending'
+  | 'pickup_scheduled'
+  | 'collected'
+  | 'destroyed';
+
+export interface WasteDisposalRequest {
+  id: string; // e.g. 'WDR-2026-001'
+  tenantId: string;
+  batchId: string;
+  medicineId: string;
+  medicineName: string;
+  batchNumber: string;
+  quantity: number;
+  packagingUnit: string;
+  estimatedLossAmount: number;
+  partnerId?: string;
+  partnerName?: string;
+  pickupScheduledDate?: string;
+  status: DisposalRequestStatus;
+  notes?: string;
+  certificateNumber?: string;
+  certificateUrl?: string; // Mock file upload
+  certificateUploadedAt?: string;
+  createdAt: string;
+  completedAt?: string;
+  disposalMethod?: string;
+}
+
+export type WasteReturnReason = 
+  | 'expired'
+  | 'damaged_transit'
+  | 'near_expiry_return'
+  | 'recall';
+
+export type WasteReturnStatus = 
+  | 'requested'
+  | 'manufacturer_review'
+  | 'approved'
+  | 'rejected'
+  | 'collection_scheduled'
+  | 'disposed_credited';
+
+export type WasteCompensationPolicy = 'replace_stock' | 'credit_note' | 'none_recall';
+
+export interface WasteReturnRequest {
+  id: string; // e.g. 'WRR-2026-001'
+  tenantId: string;
+  distributorId: string;
+  distributorName: string;
+  medicineId: string;
+  medicineName: string;
+  batchId: string;
+  batchNumber: string;
+  quantity: number;
+  packagingUnit: string;
+  reason: WasteReturnReason;
+  photoEvidenceUrl?: string;
+  status: WasteReturnStatus;
+  compensationType?: WasteCompensationPolicy;
+  creditAmount?: number;
+  rejectionReason?: string;
+  distributorNotes?: string;
+  manufacturerNotes?: string;
+  pickupScheduledDate?: string;
+  createdAt: string;
+  resolvedAt?: string;
+}
+
+export type ComplianceActionType = 
+  | 'flagged_disposal'
+  | 'disposal_partner_assigned'
+  | 'collected'
+  | 'certificate_issued'
+  | 'batch_recalled'
+  | 'distributor_waste_credited'
+  | 'distributor_waste_reported';
+
+export interface ComplianceLedgerEntry {
+  id: string; // e.g. 'CMP-2026-0081'
+  timestamp: string;
+  tenantId: string;
+  actorId: string;
+  actorName: string;
+  actorRole: string;
+  actionType: ComplianceActionType;
+  batchId: string;
+  batchNumber: string;
+  medicineName: string;
+  quantity: number;
+  certificateRef?: string;
+  notes: string;
+  ipAddress?: string;
+  hashSignature?: string; // Mock SHA-256 for immutability verification
+}
+
+export interface ManufacturerWasteConfig {
+  nearExpiryThresholdDays: number; // e.g. 90, 60, 30
+  defaultWastePartnerId: string;
+  defaultCompensationPolicy: WasteCompensationPolicy;
+  requirePhotoEvidence: boolean;
+}
+
+// ----------------------------------------------------
+// JWT Authentication Models
+// ----------------------------------------------------
+
+export type JWTRole = 'manufacturer_admin' | 'manufacturer_staff' | 'distributor';
+
+export interface JWTPayload {
+  sub: string; // User ID e.g. 'usr-acme-admin-01'
+  email: string;
+  name: string;
+  role: JWTRole;
+  tenantId?: string; // If manufacturer_admin or manufacturer_staff
+  distributorId?: string; // If distributor
+  authorizedManufacturerIds: string[]; // List of tenantIds permitted to access
+  iat: number; // Issued at (Unix timestamp sec)
+  exp: number; // Expires at (Unix timestamp sec)
+}
+
+export interface AuthSession {
+  accessToken: string;
+  refreshToken: string;
+  user: JWTPayload;
+  isExpired: boolean;
+}
+

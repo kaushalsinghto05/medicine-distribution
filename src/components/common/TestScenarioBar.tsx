@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useStore } from '../../context/StoreContext';
+import { useAuth } from '../../context/AuthContext';
 import { PlayCircle, ShieldCheck, RefreshCw, ChevronDown, ChevronUp, Sparkles, CheckCircle2 } from 'lucide-react';
 
 export const TestScenarioBar: React.FC = () => {
@@ -12,6 +13,7 @@ export const TestScenarioBar: React.FC = () => {
     resetToSeedData,
     addToast,
   } = useStore();
+  const { switchPredefinedUser } = useAuth();
 
   const runTestCase = (testId: 1 | 2 | 3 | 4 | 'isolation' | 'return') => {
     switch (testId) {
@@ -19,6 +21,7 @@ export const TestScenarioBar: React.FC = () => {
         // Test Case 1: Order 550 strips (Exceeds max 500)
         setPortalMode('distributor');
         setActiveDistributorId('dist-medplus');
+        switchPredefinedUser('usr-dist-medplus-01');
         setPresetDemoTarget({
           medicineId: 'med-pcm-500',
           targetQty: 550,
@@ -31,6 +34,7 @@ export const TestScenarioBar: React.FC = () => {
         // Test Case 2: Order 500 strips (Success: 10,000 -> 9,500; Quota: 2,000 -> 1,500)
         setPortalMode('distributor');
         setActiveDistributorId('dist-medplus');
+        switchPredefinedUser('usr-dist-medplus-01');
         setPresetDemoTarget({
           medicineId: 'med-pcm-500',
           targetQty: 500,
@@ -43,6 +47,7 @@ export const TestScenarioBar: React.FC = () => {
         // Test Case 3: Order 15 strips (Not a multiple of 10)
         setPortalMode('distributor');
         setActiveDistributorId('dist-medplus');
+        switchPredefinedUser('usr-dist-medplus-01');
         setPresetDemoTarget({
           medicineId: 'med-pcm-500',
           targetQty: 15,
@@ -55,6 +60,7 @@ export const TestScenarioBar: React.FC = () => {
         // Test Case 4: Order 5 strips (Below minimum 10)
         setPortalMode('distributor');
         setActiveDistributorId('dist-medplus');
+        switchPredefinedUser('usr-dist-medplus-01');
         setPresetDemoTarget({
           medicineId: 'med-pcm-500',
           targetQty: 5,
@@ -67,6 +73,7 @@ export const TestScenarioBar: React.FC = () => {
         // Demonstrate Tenant Isolation
         setPortalMode('distributor');
         setActiveDistributorId('dist-apollo'); // Apollo is ONLY authorized with Vitalis Labs!
+        switchPredefinedUser('usr-dist-apollo-01');
         setPresetDemoTarget(null);
         addToast(
           'info',
@@ -79,6 +86,7 @@ export const TestScenarioBar: React.FC = () => {
         // Demonstrate Return Approval & Inventory Restock
         setPortalMode('manufacturer');
         setActiveTenantId('mfg-acme');
+        switchPredefinedUser('usr-acme-admin-01');
         setPresetDemoTarget(null);
         addToast(
           'info',

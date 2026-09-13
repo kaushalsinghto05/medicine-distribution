@@ -70,6 +70,13 @@ export const MedicineDetailModal: React.FC<MedicineDetailModalProps> = ({
 
   const handleAddToCart = () => {
     if (!validation.isValid || !selectedBatch) return;
+    if (
+      selectedBatch.lifecycleStatus === 'recalled' ||
+      selectedBatch.lifecycleStatus === 'expired' ||
+      selectedBatch.lifecycleStatus === 'expired_damaged'
+    ) {
+      return;
+    }
 
     const item: CartItem = {
       medicineId: medicine.id,
@@ -102,9 +109,14 @@ export const MedicineDetailModal: React.FC<MedicineDetailModalProps> = ({
     setQuantity(snapped);
   };
 
+  const isBatchBlocked =
+    selectedBatch?.lifecycleStatus === 'recalled' ||
+    selectedBatch?.lifecycleStatus === 'expired' ||
+    selectedBatch?.lifecycleStatus === 'expired_damaged';
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
-      <div className="bg-white rounded-3xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 my-8 space-y-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
+      <div className="bg-white rounded-2xl sm:rounded-3xl max-w-3xl w-full p-4 sm:p-8 shadow-2xl border border-slate-200 my-auto sm:my-8 space-y-5 max-h-[92vh] overflow-y-auto">
         {/* Top Header */}
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -177,6 +189,21 @@ export const MedicineDetailModal: React.FC<MedicineDetailModalProps> = ({
                           {idx === 0 && (
                             <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">
                               FEFO Best
+                            </span>
+                          )}
+                          {b.lifecycleStatus === 'recalled' && (
+                            <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-rose-100 text-rose-800 border border-rose-300">
+                              Recalled
+                            </span>
+                          )}
+                          {(b.lifecycleStatus === 'expired' || b.lifecycleStatus === 'expired_damaged') && (
+                            <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-rose-100 text-rose-800 border border-rose-300">
+                              Expired
+                            </span>
+                          )}
+                          {b.lifecycleStatus === 'near_expiry' && (
+                            <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-300">
+                              Near Expiry
                             </span>
                           )}
                         </div>
@@ -387,16 +414,20 @@ export const MedicineDetailModal: React.FC<MedicineDetailModalProps> = ({
 
             {/* ADD TO CART ACTION */}
             <button
-              disabled={!validation.isValid}
+              disabled={!validation.isValid || isBatchBlocked}
               onClick={handleAddToCart}
               className={`w-full py-3 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-sm ${
-                validation.isValid
+                validation.isValid && !isBatchBlocked
                   ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-500/20'
                   : 'bg-slate-200 text-slate-400 cursor-not-allowed'
               }`}
             >
               <ShoppingCart className="w-4 h-4" />
-              {validation.isValid
+              {isBatchBlocked
+                ? selectedBatch?.lifecycleStatus === 'recalled'
+                  ? 'Recalled Batch — Quarantine Only'
+                  : 'Expired Batch — Not for Sale'
+                : validation.isValid
                 ? `Add ${quantity} ${medicine.packagingUnit}s to Cart`
                 : validation.errors[0] || 'Invalid Quantity'}
             </button>
