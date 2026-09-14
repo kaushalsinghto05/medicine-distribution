@@ -10,6 +10,9 @@ import {
   CheckCircle2,
   AlertCircle,
   X,
+  Truck,
+  Building2,
+  Package,
 } from 'lucide-react';
 
 interface CartDrawerProps {
@@ -35,9 +38,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   } = useStore();
 
   const [tenantPaymentMethods, setTenantPaymentMethods] = useState<Record<string, 'online' | 'credit'>>({});
-  const [fulfilmentMethod] = useState<
-    'direct_shipping' | 'distributor_pickup' | 'logistics_partner'
-  >('logistics_partner');
+  const [tenantFulfilmentMethods, setTenantFulfilmentMethods] = useState<
+    Record<string, 'direct_shipping' | 'distributor_pickup' | 'logistics_partner'>
+  >({});
 
   // Completed Order State for Confirmation Screen
   const [confirmedOrder, setConfirmedOrder] = useState<Order | null>(null);
@@ -63,11 +66,19 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     const allowedTerms = tenant?.allowedPaymentTerms || ['online', 'credit'];
     const chosenPayment = tenantPaymentMethods[tenantId] || (allowedTerms.includes('credit') ? 'credit' : 'online');
 
+    const allowedFulfilment = tenant?.allowedFulfilmentMethods || [
+      'direct_shipping',
+      'distributor_pickup',
+      'logistics_partner',
+    ];
+    const chosenFulfilment =
+      tenantFulfilmentMethods[tenantId] || allowedFulfilment[0] || 'logistics_partner';
+
     const order = checkoutOrder({
       tenantId,
       items: tenantItems,
       paymentMethod: chosenPayment,
-      fulfilmentMethod,
+      fulfilmentMethod: chosenFulfilment,
     });
 
     if (order) {
@@ -206,6 +217,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
               // Check allowed payment terms for this tenant
               const allowedTerms = tenant?.allowedPaymentTerms || ['online', 'credit'];
+              const allowedFulfilment = tenant?.allowedFulfilmentMethods || [
+                'direct_shipping',
+                'distributor_pickup',
+                'logistics_partner',
+              ];
               const relation = currentDistributor.authorizedTenants[tenantId];
 
               return (
@@ -341,6 +357,96 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                             <span>Online Payment Gateway (Mock Razorpay / UPI)</span>
                             <span className="text-[10px] text-slate-500 block font-normal">
                               Instant payment confirmation upon checkout
+                            </span>
+                          </div>
+                        </label>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Fulfilment & Delivery Options Permitted by Manufacturer (Requirement 8) */}
+                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2 text-xs">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                      Manufacturer Fulfilment Method (Requirement 8)
+                    </span>
+
+                    <div className="space-y-1.5">
+                      {allowedFulfilment.includes('logistics_partner') && (
+                        <label
+                          className={`flex items-start gap-2.5 p-2 rounded-lg border cursor-pointer transition-colors ${
+                            (tenantFulfilmentMethods[tenantId] || allowedFulfilment[0] || 'logistics_partner') === 'logistics_partner'
+                              ? 'border-indigo-400 bg-white text-indigo-950 font-semibold'
+                              : 'border-slate-200 hover:bg-white text-slate-700'
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name={`fulfilment-${tenantId}`}
+                            checked={(tenantFulfilmentMethods[tenantId] || allowedFulfilment[0] || 'logistics_partner') === 'logistics_partner'}
+                            onChange={() => setTenantFulfilmentMethods((prev) => ({ ...prev, [tenantId]: 'logistics_partner' }))}
+                            className="mt-0.5 text-indigo-600"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-1.5">
+                              <Truck className="w-3.5 h-3.5 text-indigo-600" />
+                              <span>Manufacturer-Assigned Logistics Partner</span>
+                            </div>
+                            <span className="text-[10px] text-slate-500 block font-normal mt-0.5">
+                              Dispatch via certified pharma 3PL (BlueDart HealthEx / Delhivery PharmaCold)
+                            </span>
+                          </div>
+                        </label>
+                      )}
+
+                      {allowedFulfilment.includes('direct_shipping') && (
+                        <label
+                          className={`flex items-start gap-2.5 p-2 rounded-lg border cursor-pointer transition-colors ${
+                            (tenantFulfilmentMethods[tenantId] || allowedFulfilment[0] || 'logistics_partner') === 'direct_shipping'
+                              ? 'border-indigo-400 bg-white text-indigo-950 font-semibold'
+                              : 'border-slate-200 hover:bg-white text-slate-700'
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name={`fulfilment-${tenantId}`}
+                            checked={(tenantFulfilmentMethods[tenantId] || allowedFulfilment[0] || 'logistics_partner') === 'direct_shipping'}
+                            onChange={() => setTenantFulfilmentMethods((prev) => ({ ...prev, [tenantId]: 'direct_shipping' }))}
+                            className="mt-0.5 text-indigo-600"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-1.5">
+                              <Building2 className="w-3.5 h-3.5 text-sky-600" />
+                              <span>Manufacturer Direct Shipping</span>
+                            </div>
+                            <span className="text-[10px] text-slate-500 block font-normal mt-0.5">
+                              Direct transport by {tenant?.shortName} temperature-controlled fleet
+                            </span>
+                          </div>
+                        </label>
+                      )}
+
+                      {allowedFulfilment.includes('distributor_pickup') && (
+                        <label
+                          className={`flex items-start gap-2.5 p-2 rounded-lg border cursor-pointer transition-colors ${
+                            (tenantFulfilmentMethods[tenantId] || allowedFulfilment[0] || 'logistics_partner') === 'distributor_pickup'
+                              ? 'border-indigo-400 bg-white text-indigo-950 font-semibold'
+                              : 'border-slate-200 hover:bg-white text-slate-700'
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name={`fulfilment-${tenantId}`}
+                            checked={(tenantFulfilmentMethods[tenantId] || allowedFulfilment[0] || 'logistics_partner') === 'distributor_pickup'}
+                            onChange={() => setTenantFulfilmentMethods((prev) => ({ ...prev, [tenantId]: 'distributor_pickup' }))}
+                            className="mt-0.5 text-indigo-600"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-1.5">
+                              <Package className="w-3.5 h-3.5 text-amber-600" />
+                              <span>Distributor-Arranged Self Pickup</span>
+                            </div>
+                            <span className="text-[10px] text-slate-500 block font-normal mt-0.5">
+                              Self-arranged collection from central warehouse (Form 20B wholesale authorization required)
                             </span>
                           </div>
                         </label>

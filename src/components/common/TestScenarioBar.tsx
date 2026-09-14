@@ -15,7 +15,7 @@ export const TestScenarioBar: React.FC = () => {
   } = useStore();
   const { switchPredefinedUser } = useAuth();
 
-  const runTestCase = (testId: 1 | 2 | 3 | 4 | 'isolation' | 'return') => {
+  const runTestCase = (testId: 1 | 2 | 3 | 4 | 'isolation' | 'return' | 'xyz') => {
     switch (testId) {
       case 1:
         // Test Case 1: Order 550 strips (Exceeds max 500)
@@ -94,6 +94,24 @@ export const TestScenarioBar: React.FC = () => {
           'Switched to Acme Pharma Orders > Returns Queue. Review pending return RET-2026-001 and click Approve to restock batch stock!'
         );
         break;
+
+      case 'xyz':
+        // PDF Requirement 2 Example: Medicine XYZ Injection (5,000 units, max 100/order, 500/month, MOQ 10, multiple 10)
+        setPortalMode('distributor');
+        setActiveDistributorId('dist-medplus');
+        switchPredefinedUser('usr-dist-medplus-01');
+        setPresetDemoTarget({
+          medicineId: 'med-xyz-inj',
+          targetQty: 50,
+          description:
+            'PDF Requirement 2 Benchmark: Medicine XYZ Injection (5,000 units available). Max 100 units/order, 500 units/month, MOQ 10, multiples of 10.',
+        });
+        addToast(
+          'info',
+          'Loaded Medicine XYZ Injection (Req 2)',
+          '5,000 units available. Rules: Max 100/order, 500/month, MOQ 10, Step ×10. Quantity prefilled to 50.'
+        );
+        break;
     }
   };
 
@@ -145,6 +163,15 @@ export const TestScenarioBar: React.FC = () => {
           >
             <PlayCircle className="w-3.5 h-3.5 text-amber-400" />
             Test 4: 5 Strips (MOQ)
+          </button>
+
+          <button
+            onClick={() => runTestCase('xyz')}
+            className="px-2.5 py-1 rounded-lg bg-indigo-950/60 hover:bg-indigo-900/80 text-indigo-300 border border-indigo-700/60 font-medium transition-colors hover:text-white flex items-center gap-1"
+            title="PDF Requirement 2: Medicine XYZ Injection (5,000 units, max 100/order, 500/month, MOQ 10, multiple 10)"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+            XYZ Injection (Req 2)
           </button>
 
           <button

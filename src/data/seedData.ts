@@ -27,6 +27,7 @@ export const SEED_TENANTS: Tenant[] = [
     address: 'Plot 42, Andheri Pharma Zone, Andheri East',
     state: 'Maharashtra',
     allowedPaymentTerms: ['online', 'credit'],
+    allowedFulfilmentMethods: ['direct_shipping', 'distributor_pickup', 'logistics_partner'],
     defaultCreditPeriodDays: 30,
     minOrderValueDefault: 1000,
   },
@@ -44,6 +45,7 @@ export const SEED_TENANTS: Tenant[] = [
     address: 'GIDC Industrial Estate, Phase IV, Vatva',
     state: 'Gujarat',
     allowedPaymentTerms: ['online', 'credit'],
+    allowedFulfilmentMethods: ['direct_shipping', 'distributor_pickup', 'logistics_partner'],
     defaultCreditPeriodDays: 45,
     minOrderValueDefault: 1500,
   },
@@ -333,6 +335,81 @@ export const SEED_MEDICINES: Medicine[] = [
       creditTermsDays: 30,
     },
     createdAt: '2026-01-15T10:00:00Z',
+    updatedAt: '2026-02-01T14:30:00Z',
+  },
+  {
+    // PDF Specification Requirement 2 Benchmark:
+    // "Medicine XYZ Injection has 5,000 units available. Distributor A can purchase a maximum of 100 units per order, 500 units per month, with a minimum order of 10 units, and order quantities restricted to multiples of 10."
+    id: 'med-xyz-inj',
+    tenantId: 'mfg-acme',
+    name: 'Medicine XYZ Injection 1g',
+    genericName: 'Ceftriaxone Sodium for Injection IP 1g',
+    brandName: 'Acme XYZ-Ject 1g',
+    category: 'Antibiotics',
+    packagingUnit: 'vial',
+    packSize: '1 Vial + 10ml SWFI Ampoule',
+    mrp: 185,
+    description: 'PDF Requirement 2 Reference: 5,000 units available. Max 100 units/order, 500 units/month, MOQ 10 units, restricted to multiples of 10.',
+    status: 'published',
+    regulatory: {
+      scheduleClassification: 'Schedule H1',
+      rxRequired: true,
+      drugLicenseNumber: 'MFG/28/MH/2024/0049',
+      composition: 'Each sterile vial contains Ceftriaxone Sodium IP eq. to anhydrous Ceftriaxone 1000mg',
+      storageConditions: 'Store below 25°C. Protect from light.',
+      isColdChain: false,
+      isRestrictedSale: true,
+      standardPackagingUnit: 'vial',
+    },
+    batches: [
+      {
+        id: 'batch-xyz-01',
+        medicineId: 'med-xyz-inj',
+        tenantId: 'mfg-acme',
+        batchNumber: 'XYZ2026-INJ',
+        manufacturingDate: '2026-01-20',
+        expiryDate: '2028-06-30',
+        initialQuantity: 5000,
+        availableQuantity: 5000, // 5,000 units available as specified
+        packagingUnit: 'vial',
+        mrp: 185,
+        costPrice: 85,
+        status: 'active',
+        location: 'manufacturer_warehouse',
+      },
+    ],
+    pricing: {
+      medicineId: 'med-xyz-inj',
+      tenantId: 'mfg-acme',
+      standardDistributorPrice: 110,
+      distributorOverrides: {},
+      slabs: [
+        { minQty: 10, maxQty: 50, pricePerUnit: 110 },
+        { minQty: 51, maxQty: 100, pricePerUnit: 102 },
+      ],
+      discounts: [],
+    },
+    rules: {
+      medicineId: 'med-xyz-inj',
+      tenantId: 'mfg-acme',
+      minOrderQty: 10, // Minimum order of 10 units
+      orderMultiple: 10, // Order quantities restricted to multiples of 10
+      maxOrderQty: 100, // Maximum of 100 units per order
+      maxDistributorCap: 1000,
+      dailyLimit: 200,
+      weeklyLimit: 300,
+      monthlyLimit: 500, // 500 units per month
+      shortageBehavior: 'reject',
+      distributorEligibility: {
+        approvalRequired: true,
+        licenseVerifiedRequired: true,
+        activeAccountOnly: true,
+        restrictedScheduleAllowed: true,
+      },
+      applicablePaymentTerms: ['online', 'credit'],
+      creditTermsDays: 30,
+    },
+    createdAt: '2026-01-18T10:00:00Z',
     updatedAt: '2026-02-01T14:30:00Z',
   },
   {

@@ -18,6 +18,7 @@ export interface Tenant {
   address: string;
   state: string;
   allowedPaymentTerms: ('online' | 'credit')[];
+  allowedFulfilmentMethods?: ('direct_shipping' | 'distributor_pickup' | 'logistics_partner')[];
   defaultCreditPeriodDays: number;
   minOrderValueDefault: number;
 }
