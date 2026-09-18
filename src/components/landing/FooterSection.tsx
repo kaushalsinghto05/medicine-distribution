@@ -5,12 +5,10 @@ import {
   ShieldCheck, 
   Building2, 
   Store, 
-  FileCheck2, 
   RotateCcw, 
   Layers, 
-  ExternalLink,
   Lock,
-  HeartHandshake
+  Sparkles
 } from 'lucide-react';
 
 interface FooterSectionProps {
@@ -21,57 +19,61 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ onOpenLogin }) => 
   const { setPortalMode, setActiveTenantId, setActiveDistributorId, tenants, distributors } = useStore();
 
   return (
-    <footer className="bg-slate-950 text-slate-400 border-t border-slate-800 text-xs selection:bg-sky-600 selection:text-white">
-      {/* Upper Footer: Pillars of Pharma Compliance Grid */}
-      <div className="border-b border-slate-800/80 bg-slate-900/40">
+    <footer className="bg-slate-950 text-slate-400 border-t border-slate-800/90 text-xs selection:bg-indigo-600 selection:text-white">
+      {/* Upper Footer: Pillars of Pharma Compliance Cards */}
+      <div className="border-b border-slate-800/60 bg-gradient-to-b from-slate-900/60 to-slate-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="flex items-start gap-3">
-              <div className="p-2.5 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400 shrink-0">
-                <ShieldCheck className="w-5 h-5" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            {/* Pillar 1 */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-sky-500/40 transition-all group">
+              <div className="flex items-center gap-3 mb-2.5">
+                <div className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center shrink-0 group-hover:bg-sky-500/20 transition-colors">
+                  <ShieldCheck className="w-5 h-5 stroke-[2.2]" />
+                </div>
+                <h4 className="text-white font-bold text-sm">CDSCO & Form 20B/21B</h4>
               </div>
-              <div>
-                <h4 className="text-white font-bold text-sm mb-1">CDSCO & Form 20B/21B</h4>
-                <p className="text-slate-400 text-[11px] leading-relaxed">
-                  Strict drug licensing verification. Unlicensed distributors cannot view wholesale rates or place scheduled orders.
-                </p>
-              </div>
+              <p className="text-slate-400 text-[11px] leading-relaxed">
+                Wholesale drug licenses strictly verified before catalogue viewing or scheduled medicine checkout.
+              </p>
             </div>
 
-            <div className="flex items-start gap-3">
-              <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shrink-0">
-                <Layers className="w-5 h-5" />
+            {/* Pillar 2 */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-emerald-500/40 transition-all group">
+              <div className="flex items-center gap-3 mb-2.5">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 group-hover:bg-emerald-500/20 transition-colors">
+                  <Layers className="w-5 h-5 stroke-[2.2]" />
+                </div>
+                <h4 className="text-white font-bold text-sm">Isolated Multi-Tenancy</h4>
               </div>
-              <div>
-                <h4 className="text-white font-bold text-sm mb-1">Isolated Multi-Tenancy</h4>
-                <p className="text-slate-400 text-[11px] leading-relaxed">
-                  Independent tenant databases, pricing schedules, distributor authorizations, and ERP stock sync per manufacturer.
-                </p>
-              </div>
+              <p className="text-slate-400 text-[11px] leading-relaxed">
+                Independent manufacturer catalogs, pricing rules, credit terms, and ERP stocks per tenant.
+              </p>
             </div>
 
-            <div className="flex items-start gap-3">
-              <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 shrink-0">
-                <RotateCcw className="w-5 h-5" />
+            {/* Pillar 3 */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-amber-500/40 transition-all group">
+              <div className="flex items-center gap-3 mb-2.5">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 group-hover:bg-amber-500/20 transition-colors">
+                  <RotateCcw className="w-5 h-5 stroke-[2.2]" />
+                </div>
+                <h4 className="text-white font-bold text-sm">CPCB Waste Logistics</h4>
               </div>
-              <div>
-                <h4 className="text-white font-bold text-sm mb-1">CPCB Hazardous Waste</h4>
-                <p className="text-slate-400 text-[11px] leading-relaxed">
-                  Reverse logistics for expired & recalled medicines with Form 6 manifest tracking and TSDF destruction certificates.
-                </p>
-              </div>
+              <p className="text-slate-400 text-[11px] leading-relaxed">
+                Form 6 hazardous waste manifests and CPCB-certified destruction tracking for expired batches.
+              </p>
             </div>
 
-            <div className="flex items-start gap-3">
-              <div className="p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 shrink-0">
-                <Lock className="w-5 h-5" />
+            {/* Pillar 4 */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-indigo-500/40 transition-all group">
+              <div className="flex items-center gap-3 mb-2.5">
+                <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0 group-hover:bg-indigo-500/20 transition-colors">
+                  <Lock className="w-5 h-5 stroke-[2.2]" />
+                </div>
+                <h4 className="text-white font-bold text-sm">Role-Based Access (JWT)</h4>
               </div>
-              <div>
-                <h4 className="text-white font-bold text-sm mb-1">JWT Role-Based Access</h4>
-                <p className="text-slate-400 text-[11px] leading-relaxed">
-                  Cryptographically verified JWT personas for manufacturer admins, sales reps, and distributor purchasing agents.
-                </p>
-              </div>
+              <p className="text-slate-400 text-[11px] leading-relaxed">
+                Cryptographically signed access tokens enforcing manufacturer-admin vs distributor buyer scopes.
+              </p>
             </div>
           </div>
         </div>
@@ -95,24 +97,24 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ onOpenLogin }) => 
             </div>
 
             <p className="text-slate-400 text-xs leading-relaxed max-w-sm">
-              Enterprise pharmaceutical marketplace engine powering manufacturer-to-distributor commerce with full regulatory compliance, FEFO batch accounting, and automated returns.
+              Enterprise B2B pharmaceutical distribution system connecting licensed drug manufacturers with authorized wholesale distributors with strict CDSCO compliance and FEFO inventory control.
             </p>
 
-            <div className="pt-2 flex flex-wrap items-center gap-2 text-[11px] text-slate-500 font-mono">
-              <span className="px-2 py-1 rounded bg-slate-900 border border-slate-800">ISO 9001:2015</span>
-              <span className="px-2 py-1 rounded bg-slate-900 border border-slate-800">WHO-GMP Compliant</span>
-              <span className="px-2 py-1 rounded bg-slate-900 border border-slate-800">21 CFR Part 11 Audit Trail</span>
+            <div className="pt-1 flex flex-wrap items-center gap-2 text-[11px] text-slate-500 font-mono">
+              <span className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-400">ISO 9001:2015</span>
+              <span className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-400">WHO-GMP</span>
+              <span className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-400">21 CFR Part 11</span>
             </div>
           </div>
 
-          {/* Quick Portal Switcher Column */}
+          {/* Quick Portals Column */}
           <div className="md:col-span-2 space-y-3">
             <h4 className="text-white font-bold text-xs uppercase tracking-wider">Portals</h4>
             <ul className="space-y-2 text-xs">
               <li>
                 <button
                   onClick={() => setPortalMode('distributor')}
-                  className="hover:text-sky-400 transition-colors flex items-center gap-1.5"
+                  className="hover:text-indigo-400 transition-colors flex items-center gap-1.5"
                 >
                   <Store className="w-3.5 h-3.5" />
                   <span>Distributor Portal</span>
@@ -131,7 +133,7 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ onOpenLogin }) => 
                 <li>
                   <button
                     onClick={onOpenLogin}
-                    className="hover:text-sky-400 transition-colors flex items-center gap-1.5"
+                    className="hover:text-amber-400 transition-colors flex items-center gap-1.5"
                   >
                     <Lock className="w-3.5 h-3.5" />
                     <span>JWT Persona Switcher</span>
@@ -141,7 +143,7 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ onOpenLogin }) => 
             </ul>
           </div>
 
-          {/* Active Manufacturers Context */}
+          {/* Active Manufacturers */}
           <div className="md:col-span-2 space-y-3">
             <h4 className="text-white font-bold text-xs uppercase tracking-wider">Manufacturers</h4>
             <ul className="space-y-2 text-xs">
@@ -162,7 +164,7 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ onOpenLogin }) => 
             </ul>
           </div>
 
-          {/* Distributors Network Context */}
+          {/* Authorized Distributors */}
           <div className="md:col-span-3 space-y-3">
             <h4 className="text-white font-bold text-xs uppercase tracking-wider">Authorized Distributors</h4>
             <ul className="space-y-2 text-xs">
@@ -177,7 +179,7 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ onOpenLogin }) => 
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
                     <span className="truncate">{d.name}</span>
-                    <span className="text-[10px] text-slate-600 font-mono">({d.city})</span>
+                    <span className="text-[10px] text-slate-500 font-mono">({d.city})</span>
                   </button>
                 </li>
               ))}
@@ -186,9 +188,9 @@ export const FooterSection: React.FC<FooterSectionProps> = ({ onOpenLogin }) => 
         </div>
 
         {/* Bottom Legal & Copyright Bar */}
-        <div className="mt-10 pt-6 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
-          <p>© 2026 PharmXpress B2B Platform • Multi-Tenant Pharmaceutical Distribution System. All rights reserved.</p>
-          <div className="flex items-center gap-4 text-slate-400 flex-wrap">
+        <div className="mt-10 pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
+          <p>© 2026 PharmXpress B2B Platform • Multi-Tenant Pharmaceutical Distribution System</p>
+          <div className="flex items-center gap-3 text-slate-400 flex-wrap">
             <span>Schedule H / H1 Regulated</span>
             <span>•</span>
             <span>Form 20B/21B Wholesale Compliance</span>

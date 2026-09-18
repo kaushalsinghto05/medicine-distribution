@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { PlayCircle, ShieldCheck, RefreshCw, ChevronDown, ChevronUp, Sparkles, CheckCircle2 } from 'lucide-react';
 
 export const TestScenarioBar: React.FC = () => {
-  const [isBarVisible, setIsBarVisible] = useState(true);
+  const [isBarVisible, setIsBarVisible] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const {
     setPortalMode,
