@@ -9,6 +9,8 @@ import { DistributorPortal } from './components/distributor/DistributorPortal';
 import { CartDrawer } from './components/distributor/screens/CartDrawer';
 import { LoginModal } from './components/auth/LoginModal';
 import { JwtDebuggerBar } from './components/auth/JwtDebuggerBar';
+import { HeroSection } from './components/landing/HeroSection';
+import { FooterSection } from './components/landing/FooterSection';
 import { ShieldAlert, ArrowRight, Building2, Store } from 'lucide-react';
 
 const AppContent: React.FC = () => {
@@ -38,8 +40,21 @@ const AppContent: React.FC = () => {
         onOpenLogin={() => setIsLoginModalOpen(true)}
       />
 
+      {/* Hero Section: Enterprise B2B Medical Distribution Overview */}
+      <HeroSection
+        onOpenLogin={() => setIsLoginModalOpen(true)}
+        onExploreCatalog={() => {
+          setPortalMode('distributor');
+          setDistributorTab('browse');
+          const element = document.getElementById('marketplace-content');
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+          }
+        }}
+      />
+
       {/* Main View Portals or RBAC Guard */}
-      <div className="flex-1">
+      <div id="marketplace-content" className="flex-1">
         {isDistributorTryingManufacturer ? (
           <div className="max-w-3xl mx-auto px-4 py-16 text-center">
             <div className="bg-white rounded-3xl p-8 sm:p-12 border border-rose-200 shadow-xl space-y-6">
@@ -122,19 +137,8 @@ const AppContent: React.FC = () => {
       {/* JWT Debugger Bar (Collapsible Bottom Inspector) */}
       <JwtDebuggerBar onOpenLogin={() => setIsLoginModalOpen(true)} />
 
-      {/* Footer */}
-      <footer className="border-t border-slate-200 bg-white py-6 text-xs text-slate-500 text-center">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p>© 2026 PharmXpress B2B Platform • Multi-Tenant Pharmaceutical Marketplace</p>
-          <div className="flex items-center gap-4 text-slate-400">
-            <span>Schedule H / H1 Regulated</span>
-            <span>•</span>
-            <span>Form 20B/21B Wholesale Compliance</span>
-            <span>•</span>
-            <span>ISO 9001:2015 & WHO-GMP Traceability</span>
-          </div>
-        </div>
-      </footer>
+      {/* Rich B2B Compliance & Multi-Tenant Footer */}
+      <FooterSection onOpenLogin={() => setIsLoginModalOpen(true)} />
     </div>
   );
 };
