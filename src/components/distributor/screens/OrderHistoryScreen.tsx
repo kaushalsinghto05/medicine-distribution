@@ -103,11 +103,13 @@ export const OrderHistoryScreen: React.FC = () => {
       {/* Orders Table */}
       <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
         {distributorOrders.length === 0 ? (
-          <div className="p-12 text-center text-slate-400 space-y-2">
-            <PackageCheck className="w-10 h-10 text-slate-300 mx-auto" />
-            <p className="text-sm font-semibold text-slate-700">No Orders Placed Yet</p>
-            <p className="text-xs text-slate-400">
-              Browse the catalog to create wholesale requisitions with your authorized manufacturers.
+          <div className="p-12 text-center space-y-3">
+            <div className="w-14 h-14 rounded-2xl bg-slate-50 text-slate-400 flex items-center justify-center mx-auto border border-slate-100">
+              <PackageCheck className="w-7 h-7 text-indigo-500" />
+            </div>
+            <h3 className="text-base font-bold text-slate-800">You're All Caught Up</h3>
+            <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
+              No active or historical purchase orders on file yet. Browse formulations in the Marketplace to create your first wholesale requisition.
             </p>
           </div>
         ) : (

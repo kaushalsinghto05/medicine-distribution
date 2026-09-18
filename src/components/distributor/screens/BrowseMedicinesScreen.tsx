@@ -1,10 +1,33 @@
 import React, { useState } from 'react';
 import { useStore } from '../../../context/StoreContext';
-import { Medicine } from '../../../types';
+import { Medicine, CartItem } from '../../../types';
 import { formatCurrency } from '../../../utils/formatters';
 import { computeEffectivePrice } from '../../../engine/pricingEngine';
+import { validateOrderQuantity } from '../../../engine/rulesEngine';
+import { sortBatchesFEFO } from '../../../engine/inventoryEngine';
 import { MedicineDetailModal } from './MedicineDetailModal';
-import { Search, Pill, CheckCircle2, ShieldAlert, AlertTriangle, Clock } from 'lucide-react';
+import { DealsBulkPricingRail } from './DealsBulkPricingRail';
+import { TrustAndCredibilityBar } from '../../common/TrustAndCredibilityBar';
+import { 
+  Search, 
+  Pill, 
+  CheckCircle2, 
+  ShieldAlert, 
+  AlertTriangle, 
+  Clock, 
+  Layers, 
+  Plus, 
+  Tag, 
+  HeartPulse, 
+  Activity, 
+  Sparkles, 
+  Droplet, 
+  Apple, 
+  ShieldCheck, 
+  Ruler, 
+  Box, 
+  Calendar 
+} from 'lucide-react';
 
 export const BrowseMedicinesScreen: React.FC = () => {
   const {
@@ -16,6 +39,8 @@ export const BrowseMedicinesScreen: React.FC = () => {
     setActiveDistributorTenantFilter,
     presetDemoTarget,
     setPresetDemoTarget,
+    addToCart,
+    addToast,
   } = useStore();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -33,16 +58,17 @@ export const BrowseMedicinesScreen: React.FC = () => {
     }
   }, [presetDemoTarget, distributorMedicines]);
 
-  const categories = [
-    'All',
-    'Antibiotics',
-    'Analgesics & Antipyretics',
-    'Cardiovascular',
-    'Gastrointestinal',
-    'Respiratory',
-    'Antidiabetic',
-    'Dermatological',
-    'Nutritional & Vitamins',
+  // Visual Category Definitions with Representative Icons (Inspired by Indian B2B Pharma platforms)
+  const categoryDefinitions = [
+    { name: 'All', icon: Sparkles },
+    { name: 'Antibiotics', icon: Pill },
+    { name: 'Analgesics & Antipyretics', icon: Activity },
+    { name: 'Cardiovascular', icon: HeartPulse },
+    { name: 'Gastrointestinal', icon: Droplet },
+    { name: 'Respiratory', icon: ShieldCheck },
+    { name: 'Antidiabetic', icon: Layers },
+    { name: 'Dermatological', icon: Tag },
+    { name: 'Nutritional & Vitamins', icon: Apple },
   ];
 
   const filteredMedicines = distributorMedicines.filter((med) => {
@@ -62,20 +88,73 @@ export const BrowseMedicinesScreen: React.FC = () => {
     (t) => currentDistributor.authorizedTenants[t.id]?.status !== 'approved'
   );
 
+  // Direct "Add" Quick Action with full rule validation
+  const handleQuickAdd = (e: React.MouseEvent, med: Medicine) => {
+    e.stopPropagation(); // Prevent modal opening
+
+    // Determine initial valid quantity (MOQ)
+    const qty = med.rules.minOrderQty || 10;
+    const validation = validateOrderQuantity(currentDistributor, med, qty);
+
+    if (!validation.isValid) {
+      // If MOQ fails or special condition, open detail modal so user can configure
+      addToast('info', 'Configuration Required', validation.errors[0] || 'Please specify valid batch or quantity.');
+      setDetailModalMedicine(med);
+      return;
+    }
+
+    // Select valid FEFO batch
+    const fefoBatches = sortBatchesFEFO(med.batches);
+    const validBatch = fefoBatches.find(
+      (b) => b.availableQuantity >= qty &&
+      b.lifecycleStatus !== 'recalled' &&
+      b.lifecycleStatus !== 'expired' &&
+      b.lifecycleStatus !== 'expired_damaged'
+    );
+
+    if (!validBatch) {
+      addToast('error', 'Batch Unavailable', 'No eligible active batch found with sufficient quantity.');
+      setDetailModalMedicine(med);
+      return;
+    }
+
+    const item: CartItem = {
+      medicineId: med.id,
+      tenantId: med.tenantId,
+      batchId: validBatch.id,
+      quantity: qty,
+      unitPrice: validation.effectivePrice,
+      mrp: med.mrp,
+      packagingUnit: med.packagingUnit,
+      medicineName: med.name,
+      genericName: med.genericName,
+      batchNumber: validBatch.batchNumber,
+      expiryDate: validBatch.expiryDate,
+    };
+
+    addToCart(item);
+    addToast('success', 'Added to Cart', `Added ${qty} ${med.packagingUnit}s of ${med.name} at ${formatCurrency(validation.effectivePrice)}/unit.`);
+  };
+
   return (
     <div className="space-y-6">
+      {/* 1. Trust & Credibility Stats Strip */}
+      <TrustAndCredibilityBar variant="distributor" />
+
       {/* Buyer Header & Authorization Scope */}
-      <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-800 border border-indigo-200">
+            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
               Distributor Marketplace
             </span>
             <span className="text-xs text-slate-500">
               Authorized with {distributorAuthorizedTenants.length} Manufacturer(s)
             </span>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 mt-1">{currentDistributor.name}</h1>
+          <h1 className="text-2xl font-extrabold text-slate-900 mt-1 tracking-tight">
+            {currentDistributor.name}
+          </h1>
           <p className="text-xs text-slate-600 mt-0.5">
             Form 20B/21B Wholesale License Verified • Showing catalog filtered strictly to authorized manufacturing principals.
           </p>
@@ -86,9 +165,9 @@ export const BrowseMedicinesScreen: React.FC = () => {
           {distributorAuthorizedTenants.map((t) => (
             <div
               key={t.id}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs shadow-2xs"
             >
-              <div className={`w-2 h-2 rounded-full ${t.logoColor}`}></div>
+              <div className={`w-2.5 h-2.5 rounded-full ${t.logoColor}`}></div>
               <span className="font-semibold text-slate-800">{t.shortName}</span>
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
             </div>
@@ -112,8 +191,11 @@ export const BrowseMedicinesScreen: React.FC = () => {
         </div>
       )}
 
-      {/* Search & Filtering Controls */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
+      {/* 4. Deals / Best Bulk Pricing Highlights Rail */}
+      <DealsBulkPricingRail onSelectMedicine={(med) => setDetailModalMedicine(med)} />
+
+      {/* Search & Category Filter Section */}
+      <div className="bg-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs space-y-4">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
@@ -122,7 +204,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search formulations by brand name, generic molecule, indication..."
-              className="w-full text-xs pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full text-xs pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
             />
           </div>
 
@@ -130,7 +212,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
           <select
             value={activeDistributorTenantFilter}
             onChange={(e) => setActiveDistributorTenantFilter(e.target.value)}
-            className="text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none"
+            className="text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-colors"
           >
             <option value="all">All Authorized Manufacturers</option>
             {distributorAuthorizedTenants.map((t) => (
@@ -139,27 +221,8 @@ export const BrowseMedicinesScreen: React.FC = () => {
               </option>
             ))}
           </select>
-        </div>
 
-        {/* Category Filter Pills & In-Stock Toggle */}
-        <div className="flex items-center justify-between gap-2 flex-wrap pt-1">
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-xl whitespace-nowrap transition-colors ${
-                  selectedCategory === cat
-                    ? 'bg-indigo-100 text-indigo-800 border border-indigo-200'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer select-none">
+          <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer select-none sm:px-2 py-2 sm:py-0">
             <input
               type="checkbox"
               checked={inStockOnly}
@@ -169,19 +232,42 @@ export const BrowseMedicinesScreen: React.FC = () => {
             <span>In-Stock Only</span>
           </label>
         </div>
+
+        {/* 3. Category Navigation: Horizontally scrollable chip rail with representative icons */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-0.5 scrollbar-thin scrollbar-thumb-slate-200">
+          {categoryDefinitions.map((cat) => {
+            const Icon = cat.icon;
+            const isSelected = selectedCategory === cat.name;
+
+            return (
+              <button
+                key={cat.name}
+                onClick={() => setSelectedCategory(cat.name)}
+                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all shrink-0 ${
+                  isSelected
+                    ? 'bg-indigo-600 text-white shadow-xs'
+                    : 'bg-slate-100/80 text-slate-700 hover:bg-slate-200/80 hover:text-slate-900'
+                }`}
+              >
+                <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-white' : 'text-slate-500'}`} />
+                <span>{cat.name}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Medicines Product Grid (Mobile + Tablet + Desktop Responsive) */}
+      {/* 2. Redesigned Product Card Grid (Marketplace / Browse Medicines grid) */}
       {filteredMedicines.length === 0 ? (
-        <div className="p-12 text-center bg-white rounded-3xl border border-slate-200 space-y-3">
-          <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
-            <Pill className="w-6 h-6" />
+        <div className="p-12 text-center bg-white rounded-3xl border border-slate-200/80 space-y-3 shadow-xs">
+          <div className="w-14 h-14 rounded-2xl bg-slate-50 text-slate-400 flex items-center justify-center mx-auto border border-slate-100">
+            <Pill className="w-7 h-7" />
           </div>
-          <h3 className="text-base font-bold text-slate-800">No Formulations Available</h3>
+          <h3 className="text-base font-bold text-slate-800">You're All Caught Up</h3>
           <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
             {distributorAuthorizedTenants.length === 0
               ? 'Your distributor account is not authorized with any manufacturer yet. Submit access requests under Account & Licenses.'
-              : 'No matching medicines found for the selected search or manufacturer filter.'}
+              : 'No matching formulations found for your current search criteria or manufacturer filter.'}
           </p>
         </div>
       ) : (
@@ -189,6 +275,8 @@ export const BrowseMedicinesScreen: React.FC = () => {
           {filteredMedicines.map((med) => {
             const tenant = tenants.find((t) => t.id === med.tenantId);
             const totalStock = med.batches.reduce((sum, b) => sum + b.availableQuantity, 0);
+            const fefoBatches = sortBatchesFEFO(med.batches);
+            const activeBatch = fefoBatches.find((b) => b.availableQuantity > 0) || fefoBatches[0];
             const pricingResult = computeEffectivePrice(med, currentDistributor.id, med.rules.minOrderQty);
             const distributorPrice = pricingResult.effectiveUnitPrice;
             const savingsPercent = med.mrp > 0 ? Math.round(((med.mrp - distributorPrice) / med.mrp) * 100) : 0;
@@ -197,46 +285,95 @@ export const BrowseMedicinesScreen: React.FC = () => {
               <div
                 key={med.id}
                 onClick={() => setDetailModalMedicine(med)}
-                className="bg-white rounded-2xl p-5 border border-slate-200/80 hover:border-indigo-300 hover:shadow-lg transition-all cursor-pointer group flex flex-col justify-between"
+                className="bg-white rounded-2xl sm:rounded-3xl p-5 border border-slate-200/90 hover:border-indigo-400 hover:shadow-lg transition-all cursor-pointer group flex flex-col justify-between relative overflow-hidden"
               >
-                <div className="space-y-3">
+                {/* Corner Bulk Discount Ribbon */}
+                {savingsPercent > 0 && (
+                  <div className="absolute -top-1 -right-1 bg-gradient-to-r from-indigo-600 to-sky-600 text-white font-black text-[10px] px-3 py-1 rounded-bl-xl shadow-xs tracking-wider">
+                    {savingsPercent}% OFF
+                  </div>
+                )}
+
+                <div className="space-y-3.5">
                   {/* Manufacturer & Schedule Header */}
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
-                      <div className={`w-1.5 h-1.5 rounded-full ${tenant?.logoColor}`}></div>
-                      {tenant?.shortName}
+                  <div className="flex items-center justify-between gap-2 pr-14">
+                    <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
+                      <div className={`w-2 h-2 rounded-full ${tenant?.logoColor || 'bg-slate-400'}`}></div>
+                      <span className="truncate">{tenant?.shortName}</span>
                     </span>
-                    <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                    <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200 shrink-0">
                       {med.regulatory.scheduleClassification}
                     </span>
                   </div>
 
                   {/* Medicine Name & Formulation */}
                   <div>
-                    <h3 className="font-bold text-slate-900 text-base group-hover:text-indigo-600 transition-colors">
+                    <h3 className="font-extrabold text-slate-900 text-base group-hover:text-indigo-600 transition-colors leading-snug">
                       {med.name}
                     </h3>
-                    <p className="text-xs text-slate-500 font-medium mt-0.5">
+                    <p className="text-xs text-slate-500 font-medium mt-0.5 line-clamp-1">
                       {med.genericName}
                     </p>
-                    <span className="inline-block text-[11px] text-slate-400 mt-1">
-                      Pack Size: {med.packSize}
-                    </span>
                   </div>
 
-                  {/* Ordering Conditions Badge Hints (Section 3.2 requirement) */}
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-semibold">
-                      Min: {med.rules.minOrderQty} {med.packagingUnit}s
-                    </span>
-                    {med.rules.orderMultiple > 1 && (
-                      <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-semibold">
-                        Step: ×{med.rules.orderMultiple}
+                  {/* Price Block: MRP strikethrough + Prominent Distributor Rate */}
+                  <div className="bg-slate-50/80 rounded-xl p-3 border border-slate-100/90">
+                    <div className="flex items-baseline justify-between">
+                      <div>
+                        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
+                          Wholesale Price
+                        </span>
+                        <div className="flex items-baseline gap-2 mt-0.5">
+                          <span className="text-xl font-black text-slate-900 tracking-tight">
+                            {formatCurrency(distributorPrice)}
+                          </span>
+                          {med.mrp > 0 && (
+                            <span className="text-xs text-slate-400 line-through font-medium">
+                              {formatCurrency(med.mrp)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {savingsPercent > 0 && (
+                        <div className="text-right">
+                          <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                            {savingsPercent}% Margin
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Inline Meta Chips directly under Price: Batch, Pack Size, Stock */}
+                    <div className="grid grid-cols-2 sm:flex sm:items-center gap-1.5 pt-2.5 mt-2.5 border-t border-slate-200/60 text-[10px] text-slate-600 font-medium">
+                      {activeBatch && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white border border-slate-200/80 truncate">
+                          <Box className="w-3 h-3 text-slate-400 shrink-0" />
+                          <span className="truncate">Lot: <strong>{activeBatch.batchNumber}</strong></span>
+                        </span>
+                      )}
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white border border-slate-200/80">
+                        <span>PKG: <strong>{med.packSize}</strong></span>
                       </span>
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white border border-slate-200/80 col-span-2 sm:col-span-1">
+                        <span>Stock: <strong className={totalStock > 0 ? 'text-emerald-700' : 'text-rose-600'}>{totalStock.toLocaleString()}</strong></span>
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Ordering Conditions: Restyled as Single Compact Row with Ruler/Steps Icon */}
+                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-100/70 border border-slate-200/70 text-[10px] text-slate-600 font-medium">
+                    <Ruler className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                    <span className="font-semibold text-slate-700">Rules:</span>
+                    <span>Min {med.rules.minOrderQty}</span>
+                    <span>•</span>
+                    {med.rules.orderMultiple > 1 && (
+                      <>
+                        <span>Step ×{med.rules.orderMultiple}</span>
+                        <span>•</span>
+                      </>
                     )}
-                    <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-semibold">
-                      Max: {med.rules.maxOrderQty}
-                    </span>
+                    <span>Max {med.rules.maxOrderQty} {med.packagingUnit}s</span>
                   </div>
 
                   {/* Recalled or Near-Expiry Notice */}
@@ -255,32 +392,20 @@ export const BrowseMedicinesScreen: React.FC = () => {
                     )}
                 </div>
 
-                {/* Pricing & Stock Footer */}
-                <div className="pt-4 mt-4 border-t border-slate-100 flex items-end justify-between">
-                  <div>
-                    <span className="text-[10px] text-slate-400 block">Your Price vs MRP</span>
-                    <div className="flex items-baseline gap-1.5">
-                      <span className="text-lg font-extrabold text-slate-900">
-                        {formatCurrency(distributorPrice)}
-                      </span>
-                      <span className="text-xs text-slate-400 line-through">
-                        {formatCurrency(med.mrp)}
-                      </span>
-                    </div>
-                    <span className="text-[10px] font-bold text-emerald-600">
-                      {savingsPercent}% Margin
-                    </span>
-                  </div>
+                {/* Card Action Footer: Quick "Add" button + "View Details" trigger */}
+                <div className="pt-3.5 mt-3.5 border-t border-slate-100 flex items-center justify-between gap-2">
+                  <span className="text-[11px] font-semibold text-slate-500 group-hover:text-indigo-600 transition-colors">
+                    View Specifications →
+                  </span>
 
-                  <div className="text-right">
-                    <span className="text-[10px] text-slate-400 block">Available Stock</span>
-                    <span className="font-bold text-xs text-slate-900">
-                      {totalStock.toLocaleString()} {med.packagingUnit}s
-                    </span>
-                    <span className="block text-[10px] font-semibold text-indigo-600 group-hover:translate-x-0.5 transition-transform">
-                      Order Now →
-                    </span>
-                  </div>
+                  <button
+                    onClick={(e) => handleQuickAdd(e, med)}
+                    className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition-colors active:scale-95"
+                    title={`Add MOQ (${med.rules.minOrderQty} ${med.packagingUnit}s) to cart`}
+                  >
+                    <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                    <span>Add</span>
+                  </button>
                 </div>
               </div>
             );

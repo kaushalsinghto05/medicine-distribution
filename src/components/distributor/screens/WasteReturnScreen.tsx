@@ -206,8 +206,14 @@ export const WasteReturnScreen: React.FC = () => {
         </div>
 
         {distributorWasteRequests.length === 0 ? (
-          <div className="bg-white p-8 rounded-2xl border border-slate-200 text-center text-slate-400 text-xs">
-            No waste return claims filed yet. Click "Report Waste / Request Return" above to file an expired or damaged batch report.
+          <div className="bg-white p-10 rounded-2xl border border-slate-200 text-center space-y-3 shadow-xs">
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto border border-amber-100">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+            <h4 className="text-sm font-bold text-slate-800">No Pending Waste or Expiry Claims</h4>
+            <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
+              You're all caught up! When you identify damaged or expired stock from your received shipments, use "Report Waste / Request Return" above to initiate a regulatory reverse return.
+            </p>
           </div>
         ) : (
           <div className="space-y-4">
