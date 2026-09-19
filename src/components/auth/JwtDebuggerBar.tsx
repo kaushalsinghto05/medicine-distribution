@@ -60,7 +60,7 @@ export const JwtDebuggerBar: React.FC<{ onOpenLogin: () => void }> = ({ onOpenLo
   };
 
   return (
-    <div className="bg-slate-900 border-t border-slate-800 text-white text-xs font-mono select-none">
+    <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border-t border-slate-800/90 text-white text-xs font-mono select-none shadow-inner">
       {!isBarVisible ? (
         <div className="max-w-7xl mx-auto px-4 py-1 flex items-center justify-between">
           <button

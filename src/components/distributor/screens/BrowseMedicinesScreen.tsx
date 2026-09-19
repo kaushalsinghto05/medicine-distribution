@@ -78,22 +78,25 @@ export const BrowseMedicinesScreen: React.FC = () => {
     { name: 'Nutritional & Vitamins', icon: Apple },
   ];
 
+  // Curated harmonious pastel palette (Item 10)
   const getCategoryTheme = (category: string) => {
     switch (category) {
       case 'Antibiotics':
-        return { bg: 'from-teal-500/15 via-emerald-500/10 to-teal-500/5', icon: Pill, text: 'text-teal-700' };
+        return { bg: 'bg-teal-50/80 border-teal-100/70', icon: Pill, text: 'text-teal-700' };
       case 'Analgesics & Antipyretics':
-        return { bg: 'from-sky-500/15 via-blue-500/10 to-indigo-500/5', icon: Activity, text: 'text-sky-700' };
+        return { bg: 'bg-sky-50/80 border-sky-100/70', icon: Activity, text: 'text-sky-700' };
       case 'Cardiovascular':
-        return { bg: 'from-rose-500/15 via-pink-500/10 to-red-500/5', icon: HeartPulse, text: 'text-rose-700' };
+        return { bg: 'bg-rose-50/80 border-rose-100/70', icon: HeartPulse, text: 'text-rose-700' };
       case 'Gastrointestinal':
-        return { bg: 'from-cyan-500/15 via-blue-500/10 to-sky-500/5', icon: Droplet, text: 'text-cyan-700' };
+        return { bg: 'bg-cyan-50/80 border-cyan-100/70', icon: Droplet, text: 'text-cyan-700' };
       case 'Respiratory':
-        return { bg: 'from-indigo-500/15 via-purple-500/10 to-indigo-500/5', icon: ShieldCheck, text: 'text-indigo-700' };
+        return { bg: 'bg-indigo-50/80 border-indigo-100/70', icon: ShieldCheck, text: 'text-indigo-700' };
       case 'Nutritional & Vitamins':
-        return { bg: 'from-amber-500/15 via-orange-500/10 to-yellow-500/5', icon: Apple, text: 'text-amber-700' };
+        return { bg: 'bg-amber-50/80 border-amber-100/70', icon: Apple, text: 'text-amber-700' };
+      case 'Antidiabetic':
+        return { bg: 'bg-emerald-50/80 border-emerald-100/70', icon: Layers, text: 'text-emerald-700' };
       default:
-        return { bg: 'from-indigo-500/15 via-sky-500/10 to-slate-500/5', icon: Pill, text: 'text-indigo-700' };
+        return { bg: 'bg-slate-50/80 border-slate-100/70', icon: Pill, text: 'text-slate-700' };
     }
   };
 
@@ -117,7 +120,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
 
   // Direct "Add" Quick Action with full rule validation
   const handleQuickAdd = (e: React.MouseEvent, med: Medicine) => {
-    e.stopPropagation(); // Prevent modal opening
+    e.stopPropagation();
 
     const qty = med.rules.minOrderQty || 10;
     const validation = validateOrderQuantity(currentDistributor, med, qty);
@@ -165,11 +168,11 @@ export const BrowseMedicinesScreen: React.FC = () => {
       {/* 1. Trust & Credibility Stats Strip */}
       <TrustAndCredibilityBar variant="distributor" />
 
-      {/* Regional Sourcing & Express Fulfillment Banner (Retailio & Biddano Hub Pattern) */}
+      {/* Regional Sourcing & Express Fulfillment Banner */}
       <div className="bg-gradient-to-r from-teal-900 via-slate-900 to-indigo-950 text-white rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-teal-700/50 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-teal-500/20 text-teal-300 flex items-center justify-center shrink-0 border border-teal-500/30">
-            <Truck className="w-5 h-5 stroke-[2.2]" />
+            <Truck className="w-5 h-5 stroke-[1.75]" />
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -186,13 +189,14 @@ export const BrowseMedicinesScreen: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-auto text-xs font-mono text-slate-300 bg-slate-950/60 px-3 py-1.5 rounded-xl border border-slate-800">
-          <Clock className="w-3.5 h-3.5 text-amber-400" />
-          <span>Same-Day Cutoff: <strong>5:30 PM</strong></span>
+        {/* Standardized Cutoff Badge (Item 14: Identical shape & color as hero) */}
+        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-medium self-start sm:self-auto">
+          <Clock className="w-3.5 h-3.5 text-amber-400 stroke-[1.75]" />
+          <span>Same-Day Dispatch Cutoff: <strong className="font-mono text-amber-200">5:30 PM</strong></span>
         </div>
       </div>
 
-      {/* Buyer Header & Authorization Scope (IndiaMart Wholesaler Verified Profile Pattern) */}
+      {/* Buyer Header & Authorization Scope */}
       <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-subtle flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
@@ -200,7 +204,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
               Verified Wholesale Buyer
             </span>
             <span className="text-xs text-slate-500">
-              Authorized with {distributorAuthorizedTenants.length} Manufacturing Principal(s)
+              Authorized with {distributorAuthorizedTenants.length} {distributorAuthorizedTenants.length === 1 ? 'Principal' : 'Principals'}
             </span>
           </div>
           <h1 className="text-2xl font-black text-slate-900 mt-1 tracking-tight">
@@ -208,7 +212,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
           </h1>
           <div className="flex flex-wrap items-center gap-2 pt-1 text-xs text-slate-600">
             <span className="inline-flex items-center gap-1 font-semibold text-emerald-700">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <ShieldCheck className="w-4 h-4 text-emerald-600 stroke-[1.75]" />
               Form 20B/21B Wholesale License Verified
             </span>
             <span>•</span>
@@ -227,7 +231,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
             >
               <div className={`w-2.5 h-2.5 rounded-full ${t.logoColor}`}></div>
               <span className="font-bold text-slate-800">{t.shortName}</span>
-              <CheckCircle2 className="w-3.5 h-3.5 text-teal-600" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 stroke-[1.75]" />
             </div>
           ))}
         </div>
@@ -237,7 +241,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
       {unauthorizedTenants.length > 0 && (
         <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2.5">
-            <ShieldAlert className="w-5 h-5 text-slate-400 shrink-0" />
+            <ShieldAlert className="w-5 h-5 text-slate-400 shrink-0 stroke-[1.75]" />
             <span className="text-slate-600">
               <strong>Multi-Tenancy Isolation Notice:</strong> You are not currently authorized with{' '}
               <strong className="text-slate-900">
@@ -249,14 +253,14 @@ export const BrowseMedicinesScreen: React.FC = () => {
         </div>
       )}
 
-      {/* 4. Deals / Best Bulk Pricing Highlights Rail (Biddano & Medimny Deals of the Day) */}
+      {/* 4. Deals / Best Bulk Pricing Highlights Rail */}
       <DealsBulkPricingRail onSelectMedicine={(med) => setDetailModalMedicine(med)} />
 
       {/* Search & Category Filter Section */}
       <div className="bg-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-subtle space-y-4">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+            <Search className="w-4 h-4 text-slate-400 stroke-[1.75] absolute left-3.5 top-3" />
             <input
               type="text"
               value={searchQuery}
@@ -291,7 +295,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
           </label>
         </div>
 
-        {/* Category Navigation: Horizontally scrollable chip rail with edge fade gradient */}
+        {/* Category Navigation */}
         <div className="relative">
           <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-0.5 scrollbar-thin scrollbar-thumb-slate-200">
             {categoryDefinitions.map((cat) => {
@@ -308,7 +312,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
                       : 'bg-slate-100/80 text-slate-700 hover:bg-slate-200/80 hover:text-slate-900'
                   }`}
                 >
-                  <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-white' : 'text-slate-500'}`} />
+                  <Icon className={`w-3.5 h-3.5 stroke-[1.75] ${isSelected ? 'text-white' : 'text-slate-500'}`} />
                   <span>{cat.name}</span>
                 </button>
               );
@@ -318,7 +322,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
         </div>
       </div>
 
-      {/* Redesigned Product Card Grid (Retailio, Biddano & IndiaMart Pharma Profile Style) */}
+      {/* Redesigned Product Card Grid */}
       {filteredMedicines.length === 0 ? (
         <EmptyState
           icon={Pill}
@@ -352,23 +356,23 @@ export const BrowseMedicinesScreen: React.FC = () => {
               <div
                 key={med.id}
                 onClick={() => setDetailModalMedicine(med)}
-                className="bg-white rounded-2xl sm:rounded-3xl p-5 border border-slate-200/90 hover:border-teal-500 hover:shadow-card transition-all duration-200 cursor-pointer group flex flex-col justify-between relative overflow-hidden"
+                className="bg-white rounded-2xl sm:rounded-3xl p-5 border border-slate-200/90 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-150 ease-out cursor-pointer group flex flex-col justify-between relative overflow-hidden"
               >
-                {/* Corner Bulk Discount Ribbon */}
+                {/* Corner Bulk Discount Ribbon (Orange strictly for promo ribbon) */}
                 {savingsPercent > 0 && (
-                  <div className="absolute -top-1 -right-1 bg-gradient-to-r from-teal-600 to-indigo-600 text-white font-black text-[10px] px-3 py-1 rounded-bl-xl shadow-xs tracking-wider">
+                  <div className="absolute -top-1 -right-1 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-black text-[10px] px-3 py-1 rounded-bl-xl shadow-xs tracking-wider">
                     {savingsPercent}% OFF
                   </div>
                 )}
 
                 <div className="space-y-3">
-                  {/* Manufacturer & Schedule Header (IndiaMart Verified Vendor Seal) */}
+                  {/* Manufacturer & Schedule Header */}
                   <div className="flex items-center justify-between gap-2 pr-14">
                     <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
                       <div className={`w-2.5 h-2.5 rounded-full ${tenant?.logoColor || 'bg-slate-400'}`}></div>
                       <span className="truncate">{tenant?.shortName}</span>
                       <span title="Verified Direct Principal">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 shrink-0 stroke-[1.75]" />
                       </span>
                     </span>
                     <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200 shrink-0">
@@ -376,15 +380,15 @@ export const BrowseMedicinesScreen: React.FC = () => {
                     </span>
                   </div>
 
-                  {/* Visual Category Gradient Tile with Icon */}
-                  <div className={`w-full h-20 rounded-2xl bg-gradient-to-br ${theme.bg} border border-slate-100 flex items-center justify-center relative overflow-hidden group-hover:scale-[1.01] transition-transform duration-200`}>
-                    <CategoryIcon className={`w-8 h-8 ${theme.text} opacity-70 stroke-[1.5]`} />
-                    <span className="absolute bottom-2 left-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                  {/* Curated Pastel Icon Tile (Item 10) */}
+                  <div className={`w-full h-20 rounded-2xl ${theme.bg} border flex items-center justify-center relative overflow-hidden group-hover:scale-[1.01] transition-transform duration-200`}>
+                    <CategoryIcon className={`w-8 h-8 ${theme.text} stroke-[1.75]`} />
+                    <span className="absolute bottom-2 left-3 text-[10px] font-bold text-slate-600 uppercase tracking-wider">
                       {med.category}
                     </span>
                   </div>
 
-                  {/* Medicine Name & Generic Composition Line (Indian B2B pharma hallmark) */}
+                  {/* Medicine Name & Generic Composition Line */}
                   <div>
                     <h3 className="font-black text-slate-900 text-base group-hover:text-teal-700 transition-colors leading-snug">
                       {med.name}
@@ -395,63 +399,67 @@ export const BrowseMedicinesScreen: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* 4-Box Spec Grid (Biddano & Retailio pattern) */}
-                  <div className="grid grid-cols-2 gap-1.5 p-2 rounded-xl bg-slate-50/90 border border-slate-200/70 text-[10px]">
-                    <div className="flex items-center justify-between px-2 py-1 rounded bg-white border border-slate-100">
-                      <span className="text-slate-400 font-medium">MRP:</span>
-                      <span className="font-bold text-slate-700 tabular-nums">{formatCurrency(med.mrp)}</span>
+                  {/* 4-Grid Spec Block (Item 3: Soft card without individual box borders) */}
+                  <div className="rounded-xl bg-slate-50/90 border border-slate-200/60 p-2 text-[10px] divide-y divide-slate-200/50">
+                    <div className="grid grid-cols-2 pb-1.5 divide-x divide-slate-200/50">
+                      <div className="pr-2">
+                        <span className="text-[9px] font-medium text-slate-400 uppercase tracking-wider block">MRP</span>
+                        <span className="font-bold text-slate-800 tabular-nums">{formatCurrency(med.mrp)}</span>
+                      </div>
+                      <div className="pl-2">
+                        <span className="text-[9px] font-medium text-slate-400 uppercase tracking-wider block">Batch</span>
+                        <span className="font-bold text-slate-800 font-mono truncate block max-w-[70px]">
+                          {activeBatch?.batchNumber || 'N/A'}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between px-2 py-1 rounded bg-white border border-slate-100">
-                      <span className="text-slate-400 font-medium">Batch:</span>
-                      <span className="font-bold text-slate-700 font-mono truncate max-w-[65px]">
-                        {activeBatch?.batchNumber || 'N/A'}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between px-2 py-1 rounded bg-white border border-slate-100">
-                      <span className="text-slate-400 font-medium">PKG:</span>
-                      <span className="font-bold text-slate-700 truncate max-w-[65px]">{med.packSize}</span>
-                    </div>
-                    <div className="flex items-center justify-between px-2 py-1 rounded bg-white border border-slate-100">
-                      <span className="text-slate-400 font-medium">Stock:</span>
-                      <span className={`font-bold tabular-nums ${totalStock > 0 ? 'text-emerald-700' : 'text-rose-600'}`}>
-                        {totalStock} {med.packagingUnit}s
-                      </span>
+                    <div className="grid grid-cols-2 pt-1.5 divide-x divide-slate-200/50">
+                      <div className="pr-2">
+                        <span className="text-[9px] font-medium text-slate-400 uppercase tracking-wider block">Packaging</span>
+                        <span className="font-bold text-slate-800 truncate block max-w-[70px]">{med.packSize}</span>
+                      </div>
+                      <div className="pl-2">
+                        <span className="text-[9px] font-medium text-slate-400 uppercase tracking-wider block">Stock</span>
+                        <span className={`font-bold tabular-nums block ${totalStock > 0 ? 'text-emerald-700' : 'text-rose-600'}`}>
+                          {totalStock} {med.packagingUnit}s
+                        </span>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Price Block: MRP strikethrough + Prominent Distributor Rate */}
-                  <div className="bg-teal-50/50 rounded-xl p-3 border border-teal-100/80">
-                    <div className="flex items-baseline justify-between">
-                      <div>
-                        <span className="text-[10px] font-bold text-teal-800 uppercase tracking-wider block">
-                          Wholesale Net Rate
+                  {/* Price Block (Item 4: High Contrast Final Wholesale Rate & Separated GST line) */}
+                  <div className="bg-teal-50/50 rounded-xl p-3 border border-teal-100/70">
+                    <div>
+                      <span className="text-[10px] font-semibold text-teal-800 uppercase tracking-wider block">
+                        Wholesale Net Rate
+                      </span>
+                      <div className="flex items-baseline gap-2 mt-0.5">
+                        <span className="text-2xl font-black text-slate-900 tracking-tight tabular-nums">
+                          {formatCurrency(distributorPrice)}
                         </span>
-                        <div className="flex items-baseline gap-2 mt-0.5">
-                          <span className="text-xl font-black text-slate-900 tracking-tight tabular-nums">
-                            {formatCurrency(distributorPrice)}
+                        {med.mrp > 0 && (
+                          <span className="text-xs text-slate-400 line-through font-normal tabular-nums">
+                            {formatCurrency(med.mrp)}
                           </span>
-                          {med.mrp > 0 && (
-                            <span className="text-xs text-slate-400 line-through font-medium tabular-nums">
-                              {formatCurrency(med.mrp)}
-                            </span>
-                          )}
-                        </div>
+                        )}
                       </div>
+                    </div>
 
+                    <div className="pt-2 mt-2 border-t border-teal-100/60 flex items-center justify-between text-[10px]">
+                      <span className="text-slate-500 font-medium">
+                        + 12% GST Credit Eligible
+                      </span>
                       {savingsPercent > 0 && (
-                        <div className="text-right">
-                          <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200 tabular-nums">
-                            {savingsPercent}% Margin
-                          </span>
-                          <span className="text-[9px] text-slate-500 block mt-0.5">+ 12% GST</span>
-                        </div>
+                        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200/80 tabular-nums">
+                          {savingsPercent}% Margin
+                        </span>
                       )}
                     </div>
                   </div>
 
-                  {/* Ordering Conditions: Single Compact Row */}
+                  {/* Ordering Conditions */}
                   <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-100/70 border border-slate-200/70 text-[10px] text-slate-600 font-medium tabular-nums">
-                    <Ruler className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+                    <Ruler className="w-3.5 h-3.5 text-teal-600 shrink-0 stroke-[1.75]" />
                     <span className="font-semibold text-slate-700">Rules:</span>
                     <span>Min {med.rules.minOrderQty}</span>
                     <span>•</span>
@@ -467,13 +475,13 @@ export const BrowseMedicinesScreen: React.FC = () => {
                   {/* Recalled Notice */}
                   {med.batches.some((b) => b.lifecycleStatus === 'recalled') && (
                     <div className="p-2 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-[10px] font-bold flex items-center gap-1.5">
-                      <AlertTriangle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                      <AlertTriangle className="w-3.5 h-3.5 text-rose-600 shrink-0 stroke-[1.75]" />
                       <span>Batch Recall in Effect for this SKU</span>
                     </div>
                   )}
                 </div>
 
-                {/* Card Action Row: Configure Specs vs Quick Add */}
+                {/* Card Action Row: Unified Teal CTA */}
                 <div className="pt-3 mt-3 border-t border-slate-100 flex items-center gap-2">
                   <button
                     onClick={(e) => {
@@ -488,10 +496,10 @@ export const BrowseMedicinesScreen: React.FC = () => {
                   <button
                     onClick={(e) => handleQuickAdd(e, med)}
                     disabled={totalStock <= 0}
-                    className="px-3.5 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 disabled:bg-slate-200 disabled:text-slate-400 text-white font-bold text-xs shadow-2xs transition-all duration-150 flex items-center gap-1 active:scale-95 group/btn"
+                    className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 disabled:bg-slate-200 disabled:text-slate-400 text-white font-bold text-xs shadow-xs transition-all duration-150 flex items-center gap-1 active:scale-95 group/btn"
                     title={`Add MOQ (${med.rules.minOrderQty || 10} units) to Cart`}
                   >
-                    <Plus className="w-4 h-4 transition-transform group-hover/btn:rotate-90" />
+                    <Plus className="w-4 h-4 transition-transform group-hover/btn:rotate-90 stroke-[2]" />
                     <span>Add</span>
                   </button>
                 </div>

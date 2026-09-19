@@ -84,12 +84,12 @@ export const DealsBulkPricingRail: React.FC<DealsBulkPricingRailProps> = ({ onSe
   };
 
   return (
-    <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-teal-500/10 rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-amber-300/80 shadow-xs space-y-3.5">
-      {/* Rail Header (Biddano Deals of the Day style) */}
+    <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-teal-500/10 rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-amber-300/80 shadow-xs space-y-3.5 animate-fade-slide">
+      {/* Rail Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-amber-500/20">
-            <Flame className="w-5 h-5 fill-amber-100 text-white" />
+            <Flame className="w-5 h-5 text-white stroke-[1.75]" />
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -108,13 +108,13 @@ export const DealsBulkPricingRail: React.FC<DealsBulkPricingRailProps> = ({ onSe
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white border border-amber-200 text-amber-900 text-xs font-bold">
-            <Clock className="w-3.5 h-3.5 text-amber-600" />
+            <Clock className="w-3.5 h-3.5 text-amber-600 stroke-[1.75]" />
             <span>Refreshed Daily at 9:00 AM</span>
           </div>
         </div>
       </div>
 
-      {/* Horizontally Scrollable Deal Cards Track (Biddano & Medimny Card Layout) */}
+      {/* Horizontally Scrollable Deal Cards Track */}
       <div className="flex items-stretch gap-4 overflow-x-auto pb-2 pt-1 scrollbar-thin scrollbar-thumb-amber-200">
         {bulkDeals.map((med) => {
           const tenant = tenants.find((t) => t.id === med.tenantId);
@@ -134,9 +134,9 @@ export const DealsBulkPricingRail: React.FC<DealsBulkPricingRailProps> = ({ onSe
             <div
               key={`deal-${med.id}`}
               onClick={() => onSelectMedicine(med)}
-              className="w-72 sm:w-80 shrink-0 bg-white rounded-2xl sm:rounded-3xl p-4 border border-slate-200 hover:border-amber-400 hover:shadow-card transition-all cursor-pointer flex flex-col justify-between group relative overflow-hidden"
+              className="w-72 sm:w-80 shrink-0 bg-white rounded-2xl sm:rounded-3xl p-4 border border-slate-200/90 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-150 ease-out cursor-pointer flex flex-col justify-between group relative overflow-hidden"
             >
-              {/* Corner Discount Ribbon */}
+              {/* Corner Discount Ribbon (Orange strictly for deals/urgency badges) */}
               {savingsPercent > 0 && (
                 <div className="absolute -top-1 -right-1 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-black text-[10px] px-3 py-1 rounded-bl-xl shadow-xs tracking-wider">
                   {savingsPercent}% OFF
@@ -157,7 +157,7 @@ export const DealsBulkPricingRail: React.FC<DealsBulkPricingRailProps> = ({ onSe
 
                 {/* Medicine Brand & Molecule Line */}
                 <div>
-                  <h4 className="font-black text-slate-900 text-sm group-hover:text-amber-700 transition-colors line-clamp-1">
+                  <h4 className="font-black text-slate-900 text-sm group-hover:text-teal-700 transition-colors line-clamp-1">
                     {med.name}
                   </h4>
                   <p className="text-[11px] text-slate-500 truncate font-medium mt-0.5">
@@ -165,78 +165,81 @@ export const DealsBulkPricingRail: React.FC<DealsBulkPricingRailProps> = ({ onSe
                   </p>
                 </div>
 
-                {/* 4-Grid Meta Block (Biddano signature) */}
-                <div className="grid grid-cols-2 gap-1.5 p-2 rounded-xl bg-slate-50 border border-slate-200/80 text-[10px]">
-                  <div className="flex items-center justify-between px-1.5 py-1 rounded bg-white border border-slate-100">
-                    <span className="text-slate-400 font-medium">MRP:</span>
-                    <span className="font-bold text-slate-700 tabular-nums">{formatCurrency(med.mrp)}</span>
+                {/* 4-Grid Spec Block (Clean soft card with subtle internal hairlines, NO spreadsheet boxes) */}
+                <div className="rounded-xl bg-slate-50/90 border border-slate-200/60 p-2 text-[10px] divide-y divide-slate-200/50">
+                  <div className="grid grid-cols-2 pb-1.5 divide-x divide-slate-200/50">
+                    <div className="pr-2">
+                      <span className="text-[9px] font-medium text-slate-400 uppercase tracking-wider block">MRP</span>
+                      <span className="font-bold text-slate-800 tabular-nums">{formatCurrency(med.mrp)}</span>
+                    </div>
+                    <div className="pl-2">
+                      <span className="text-[9px] font-medium text-slate-400 uppercase tracking-wider block">Batch</span>
+                      <span className="font-bold text-slate-800 font-mono truncate block max-w-[70px]">
+                        {activeBatch?.batchNumber || 'LOT-NEW'}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between px-1.5 py-1 rounded bg-white border border-slate-100">
-                    <span className="text-slate-400 font-medium">Batch:</span>
-                    <span className="font-bold text-slate-700 font-mono truncate max-w-[65px]">
-                      {activeBatch?.batchNumber || 'LOT-NEW'}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between px-1.5 py-1 rounded bg-white border border-slate-100">
-                    <span className="text-slate-400 font-medium">PKG:</span>
-                    <span className="font-bold text-slate-700 truncate max-w-[65px]">{med.packSize}</span>
-                  </div>
-                  <div className="flex items-center justify-between px-1.5 py-1 rounded bg-white border border-slate-100">
-                    <span className="text-slate-400 font-medium">Stock:</span>
-                    <span className={`font-bold tabular-nums ${totalStock > 0 ? 'text-emerald-700' : 'text-rose-600'}`}>
-                      {totalStock} {med.packagingUnit}s
-                    </span>
+                  <div className="grid grid-cols-2 pt-1.5 divide-x divide-slate-200/50">
+                    <div className="pr-2">
+                      <span className="text-[9px] font-medium text-slate-400 uppercase tracking-wider block">Packaging</span>
+                      <span className="font-bold text-slate-800 truncate block max-w-[70px]">{med.packSize}</span>
+                    </div>
+                    <div className="pl-2">
+                      <span className="text-[9px] font-medium text-slate-400 uppercase tracking-wider block">Stock</span>
+                      <span className={`font-bold tabular-nums block ${totalStock > 0 ? 'text-emerald-700' : 'text-rose-600'}`}>
+                        {totalStock} {med.packagingUnit}s
+                      </span>
+                    </div>
                   </div>
                 </div>
 
                 {/* Best Slab Callout Banner */}
                 {bestSlab ? (
                   <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-900 text-[11px] font-bold border border-amber-200">
-                    <Tag className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                    <Tag className="w-3.5 h-3.5 text-amber-600 shrink-0 stroke-[1.75]" />
                     <span className="truncate">
                       Tier Rate: <strong>{formatCurrency(bestSlab.pricePerUnit)}</strong> at ≥{bestSlab.minQty} {med.packagingUnit}s
                     </span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-900 text-[11px] font-bold border border-emerald-200">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 stroke-[1.75]" />
                     <span className="truncate">Direct Wholesale Net Pricing</span>
                   </div>
                 )}
               </div>
 
-              {/* Bottom Price & Quick Add */}
-              <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-                <div>
+              {/* Bottom Price Block & Action Button (Item 2 & 4: Unified Teal Button & High-Contrast Price Hierarchy) */}
+              <div className="pt-3 mt-3 border-t border-slate-100 flex items-end justify-between gap-2">
+                <div className="min-w-0">
                   <span className="text-[10px] text-slate-400 font-semibold block uppercase tracking-wider">
                     Wholesale Net
                   </span>
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="text-base sm:text-lg font-black text-slate-900 tabular-nums">
+                  <div className="flex items-baseline gap-2 mt-0.5">
+                    <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight tabular-nums">
                       {formatCurrency(distributorPrice)}
                     </span>
                     {med.mrp > 0 && (
-                      <span className="text-xs text-slate-400 line-through font-medium tabular-nums">
+                      <span className="text-xs text-slate-400 line-through font-normal tabular-nums">
                         {formatCurrency(med.mrp)}
                       </span>
                     )}
                   </div>
-                  <span className="text-[9px] text-emerald-700 font-bold block">
+                  <span className="text-[9px] text-slate-500 font-medium block mt-1">
                     + 12% GST Credit Eligible
                   </span>
                 </div>
 
-                <div className="flex items-center gap-1.5">
-                  <button
-                    onClick={(e) => handleQuickAdd(e, med)}
-                    disabled={totalStock <= 0}
-                    className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 disabled:bg-slate-200 disabled:text-slate-400 text-white font-black text-xs shadow-sm transition-all flex items-center gap-1 active:scale-95"
-                    title={`Quick Add MOQ (${med.rules.minOrderQty} units) to Cart`}
-                  >
-                    <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-                    <span>Add</span>
-                  </button>
-                </div>
+                {/* Unified Vibrant Teal Add Button (No Orange on Clickable Buttons) */}
+                <button
+                  onClick={(e) => handleQuickAdd(e, med)}
+                  disabled={totalStock <= 0}
+                  className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 disabled:bg-slate-200 disabled:text-slate-400 text-white font-bold text-xs shadow-xs transition-all flex items-center gap-1 active:scale-95 shrink-0"
+                  title={`Quick Add MOQ (${med.rules.minOrderQty} units) to Cart`}
+                >
+                  <Plus className="w-3.5 h-3.5 stroke-[2]" />
+                  <span>Add</span>
+                </button>
               </div>
             </div>
           );
