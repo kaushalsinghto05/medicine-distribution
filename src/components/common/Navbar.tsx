@@ -16,6 +16,7 @@ import {
   KeyRound,
   Clock,
   RefreshCw,
+  Sparkles,
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -23,6 +24,7 @@ interface NavbarProps {
   mobileMenuOpen: boolean;
   setMobileMenuOpen: (open: boolean) => void;
   onOpenLogin?: () => void;
+  onOpenTestLab?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -30,6 +32,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   mobileMenuOpen,
   setMobileMenuOpen,
   onOpenLogin,
+  onOpenTestLab,
 }) => {
   const {
     portalMode,
@@ -282,6 +285,21 @@ export const Navbar: React.FC<NavbarProps> = ({
                     )}
                   </button>
                 </div>
+              )}
+
+              {/* Interactive Test & Demo Scenarios Lab Trigger */}
+              {onOpenTestLab && (
+                <button
+                  onClick={onOpenTestLab}
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-violet-200 bg-gradient-to-r from-violet-50 to-indigo-50 hover:from-violet-100 hover:to-indigo-100 text-violet-800 text-xs font-semibold shadow-xs transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  title="Open Interactive Demo Scenarios & Test Presets"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-violet-600" />
+                  <span>Demo Lab</span>
+                  <span className="bg-violet-200 text-violet-800 text-[10px] font-bold px-1.5 py-0.2 rounded-full">
+                    7
+                  </span>
+                </button>
               )}
 
               {/* JWT Active User / Login Button */}
@@ -554,6 +572,20 @@ export const Navbar: React.FC<NavbarProps> = ({
                 >
                   <ShoppingCart className="w-4 h-4" />
                   <span>Open Shopping Cart ({cartItemCount} items)</span>
+                </button>
+              )}
+
+              {/* Demo Scenarios Lab (Mobile Trigger) */}
+              {onOpenTestLab && (
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onOpenTestLab();
+                  }}
+                  className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-violet-50 to-indigo-50 border border-violet-200 text-violet-800 font-semibold text-xs flex items-center justify-center gap-2 hover:bg-violet-100 transition-colors shadow-xs"
+                >
+                  <Sparkles className="w-4 h-4 text-violet-600" />
+                  <span>Interactive Demo Lab (7 Presets)</span>
                 </button>
               )}
             </div>

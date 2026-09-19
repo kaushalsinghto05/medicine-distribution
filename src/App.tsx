@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { StoreProvider, useStore } from './context/StoreContext';
-import { TestScenarioBar } from './components/common/TestScenarioBar';
+import { TestLabModal } from './components/common/TestLabModal';
 import { Navbar } from './components/common/Navbar';
 import { ToastContainer } from './components/common/ToastContainer';
 import { ManufacturerPortal } from './components/manufacturer/ManufacturerPortal';
@@ -11,7 +11,7 @@ import { LoginModal } from './components/auth/LoginModal';
 import { JwtDebuggerBar } from './components/auth/JwtDebuggerBar';
 import { HeroSection } from './components/landing/HeroSection';
 import { FooterSection } from './components/landing/FooterSection';
-import { ShieldAlert, ArrowRight, Building2, Store } from 'lucide-react';
+import { ShieldAlert, ArrowRight, Building2, Store, Sparkles } from 'lucide-react';
 
 const AppContent: React.FC = () => {
   const { portalMode, setPortalMode, setActiveTenantId } = useStore();
@@ -21,6 +21,7 @@ const AppContent: React.FC = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [distributorTab, setDistributorTab] = useState<'browse' | 'orders' | 'account' | 'waste'>('browse');
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isTestLabOpen, setIsTestLabOpen] = useState(false);
 
   // Route & Action Guarding (RBAC Check)
   // If user has 'distributor' role but is viewing 'manufacturer' portal, render Access Guard
@@ -29,15 +30,13 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-sky-500 selection:text-white">
-      {/* Interactive Test Scenario Presets Bar */}
-      <TestScenarioBar />
-
       {/* Global Top Navbar */}
       <Navbar
         onOpenCart={() => setIsCartOpen(true)}
         mobileMenuOpen={mobileMenuOpen}
         setMobileMenuOpen={setMobileMenuOpen}
         onOpenLogin={() => setIsLoginModalOpen(true)}
+        onOpenTestLab={() => setIsTestLabOpen(true)}
       />
 
       {/* Hero Section: Enterprise B2B Medical Distribution Overview */}
@@ -130,6 +129,28 @@ const AppContent: React.FC = () => {
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
       />
+
+      {/* Specification Review & Test Lab Modal */}
+      <TestLabModal
+        isOpen={isTestLabOpen}
+        onClose={() => setIsTestLabOpen(false)}
+      />
+
+      {/* Floating Demo Scenarios Launcher Pill */}
+      <button
+        onClick={() => setIsTestLabOpen(true)}
+        className="fixed bottom-5 left-5 z-40 flex items-center gap-2 px-3.5 py-2 rounded-full bg-slate-900/90 hover:bg-slate-950 text-white shadow-xl hover:shadow-2xl border border-slate-700/60 backdrop-blur transition-all duration-200 hover:scale-105 group text-xs font-semibold"
+        title="Open Specification Demo Lab & Presets"
+      >
+        <span className="flex h-2 w-2 relative">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+        </span>
+        <span className="text-slate-200 group-hover:text-white">Demo Lab</span>
+        <span className="bg-indigo-500/20 text-indigo-300 text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-indigo-500/30">
+          7 Presets
+        </span>
+      </button>
 
       {/* Toast Notifications */}
       <ToastContainer />
