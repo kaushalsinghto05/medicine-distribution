@@ -3,6 +3,9 @@ import { useStore } from '../../../context/StoreContext';
 import { Order, OrderStatus, ReturnRequest, LogisticsPartner } from '../../../types';
 import { formatCurrency, formatDate, formatDateTime } from '../../../utils/formatters';
 import { StatusBadge } from '../../common/StatusBadge';
+import { OrderLifecycleStepper } from '../../ui/OrderLifecycleStepper';
+import { Button } from '../../ui/Button';
+import { EmptyState } from '../../ui/EmptyState';
 import { ConfirmationModal } from '../../common/ConfirmationModal';
 import {
   Truck,
@@ -266,45 +269,91 @@ export const OrderManagementScreen: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-slate-800">
-                        Distributor: {req.distributorName}
-                      </span>
-                      <span className="text-slate-500">
-                        Claimed Quantity:{' '}
-                        <strong className="text-slate-900">
-                          {req.items.reduce((s, i) => s + i.quantity, 0)} units
-                        </strong>
-                      </span>
-                    </div>
-
-                    <div>
-                      <span className="text-slate-500 font-medium">Distributor Note: </span>
-                      <span className="text-slate-800 italic">"{req.distributorNote}"</span>
-                    </div>
-
-                    <div className="pt-2 border-t border-slate-200/80">
-                      <span className="text-[11px] font-bold uppercase text-slate-500 block mb-1">
-                        Affected Batch Line Items
-                      </span>
-                      {req.items.map((it, idx) => (
-                        <div key={idx} className="flex items-center justify-between text-[11px] text-slate-700">
-                          <span>
-                            {it.medicineName} (Batch <strong>{it.batchNumber}</strong>)
-                          </span>
-                          <span className="font-semibold text-sky-700">
-                            {it.quantity} {it.packagingUnit}s
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-
-                    {req.manufacturerResponseNote && (
-                      <div className="p-2 bg-emerald-50 rounded-lg text-emerald-800 text-[11px]">
-                        <strong>Manufacturer Resolution:</strong> {req.manufacturerResponseNote}
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    {/* Left Column: Claim Details (2 Cols) */}
+                    <div className="lg:col-span-2 p-4 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-slate-900">
+                          Distributor: {req.distributorName}
+                        </span>
+                        <span className="text-slate-500 tabular-nums">
+                          Total Claimed:{' '}
+                          <strong className="text-slate-900 font-extrabold">
+                            {req.items.reduce((s, i) => s + i.quantity, 0)} units
+                          </strong>
+                        </span>
                       </div>
-                    )}
+
+                      <div className="p-2.5 rounded-xl bg-white border border-slate-200/80">
+                        <span className="text-slate-400 font-semibold block text-[10px] uppercase">Reason & Note:</span>
+                        <span className="text-slate-800 font-medium italic mt-0.5 block">"{req.distributorNote}"</span>
+                      </div>
+
+                      <div className="pt-2 border-t border-slate-200/80 space-y-1.5">
+                        <span className="text-[11px] font-bold uppercase text-slate-500 block">
+                          Affected Batch Line Items
+                        </span>
+                        {req.items.map((it, idx) => (
+                          <div key={idx} className="flex items-center justify-between text-[11px] text-slate-700 p-2 rounded-lg bg-white border border-slate-200/60 tabular-nums">
+                            <span>
+                              {it.medicineName} (Batch <strong>{it.batchNumber}</strong>)
+                            </span>
+                            <span className="font-bold text-indigo-700">
+                              {it.quantity} {it.packagingUnit}s
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+
+                      {req.manufacturerResponseNote && (
+                        <div className="p-2.5 bg-emerald-50 rounded-xl border border-emerald-200 text-emerald-900 text-[11px]">
+                          <strong>Manufacturer Resolution:</strong> {req.manufacturerResponseNote}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Right Column: QA Decision & Restock Panel */}
+                    <div className="p-4 bg-white rounded-2xl border border-slate-200 text-xs flex flex-col justify-between space-y-3">
+                      <div>
+                        <span className="font-bold text-slate-900 text-xs block">Restock Audit Preview</span>
+                        <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
+                          Approval atomically increments the manufacturer batch inventory by claimed units and writes an immutable audit ledger entry.
+                        </p>
+                      </div>
+
+                      {req.status === 'pending' ? (
+                        <div className="space-y-2 pt-2 border-t border-slate-100">
+                          <button
+                            onClick={() =>
+                              setReturnDecisionModal({
+                                isOpen: true,
+                                type: 'approve',
+                                request: req,
+                              })
+                            }
+                            className="w-full py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition-colors"
+                          >
+                            ✓ Approve & Restock Batch
+                          </button>
+                          <button
+                            onClick={() =>
+                              setReturnDecisionModal({
+                                isOpen: true,
+                                type: 'reject',
+                                request: req,
+                              })
+                            }
+                            className="w-full py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-rose-700 font-bold text-xs transition-colors"
+                          >
+                            ✕ Reject Return Claim
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-center text-slate-500 font-semibold text-[11px]">
+                          Claim evaluation complete
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   {req.status === 'pending' && (
@@ -574,6 +623,14 @@ export const OrderManagementScreen: React.FC = () => {
               >
                 ✕
               </button>
+            </div>
+
+            {/* Reusable Order Lifecycle Stepper */}
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 shadow-2xs">
+              <span className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-2">
+                Order Fulfilment Progression
+              </span>
+              <OrderLifecycleStepper currentStatus={selectedOrder.status} orderDate={selectedOrder.createdAt} />
             </div>
 
             {/* Modal Navigation Tabs */}

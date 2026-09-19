@@ -14,6 +14,8 @@ import {
   AlertCircle,
   X,
 } from 'lucide-react';
+import { BrandLogo } from '../common/BrandLogo';
+import { PharmaPattern } from '../ui/PharmaPattern';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -79,25 +81,12 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-6 animate-in fade-in zoom-in-95 duration-200">
+      <div className="relative bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-6 animate-in fade-in zoom-in-95 duration-200 overflow-hidden">
+        <PharmaPattern opacity={0.04} />
+
         {/* Header */}
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-600 to-indigo-700 text-white flex items-center justify-center shadow-lg shadow-sky-600/20">
-              <Activity className="w-7 h-7 stroke-[2.2]" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-xl font-bold text-slate-900 tracking-tight">PharmXpress Authentication</h2>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-sky-100 text-sky-800">
-                  JWT RFC 7519
-                </span>
-              </div>
-              <p className="text-xs text-slate-500">
-                Secure Token-Based Access Control & Multi-Tenant Route Guarding
-              </p>
-            </div>
-          </div>
+        <div className="relative flex items-start justify-between gap-4">
+          <BrandLogo size="md" />
 
           {!forceRequired && onClose && (
             <button

@@ -8,6 +8,8 @@ import { sortBatchesFEFO } from '../../../engine/inventoryEngine';
 import { MedicineDetailModal } from './MedicineDetailModal';
 import { DealsBulkPricingRail } from './DealsBulkPricingRail';
 import { TrustAndCredibilityBar } from '../../common/TrustAndCredibilityBar';
+import { EmptyState } from '../../ui/EmptyState';
+import { Button } from '../../ui/Button';
 import { 
   Search, 
   Pill, 
@@ -26,7 +28,8 @@ import {
   ShieldCheck, 
   Ruler, 
   Box, 
-  Calendar 
+  Calendar,
+  Syringe
 } from 'lucide-react';
 
 export const BrowseMedicinesScreen: React.FC = () => {
@@ -58,7 +61,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
     }
   }, [presetDemoTarget, distributorMedicines]);
 
-  // Visual Category Definitions with Representative Icons (Inspired by Indian B2B Pharma platforms)
+  // Visual Category Definitions with Representative Icons
   const categoryDefinitions = [
     { name: 'All', icon: Sparkles },
     { name: 'Antibiotics', icon: Pill },
@@ -70,6 +73,25 @@ export const BrowseMedicinesScreen: React.FC = () => {
     { name: 'Dermatological', icon: Tag },
     { name: 'Nutritional & Vitamins', icon: Apple },
   ];
+
+  const getCategoryTheme = (category: string) => {
+    switch (category) {
+      case 'Antibiotics':
+        return { bg: 'from-teal-500/15 via-emerald-500/10 to-teal-500/5', icon: Pill, text: 'text-teal-700' };
+      case 'Analgesics & Antipyretics':
+        return { bg: 'from-sky-500/15 via-blue-500/10 to-indigo-500/5', icon: Activity, text: 'text-sky-700' };
+      case 'Cardiovascular':
+        return { bg: 'from-rose-500/15 via-pink-500/10 to-red-500/5', icon: HeartPulse, text: 'text-rose-700' };
+      case 'Gastrointestinal':
+        return { bg: 'from-cyan-500/15 via-blue-500/10 to-sky-500/5', icon: Droplet, text: 'text-cyan-700' };
+      case 'Respiratory':
+        return { bg: 'from-indigo-500/15 via-purple-500/10 to-indigo-500/5', icon: ShieldCheck, text: 'text-indigo-700' };
+      case 'Nutritional & Vitamins':
+        return { bg: 'from-amber-500/15 via-orange-500/10 to-yellow-500/5', icon: Apple, text: 'text-amber-700' };
+      default:
+        return { bg: 'from-indigo-500/15 via-sky-500/10 to-slate-500/5', icon: Pill, text: 'text-indigo-700' };
+    }
+  };
 
   const filteredMedicines = distributorMedicines.filter((med) => {
     const matchesSearch =
@@ -92,18 +114,15 @@ export const BrowseMedicinesScreen: React.FC = () => {
   const handleQuickAdd = (e: React.MouseEvent, med: Medicine) => {
     e.stopPropagation(); // Prevent modal opening
 
-    // Determine initial valid quantity (MOQ)
     const qty = med.rules.minOrderQty || 10;
     const validation = validateOrderQuantity(currentDistributor, med, qty);
 
     if (!validation.isValid) {
-      // If MOQ fails or special condition, open detail modal so user can configure
       addToast('info', 'Configuration Required', validation.errors[0] || 'Please specify valid batch or quantity.');
       setDetailModalMedicine(med);
       return;
     }
 
-    // Select valid FEFO batch
     const fefoBatches = sortBatchesFEFO(med.batches);
     const validBatch = fefoBatches.find(
       (b) => b.availableQuantity >= qty &&
@@ -142,14 +161,14 @@ export const BrowseMedicinesScreen: React.FC = () => {
       <TrustAndCredibilityBar variant="distributor" />
 
       {/* Buyer Header & Authorization Scope */}
-      <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-subtle flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
             <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
               Distributor Marketplace
             </span>
             <span className="text-xs text-slate-500">
-              Authorized with {distributorAuthorizedTenants.length} Manufacturer(s)
+              Authorized with {distributorAuthorizedTenants.length} Principal(s)
             </span>
           </div>
           <h1 className="text-2xl font-extrabold text-slate-900 mt-1 tracking-tight">
@@ -195,7 +214,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
       <DealsBulkPricingRail onSelectMedicine={(med) => setDetailModalMedicine(med)} />
 
       {/* Search & Category Filter Section */}
-      <div className="bg-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs space-y-4">
+      <div className="bg-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-subtle space-y-4">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
@@ -204,15 +223,15 @@ export const BrowseMedicinesScreen: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search formulations by brand name, generic molecule, indication..."
-              className="w-full text-xs pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
+              className="w-full text-xs pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-indigo-500 transition-colors"
             />
           </div>
 
-          {/* Manufacturer Selector Dropdown (Distributor view) */}
+          {/* Manufacturer Selector Dropdown */}
           <select
             value={activeDistributorTenantFilter}
             onChange={(e) => setActiveDistributorTenantFilter(e.target.value)}
-            className="text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-colors"
+            className="text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-hidden transition-colors"
           >
             <option value="all">All Authorized Manufacturers</option>
             {distributorAuthorizedTenants.map((t) => (
@@ -233,43 +252,50 @@ export const BrowseMedicinesScreen: React.FC = () => {
           </label>
         </div>
 
-        {/* 3. Category Navigation: Horizontally scrollable chip rail with representative icons */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-0.5 scrollbar-thin scrollbar-thumb-slate-200">
-          {categoryDefinitions.map((cat) => {
-            const Icon = cat.icon;
-            const isSelected = selectedCategory === cat.name;
+        {/* Category Navigation: Horizontally scrollable chip rail with edge fade gradient */}
+        <div className="relative">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-0.5 scrollbar-thin scrollbar-thumb-slate-200">
+            {categoryDefinitions.map((cat) => {
+              const Icon = cat.icon;
+              const isSelected = selectedCategory === cat.name;
 
-            return (
-              <button
-                key={cat.name}
-                onClick={() => setSelectedCategory(cat.name)}
-                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all shrink-0 ${
-                  isSelected
-                    ? 'bg-indigo-600 text-white shadow-xs'
-                    : 'bg-slate-100/80 text-slate-700 hover:bg-slate-200/80 hover:text-slate-900'
-                }`}
-              >
-                <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-white' : 'text-slate-500'}`} />
-                <span>{cat.name}</span>
-              </button>
-            );
-          })}
+              return (
+                <button
+                  key={cat.name}
+                  onClick={() => setSelectedCategory(cat.name)}
+                  className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all shrink-0 ${
+                    isSelected
+                      ? 'bg-indigo-600 text-white shadow-xs'
+                      : 'bg-slate-100/80 text-slate-700 hover:bg-slate-200/80 hover:text-slate-900'
+                  }`}
+                >
+                  <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-white' : 'text-slate-500'}`} />
+                  <span>{cat.name}</span>
+                </button>
+              );
+            })}
+          </div>
+          <div className="pointer-events-none absolute right-0 top-0 bottom-1 w-8 bg-gradient-to-l from-white to-transparent" />
         </div>
       </div>
 
-      {/* 2. Redesigned Product Card Grid (Marketplace / Browse Medicines grid) */}
+      {/* Redesigned Product Card Grid */}
       {filteredMedicines.length === 0 ? (
-        <div className="p-12 text-center bg-white rounded-3xl border border-slate-200/80 space-y-3 shadow-xs">
-          <div className="w-14 h-14 rounded-2xl bg-slate-50 text-slate-400 flex items-center justify-center mx-auto border border-slate-100">
-            <Pill className="w-7 h-7" />
-          </div>
-          <h3 className="text-base font-bold text-slate-800">You're All Caught Up</h3>
-          <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
-            {distributorAuthorizedTenants.length === 0
+        <EmptyState
+          icon={Pill}
+          title="No Formulations Found"
+          description={
+            distributorAuthorizedTenants.length === 0
               ? 'Your distributor account is not authorized with any manufacturer yet. Submit access requests under Account & Licenses.'
-              : 'No matching formulations found for your current search criteria or manufacturer filter.'}
-          </p>
-        </div>
+              : 'No matching medicines found for your search criteria or manufacturer filter. Try clearing filters.'
+          }
+          actionLabel="Clear Filters"
+          onAction={() => {
+            setSearchQuery('');
+            setSelectedCategory('All');
+            setInStockOnly(false);
+          }}
+        />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {filteredMedicines.map((med) => {
@@ -280,12 +306,14 @@ export const BrowseMedicinesScreen: React.FC = () => {
             const pricingResult = computeEffectivePrice(med, currentDistributor.id, med.rules.minOrderQty);
             const distributorPrice = pricingResult.effectiveUnitPrice;
             const savingsPercent = med.mrp > 0 ? Math.round(((med.mrp - distributorPrice) / med.mrp) * 100) : 0;
+            const theme = getCategoryTheme(med.category);
+            const CategoryIcon = theme.icon;
 
             return (
               <div
                 key={med.id}
                 onClick={() => setDetailModalMedicine(med)}
-                className="bg-white rounded-2xl sm:rounded-3xl p-5 border border-slate-200/90 hover:border-indigo-400 hover:shadow-lg transition-all cursor-pointer group flex flex-col justify-between relative overflow-hidden"
+                className="bg-white rounded-2xl sm:rounded-3xl p-5 border border-slate-200/90 hover:border-indigo-400 hover:shadow-card transition-all duration-200 cursor-pointer group flex flex-col justify-between relative overflow-hidden"
               >
                 {/* Corner Bulk Discount Ribbon */}
                 {savingsPercent > 0 && (
@@ -303,6 +331,14 @@ export const BrowseMedicinesScreen: React.FC = () => {
                     </span>
                     <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200 shrink-0">
                       {med.regulatory.scheduleClassification}
+                    </span>
+                  </div>
+
+                  {/* Visual Category Gradient Tile with Icon */}
+                  <div className={`w-full h-24 rounded-2xl bg-gradient-to-br ${theme.bg} border border-slate-100 flex items-center justify-center relative overflow-hidden group-hover:scale-[1.01] transition-transform duration-200`}>
+                    <CategoryIcon className={`w-10 h-10 ${theme.text} opacity-70 stroke-[1.5]`} />
+                    <span className="absolute bottom-2 left-3 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+                      {med.category}
                     </span>
                   </div>
 
@@ -324,11 +360,11 @@ export const BrowseMedicinesScreen: React.FC = () => {
                           Wholesale Price
                         </span>
                         <div className="flex items-baseline gap-2 mt-0.5">
-                          <span className="text-xl font-black text-slate-900 tracking-tight">
+                          <span className="text-xl font-black text-slate-900 tracking-tight tabular-nums">
                             {formatCurrency(distributorPrice)}
                           </span>
                           {med.mrp > 0 && (
-                            <span className="text-xs text-slate-400 line-through font-medium">
+                            <span className="text-xs text-slate-400 line-through font-medium tabular-nums">
                               {formatCurrency(med.mrp)}
                             </span>
                           )}
@@ -337,7 +373,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
 
                       {savingsPercent > 0 && (
                         <div className="text-right">
-                          <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                          <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 tabular-nums">
                             {savingsPercent}% Margin
                           </span>
                         </div>
@@ -349,20 +385,20 @@ export const BrowseMedicinesScreen: React.FC = () => {
                       {activeBatch && (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white border border-slate-200/80 truncate">
                           <Box className="w-3 h-3 text-slate-400 shrink-0" />
-                          <span className="truncate">Lot: <strong>{activeBatch.batchNumber}</strong></span>
+                          <span className="truncate">Lot: <strong className="tabular-nums">{activeBatch.batchNumber}</strong></span>
                         </span>
                       )}
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white border border-slate-200/80">
                         <span>PKG: <strong>{med.packSize}</strong></span>
                       </span>
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white border border-slate-200/80 col-span-2 sm:col-span-1">
-                        <span>Stock: <strong className={totalStock > 0 ? 'text-emerald-700' : 'text-rose-600'}>{totalStock.toLocaleString()}</strong></span>
+                        <span>Stock: <strong className={`tabular-nums ${totalStock > 0 ? 'text-emerald-700' : 'text-rose-600'}`}>{totalStock.toLocaleString()}</strong></span>
                       </span>
                     </div>
                   </div>
 
-                  {/* Ordering Conditions: Restyled as Single Compact Row with Ruler/Steps Icon */}
-                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-100/70 border border-slate-200/70 text-[10px] text-slate-600 font-medium">
+                  {/* Ordering Conditions: Single Compact Row */}
+                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-100/70 border border-slate-200/70 text-[10px] text-slate-600 font-medium tabular-nums">
                     <Ruler className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
                     <span className="font-semibold text-slate-700">Rules:</span>
                     <span>Min {med.rules.minOrderQty}</span>
@@ -378,32 +414,32 @@ export const BrowseMedicinesScreen: React.FC = () => {
 
                   {/* Recalled or Near-Expiry Notice */}
                   {med.batches.some((b) => b.lifecycleStatus === 'recalled') && (
-                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-[10px] font-bold animate-pulse">
-                      <AlertTriangle className="w-3 h-3 text-rose-600 shrink-0" />
-                      <span>Batch Recall in Progress</span>
+                    <div className="p-2 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-[10px] font-bold flex items-center gap-1.5">
+                      <AlertTriangle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                      <span>Batch Recall in Effect for this SKU</span>
                     </div>
                   )}
-                  {!med.batches.some((b) => b.lifecycleStatus === 'recalled') &&
-                    med.batches.some((b) => b.lifecycleStatus === 'near_expiry') && (
-                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-[10px] font-semibold">
-                        <Clock className="w-3 h-3 text-amber-600 shrink-0" />
-                        <span>Near-Expiry Lots Available</span>
-                      </div>
-                    )}
                 </div>
 
-                {/* Card Action Footer: Quick "Add" button + "View Details" trigger */}
-                <div className="pt-3.5 mt-3.5 border-t border-slate-100 flex items-center justify-between gap-2">
-                  <span className="text-[11px] font-semibold text-slate-500 group-hover:text-indigo-600 transition-colors">
-                    View Specifications →
-                  </span>
+                {/* Card Action Row: Configure Specs vs Quick Add */}
+                <div className="pt-3 mt-3 border-t border-slate-100 flex items-center gap-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDetailModalMedicine(med);
+                    }}
+                    className="flex-1 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs transition-colors text-center"
+                  >
+                    View Specs
+                  </button>
 
                   <button
                     onClick={(e) => handleQuickAdd(e, med)}
-                    className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition-colors active:scale-95"
-                    title={`Add MOQ (${med.rules.minOrderQty} ${med.packagingUnit}s) to cart`}
+                    disabled={totalStock <= 0}
+                    className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-400 text-white font-bold text-xs shadow-2xs transition-all duration-150 flex items-center gap-1 active:scale-95 group/btn"
+                    title={`Add MOQ (${med.rules.minOrderQty || 10} units) to Cart`}
                   >
-                    <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                    <Plus className="w-4 h-4 transition-transform group-hover/btn:rotate-90" />
                     <span>Add</span>
                   </button>
                 </div>
@@ -413,13 +449,13 @@ export const BrowseMedicinesScreen: React.FC = () => {
         </div>
       )}
 
-      {/* DETAIL MODAL */}
+      {/* Medicine Detail Modal */}
       {detailModalMedicine && (
         <MedicineDetailModal
           medicine={detailModalMedicine}
           onClose={() => {
             setDetailModalMedicine(null);
-            if (presetDemoTarget) setPresetDemoTarget(null);
+            setPresetDemoTarget(null);
           }}
         />
       )}

@@ -18,6 +18,7 @@ import {
   RefreshCw,
   Sparkles,
 } from 'lucide-react';
+import { BrandLogo } from './BrandLogo';
 
 interface NavbarProps {
   onOpenCart?: () => void;
@@ -84,25 +85,10 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
 
               <div
-                className="flex items-center gap-2.5 cursor-pointer"
+                className="cursor-pointer"
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               >
-                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-sky-600 to-indigo-700 flex items-center justify-center text-white shadow-md shadow-sky-500/20">
-                  <Activity className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-slate-900 tracking-tight text-base sm:text-lg">
-                      PharmXpress
-                    </span>
-                    <span className="hidden md:inline-block px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase rounded-md bg-sky-100 text-sky-800 border border-sky-200">
-                      B2B Marketplace
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-slate-500 hidden sm:block">
-                    Regulated Multi-Tenant Distribution Network
-                  </p>
-                </div>
+                <BrandLogo />
               </div>
             </div>
 
@@ -447,15 +433,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div className="space-y-6">
               {/* Drawer Header */}
               <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-sky-600 text-white flex items-center justify-center">
-                    <Activity className="w-5 h-5 stroke-[2.2]" />
-                  </div>
-                  <div>
-                    <span className="font-bold text-slate-900 text-base">PharmXpress</span>
-                    <span className="text-[10px] text-slate-500 block">B2B Pharma Network</span>
-                  </div>
-                </div>
+                <BrandLogo size="sm" />
                 <button
                   onClick={() => setMobileMenuOpen(false)}
                   className="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"

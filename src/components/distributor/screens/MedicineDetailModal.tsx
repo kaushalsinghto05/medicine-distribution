@@ -4,7 +4,8 @@ import { Medicine, Batch, CartItem } from '../../../types';
 import { formatCurrency, formatDate, getExpiryStatus } from '../../../utils/formatters';
 import { validateOrderQuantity } from '../../../engine/rulesEngine';
 import { sortBatchesFEFO } from '../../../engine/inventoryEngine';
-import { AlertCircle, ShoppingCart, AlertTriangle } from 'lucide-react';
+import { AlertCircle, ShoppingCart, AlertTriangle, ShieldCheck, CheckCircle2, RotateCcw, X, Layers } from 'lucide-react';
+import { Button } from '../../ui/Button';
 
 interface MedicineDetailModalProps {
   medicine: Medicine | null;
@@ -45,6 +46,7 @@ export const MedicineDetailModal: React.FC<MedicineDetailModalProps> = ({
       : initialQuantity || medicine.rules.minOrderQty || 10;
 
   const [quantity, setQuantity] = useState<number>(defaultQty);
+  const [shakeInput, setShakeInput] = useState(false);
 
   // Sync batch and quantity when medicine changes
   useEffect(() => {
@@ -59,7 +61,7 @@ export const MedicineDetailModal: React.FC<MedicineDetailModalProps> = ({
     setQuantity(targetQ);
   }, [medicine.id, initialQuantity, presetDemoTarget]);
 
-  // LIVE RULES VALIDATION (Section 3.3, 4, 5)
+  // LIVE RULES VALIDATION
   const validation = validateOrderQuantity(currentDistributor, medicine, quantity);
 
   // Remaining monthly quota calculation
@@ -67,9 +69,14 @@ export const MedicineDetailModal: React.FC<MedicineDetailModalProps> = ({
   const monthlyLimit = medicine.rules.monthlyLimit || tenantRelation?.monthlyQuantityLimit || 2000;
   const monthlyUsed = tenantRelation?.monthlyQuantityUsed || 0;
   const remainingMonthlyQuota = Math.max(0, monthlyLimit - monthlyUsed);
+  const quotaUsedPercent = Math.min(100, Math.round((monthlyUsed / monthlyLimit) * 100));
 
   const handleAddToCart = () => {
-    if (!validation.isValid || !selectedBatch) return;
+    if (!validation.isValid || !selectedBatch) {
+      setShakeInput(true);
+      setTimeout(() => setShakeInput(false), 400);
+      return;
+    }
     if (
       selectedBatch.lifecycleStatus === 'recalled' ||
       selectedBatch.lifecycleStatus === 'expired' ||
@@ -93,7 +100,6 @@ export const MedicineDetailModal: React.FC<MedicineDetailModalProps> = ({
     };
 
     addToCart(item);
-    // Clear demo target if satisfied
     if (presetDemoTarget?.medicineId === medicine.id) {
       setPresetDemoTarget(null);
     }
@@ -115,10 +121,10 @@ export const MedicineDetailModal: React.FC<MedicineDetailModalProps> = ({
     selectedBatch?.lifecycleStatus === 'expired_damaged';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
-      <div className="bg-white rounded-2xl sm:rounded-3xl max-w-3xl w-full p-4 sm:p-8 shadow-2xl border border-slate-200 my-auto sm:my-8 space-y-5 max-h-[92vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/70 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-150">
+      <div className="bg-white rounded-3xl max-w-3xl w-full p-4 sm:p-8 shadow-2xl border border-slate-200 my-auto sm:my-8 space-y-5 max-h-[92vh] overflow-y-auto">
         {/* Top Header */}
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start justify-between gap-4 border-b border-slate-100 pb-4">
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-200">
@@ -133,7 +139,7 @@ export const MedicineDetailModal: React.FC<MedicineDetailModalProps> = ({
                 </span>
               )}
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mt-1.5">
+            <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 mt-1.5 tracking-tight">
               {medicine.name}
             </h2>
             <p className="text-xs font-medium text-slate-500">
@@ -144,7 +150,7 @@ export const MedicineDetailModal: React.FC<MedicineDetailModalProps> = ({
             onClick={onClose}
             className="text-slate-400 hover:text-slate-600 p-2 rounded-xl hover:bg-slate-100 transition-colors"
           >
-            ✕
+            <X className="w-5 h-5" />
           </button>
         </div>
 
@@ -153,13 +159,13 @@ export const MedicineDetailModal: React.FC<MedicineDetailModalProps> = ({
           <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-start gap-2">
             <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
             <div>
-              <span className="font-bold block">Active Test Scenario Target</span>
+              <span className="font-bold block">Active Test Scenario Preset</span>
               <p className="mt-0.5">{presetDemoTarget.description}</p>
             </div>
           </div>
         )}
 
-        {/* Grid: Batches & Slabs (Left) + Quantity & Live Validator (Right) */}
+        {/* Two-Column Desktop Layout: Specs & FEFO Batches (Left) vs Interactive Validator (Right) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Left Column: Batches & Pricing Tiers */}
           <div className="space-y-4">
@@ -177,9 +183,9 @@ export const MedicineDetailModal: React.FC<MedicineDetailModalProps> = ({
                     <div
                       key={b.id}
                       onClick={() => setSelectedBatchId(b.id)}
-                      className={`p-3 rounded-xl border text-xs cursor-pointer transition-all ${
+                      className={`p-3 rounded-xl border text-xs cursor-pointer transition-all duration-150 ${
                         isSelected
-                          ? 'border-sky-500 bg-sky-50/70 shadow-xs ring-1 ring-sky-400'
+                          ? 'border-indigo-500 bg-indigo-50/70 shadow-xs ring-1 ring-indigo-400'
                           : 'border-slate-200 hover:bg-slate-50'
                       }`}
                     >
@@ -187,37 +193,26 @@ export const MedicineDetailModal: React.FC<MedicineDetailModalProps> = ({
                         <div className="flex items-center gap-2">
                           <span className="font-mono font-bold text-slate-900">{b.batchNumber}</span>
                           {idx === 0 && (
-                            <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">
+                            <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800">
                               FEFO Best
                             </span>
                           )}
                           {b.lifecycleStatus === 'recalled' && (
-                            <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-rose-100 text-rose-800 border border-rose-300">
+                            <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded bg-rose-100 text-rose-800 border border-rose-300">
                               Recalled
                             </span>
                           )}
-                          {(b.lifecycleStatus === 'expired' || b.lifecycleStatus === 'expired_damaged') && (
-                            <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-rose-100 text-rose-800 border border-rose-300">
-                              Expired
-                            </span>
-                          )}
-                          {b.lifecycleStatus === 'near_expiry' && (
-                            <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-300">
-                              Near Expiry
-                            </span>
-                          )}
                         </div>
-                        <span className={`px-2 py-0.5 rounded text-[10px] border ${expiryStatus.bgClass}`}>
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${expiryStatus.colorClass}`}>
                           {expiryStatus.label}
                         </span>
                       </div>
-
-                      <div className="flex items-center justify-between text-slate-500 mt-2 text-[11px]">
-                        <span>Expiry: {formatDate(b.expiryDate)}</span>
+                      <div className="flex items-center justify-between text-slate-500 mt-1.5 text-[11px]">
+                        <span>Exp: {formatDate(b.expiryDate)}</span>
                         <span>
                           Available:{' '}
-                          <strong className="text-slate-900 font-bold">
-                            {b.availableQuantity.toLocaleString()} {b.packagingUnit}s
+                          <strong className="text-slate-900 font-bold tabular-nums">
+                            {b.availableQuantity.toLocaleString()} {medicine.packagingUnit}s
                           </strong>
                         </span>
                       </div>
@@ -227,210 +222,165 @@ export const MedicineDetailModal: React.FC<MedicineDetailModalProps> = ({
               </div>
             </div>
 
-            {/* Slab Pricing Table */}
+            {/* Volume Slabs Table */}
             {medicine.pricing.slabs && medicine.pricing.slabs.length > 0 && (
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider block mb-2">
-                  Volume Slab Discounts
-                </span>
-                <div className="space-y-1 text-xs">
-                  {medicine.pricing.slabs.map((slab, i) => (
-                    <div key={i} className="flex items-center justify-between text-slate-600">
-                      <span>
-                        {slab.minQty} - {slab.maxQty === Infinity ? 'Above' : slab.maxQty}{' '}
-                        {medicine.packagingUnit}s:
-                      </span>
-                      <span className="font-bold text-sky-700">
-                        {formatCurrency(slab.pricePerUnit)} / unit
-                      </span>
-                    </div>
-                  ))}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                  Volume Pricing Tiers
+                </label>
+                <div className="border border-slate-200 rounded-xl overflow-hidden text-xs">
+                  <table className="w-full text-left">
+                    <thead className="bg-slate-50 text-slate-500 uppercase tracking-wider text-[10px] font-semibold border-b border-slate-200">
+                      <tr>
+                        <th className="py-2 px-3">Order Quantity</th>
+                        <th className="py-2 px-3">Rate / {medicine.packagingUnit}</th>
+                        <th className="py-2 px-3">Discount</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-slate-700">
+                      {medicine.pricing.slabs.map((s, idx) => {
+                        const discountPct = medicine.mrp > 0
+                          ? Math.round(((medicine.mrp - s.pricePerUnit) / medicine.mrp) * 100)
+                          : 0;
+                        return (
+                          <tr key={idx} className="hover:bg-slate-50">
+                            <td className="py-2 px-3 tabular-nums">
+                              {s.minQty} - {s.maxQty || 'Above'} {medicine.packagingUnit}s
+                            </td>
+                            <td className="py-2 px-3 font-bold tabular-nums">
+                              {formatCurrency(s.pricePerUnit)}
+                            </td>
+                            <td className="py-2 px-3 font-semibold text-emerald-700 tabular-nums">
+                              {discountPct > 0 ? `${discountPct}%` : 'Standard'}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             )}
-
-            {/* Quota Progress Bar (Section 3.3, 5 Test Case 2) */}
-            <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-slate-700">Your Monthly Quota</span>
-                <span className="font-bold text-slate-900">
-                  {remainingMonthlyQuota.toLocaleString()} of {monthlyLimit.toLocaleString()}{' '}
-                  {medicine.packagingUnit}s remaining
-                </span>
-              </div>
-              <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-sky-600 rounded-full transition-all duration-300"
-                  style={{
-                    width: `${Math.max(
-                      0,
-                      Math.min(100, (remainingMonthlyQuota / monthlyLimit) * 100)
-                    )}%`,
-                  }}
-                ></div>
-              </div>
-              <p className="text-[10px] text-slate-500">
-                Resets on the 1st of every calendar month per manufacturer allocation.
-              </p>
-            </div>
           </div>
 
-          {/* Right Column: Quantity Input & Real-Time Rule Validator */}
+          {/* Right Column: Quantity Selector & Live Rules Engine Validator */}
           <div className="space-y-4">
-            {/* Price Header */}
-            <div className="p-4 rounded-2xl bg-sky-50/70 border border-sky-200">
-              <div className="flex items-baseline justify-between">
-                <div>
-                  <span className="text-[10px] font-bold text-sky-800 uppercase tracking-wider block">
-                    Your Wholesale Price
-                  </span>
-                  <div className="flex items-baseline gap-2 mt-0.5">
-                    <span className="text-2xl font-extrabold text-sky-900">
-                      {formatCurrency(validation.effectivePrice)}
-                    </span>
-                    <span className="text-xs text-slate-400 line-through">
-                      MRP {formatCurrency(medicine.mrp)}
-                    </span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
-                    Save {Math.round(((medicine.mrp - validation.effectivePrice) / medicine.mrp) * 100)}%
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-4">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                Configure Order Quantity
+              </h4>
+
+              {/* Quantity Input Field with Smooth Animated Validation Transition */}
+              <div>
+                <div className="flex justify-between items-baseline mb-1">
+                  <label className="text-xs font-semibold text-slate-700">
+                    Units ({medicine.packagingUnit}s)
+                  </label>
+                  <span className="text-[10px] text-slate-500 tabular-nums">
+                    Step: ×{medicine.rules.orderMultiple} • Min: {medicine.rules.minOrderQty}
                   </span>
                 </div>
-              </div>
-            </div>
 
-            {/* Ordering Policy Badges */}
-            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-600 space-y-1">
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
-                Ordering Conditions
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-[11px] font-medium">
-                  Min Order: <strong>{medicine.rules.minOrderQty}</strong>
-                </span>
-                <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-[11px] font-medium">
-                  Multiples of: <strong>{medicine.rules.orderMultiple}</strong>
-                </span>
-                <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-[11px] font-medium">
-                  Max per Order: <strong>{medicine.rules.maxOrderQty}</strong>
-                </span>
-              </div>
-            </div>
-
-            {/* REACTIVE QUANTITY INPUT (Section 3.3 live validation) */}
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-bold text-slate-900">
-                  Order Quantity ({medicine.packagingUnit}s)
-                </label>
-                {medicine.rules.orderMultiple > 1 && quantity % medicine.rules.orderMultiple !== 0 && (
-                  <button
-                    onClick={handleSnapToMultiple}
-                    className="text-[10px] font-bold text-sky-600 hover:underline flex items-center gap-0.5"
-                  >
-                    Snap to multiple of {medicine.rules.orderMultiple}
-                  </button>
-                )}
+                <div className={shakeInput ? 'animate-shake' : ''}>
+                  <input
+                    type="number"
+                    value={quantity}
+                    onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
+                    min={0}
+                    step={medicine.rules.orderMultiple || 1}
+                    className={`w-full text-lg font-bold p-3 rounded-xl border tabular-nums transition-colors duration-200 outline-hidden ${
+                      !validation.isValid
+                        ? 'border-rose-400 bg-rose-50/50 text-rose-900 focus:border-rose-500 focus:ring-2 focus:ring-rose-200'
+                        : 'border-emerald-400 bg-emerald-50/30 text-emerald-950 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100'
+                    }`}
+                  />
+                </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() =>
-                    setQuantity((prev) =>
-                      Math.max(
-                        0,
-                        prev - (medicine.rules.orderMultiple || 1)
-                      )
-                    )
-                  }
-                  className="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 font-bold text-slate-700 flex items-center justify-center transition-colors text-base"
-                >
-                  -
-                </button>
-
-                <input
-                  type="number"
-                  value={quantity}
-                  onChange={(e) => setQuantity(Number(e.target.value))}
-                  className={`flex-1 text-center text-lg font-bold py-2 rounded-xl border focus:outline-none focus:ring-2 ${
-                    validation.isValid
-                      ? 'border-slate-300 focus:ring-sky-500'
-                      : 'border-rose-300 bg-rose-50/50 text-rose-900 focus:ring-rose-500'
-                  }`}
-                />
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    setQuantity((prev) => prev + (medicine.rules.orderMultiple || 1))
-                  }
-                  className="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 font-bold text-slate-700 flex items-center justify-center transition-colors text-base"
-                >
-                  +
-                </button>
-              </div>
-
-              {/* INLINE VALIDATION ERRORS & WARNINGS (Prompt Requirement 3.3, 4, 5) */}
-              <div className="mt-2 space-y-1.5">
-                {validation.errors.map((err, i) => (
+              {/* Monthly Quota Mini Progress Bar */}
+              <div className="p-3 bg-white rounded-xl border border-slate-200 space-y-1.5">
+                <div className="flex justify-between text-[11px] font-semibold text-slate-700">
+                  <span>Monthly Quota Used</span>
+                  <span className="tabular-nums">
+                    {monthlyUsed.toLocaleString()} / {monthlyLimit.toLocaleString()} units ({quotaUsedPercent}%)
+                  </span>
+                </div>
+                <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
                   <div
-                    key={i}
-                    className="flex items-start gap-1.5 text-xs text-rose-700 bg-rose-50 border border-rose-200 p-2.5 rounded-xl animate-in fade-in"
-                  >
-                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                    <span>{err}</span>
-                  </div>
-                ))}
-
-                {validation.warnings.map((warn, i) => (
-                  <div
-                    key={i}
-                    className="flex items-start gap-1.5 text-xs text-amber-800 bg-amber-50 border border-amber-200 p-2 rounded-xl"
-                  >
-                    <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-                    <span>{warn}</span>
-                  </div>
-                ))}
+                    className={`h-full rounded-full transition-all duration-300 ${
+                      quotaUsedPercent > 90 ? 'bg-rose-500' : quotaUsedPercent > 60 ? 'bg-amber-500' : 'bg-indigo-600'
+                    }`}
+                    style={{ width: `${quotaUsedPercent}%` }}
+                  />
+                </div>
+                <span className="text-[10px] text-slate-400 block tabular-nums">
+                  Remaining allowance this calendar month: {remainingMonthlyQuota.toLocaleString()} units
+                </span>
               </div>
-            </div>
 
-            {/* Computed Price x Quantity Summary */}
-            <div className="pt-2 border-t border-slate-100">
-              <div className="flex items-baseline justify-between">
-                <span className="text-xs text-slate-500">Calculated Subtotal:</span>
-                <div className="text-right">
-                  <span className="text-xl font-extrabold text-slate-900">
+              {/* Live Rule Verification Feedback */}
+              {!validation.isValid ? (
+                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 space-y-1.5 animate-in fade-in">
+                  <div className="flex items-center gap-1.5 font-bold text-rose-900">
+                    <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                    <span>Ordering Rule Requirement Not Met</span>
+                  </div>
+                  <ul className="list-disc list-inside space-y-0.5 text-[11px]">
+                    {validation.errors.map((err, i) => (
+                      <li key={i}>{err}</li>
+                    ))}
+                  </ul>
+                  {validation.errors.some((e) => e.includes('multiples')) && (
+                    <button
+                      onClick={handleSnapToMultiple}
+                      className="mt-1 text-[11px] font-bold text-indigo-700 hover:underline flex items-center gap-1"
+                    >
+                      <RotateCcw className="w-3 h-3" /> Snap to nearest valid multiple
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 flex items-center gap-2 animate-in fade-in">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <div>
+                    <span className="font-bold">Quantity Fully Compliant</span>
+                    <p className="text-[11px] text-emerald-700">Satisfies MOQ, packaging multiples, and per-order caps.</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Live Running Total Card */}
+              <div className="p-3.5 bg-white rounded-xl border border-slate-200 space-y-2">
+                <div className="flex justify-between text-xs text-slate-500">
+                  <span>Unit Rate:</span>
+                  <span className="font-semibold text-slate-800 tabular-nums">
+                    {formatCurrency(validation.effectivePrice)}
+                  </span>
+                </div>
+                <div className="flex justify-between text-xs text-slate-500">
+                  <span>Standard MRP:</span>
+                  <span className="line-through tabular-nums">{formatCurrency(medicine.mrp)}</span>
+                </div>
+                <div className="pt-2 border-t border-slate-100 flex justify-between items-baseline font-extrabold text-slate-900">
+                  <span className="text-xs">Estimated Order Total:</span>
+                  <span className="text-xl text-indigo-600 tabular-nums">
                     {formatCurrency(validation.totalComputedPrice)}
                   </span>
-                  <span className="text-[11px] text-slate-400 block">
-                    ({quantity} {medicine.packagingUnit}s × {formatCurrency(validation.effectivePrice)})
-                  </span>
                 </div>
               </div>
-            </div>
 
-            {/* ADD TO CART ACTION */}
-            <button
-              disabled={!validation.isValid || isBatchBlocked}
-              onClick={handleAddToCart}
-              className={`w-full py-3 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-sm ${
-                validation.isValid && !isBatchBlocked
-                  ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-500/20'
-                  : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-              }`}
-            >
-              <ShoppingCart className="w-4 h-4" />
-              {isBatchBlocked
-                ? selectedBatch?.lifecycleStatus === 'recalled'
-                  ? 'Recalled Batch — Quarantine Only'
-                  : 'Expired Batch — Not for Sale'
-                : validation.isValid
-                ? `Add ${quantity} ${medicine.packagingUnit}s to Cart`
-                : validation.errors[0] || 'Invalid Quantity'}
-            </button>
+              {/* Submit Add to Cart Button */}
+              <Button
+                variant="primary"
+                size="lg"
+                onClick={handleAddToCart}
+                disabled={!validation.isValid || isBatchBlocked}
+                leftIcon={<ShoppingCart className="w-4 h-4" />}
+                className="w-full"
+              >
+                Add {quantity} {medicine.packagingUnit}s to Cart
+              </Button>
+            </div>
           </div>
         </div>
       </div>
