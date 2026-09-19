@@ -17,6 +17,11 @@ import {
   Clock,
   RefreshCw,
   Sparkles,
+  Phone,
+  MapPin,
+  Truck,
+  ShieldCheck,
+  CheckCircle2,
 } from 'lucide-react';
 import { BrandLogo } from './BrandLogo';
 
@@ -71,6 +76,36 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <>
+      {/* Top B2B Regulatory & Chemist Helpline Bar (Retailio & Kunal Pharma Pattern) */}
+      <div className="bg-slate-900 text-slate-300 text-[11px] py-1.5 px-4 sm:px-6 lg:px-8 border-b border-slate-800 hidden sm:block">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <span className="inline-flex items-center gap-1.5 font-bold text-teal-400">
+              <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse" />
+              <span>Pan-India B2B Pharma Network</span>
+            </span>
+            <span className="text-slate-700">|</span>
+            <span className="text-slate-300 flex items-center gap-1">
+              <Phone className="w-3 h-3 text-teal-400" />
+              <span>Chemist Desk: <strong className="text-white font-mono">1800-266-PHARMA</strong></span>
+            </span>
+            <span className="hidden md:inline text-slate-700">|</span>
+            <span className="hidden md:inline text-slate-400">
+              ⚡ Same-Day Dispatch Cutoff: <strong className="text-amber-400 font-mono">5:30 PM</strong>
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3 text-slate-400 text-[11px]">
+            <span className="inline-flex items-center gap-1 text-teal-300 font-medium">
+              <ShieldCheck className="w-3.5 h-3.5 text-teal-400" />
+              <span>Form 20B/21B CDSCO Approved</span>
+            </span>
+            <span className="text-slate-700">•</span>
+            <span className="text-slate-400">100% GST E-Way Bill Compliant</span>
+          </div>
+        </div>
+      </div>
+
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200/80 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 gap-3 sm:gap-4">

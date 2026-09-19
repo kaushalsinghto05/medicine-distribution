@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useStore } from '../../../context/StoreContext';
 import { Medicine, CartItem } from '../../../types';
-import { formatCurrency } from '../../../utils/formatters';
+import { formatCurrency, formatDate } from '../../../utils/formatters';
 import { computeEffectivePrice } from '../../../engine/pricingEngine';
 import { validateOrderQuantity } from '../../../engine/rulesEngine';
 import { sortBatchesFEFO } from '../../../engine/inventoryEngine';
@@ -29,7 +29,11 @@ import {
   Ruler, 
   Box, 
   Calendar,
-  Syringe
+  Syringe,
+  MapPin,
+  Truck,
+  Award,
+  FileText
 } from 'lucide-react';
 
 export const BrowseMedicinesScreen: React.FC = () => {
@@ -96,7 +100,8 @@ export const BrowseMedicinesScreen: React.FC = () => {
   const filteredMedicines = distributorMedicines.filter((med) => {
     const matchesSearch =
       med.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      med.genericName.toLowerCase().includes(searchQuery.toLowerCase());
+      med.genericName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      med.regulatory.composition.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCat = selectedCategory === 'All' || med.category === selectedCategory;
 
     const totalStock = med.batches.reduce((sum, b) => sum + b.availableQuantity, 0);
@@ -160,26 +165,60 @@ export const BrowseMedicinesScreen: React.FC = () => {
       {/* 1. Trust & Credibility Stats Strip */}
       <TrustAndCredibilityBar variant="distributor" />
 
-      {/* Buyer Header & Authorization Scope */}
+      {/* Regional Sourcing & Express Fulfillment Banner (Retailio & Biddano Hub Pattern) */}
+      <div className="bg-gradient-to-r from-teal-900 via-slate-900 to-indigo-950 text-white rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-teal-700/50 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-teal-500/20 text-teal-300 flex items-center justify-center shrink-0 border border-teal-500/30">
+            <Truck className="w-5 h-5 stroke-[2.2]" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-black uppercase tracking-wider text-teal-300">
+                Hub Fulfillment Active
+              </span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                24h Express Transit
+              </span>
+            </div>
+            <p className="text-xs text-slate-300 mt-0.5">
+              Fulfillment from <strong>Bhiwandi Central Depot (MH)</strong> & <strong>Lucknow Depot (UP)</strong> • Tamper-evident FEFO dispatches
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 self-start sm:self-auto text-xs font-mono text-slate-300 bg-slate-950/60 px-3 py-1.5 rounded-xl border border-slate-800">
+          <Clock className="w-3.5 h-3.5 text-amber-400" />
+          <span>Same-Day Cutoff: <strong>5:30 PM</strong></span>
+        </div>
+      </div>
+
+      {/* Buyer Header & Authorization Scope (IndiaMart Wholesaler Verified Profile Pattern) */}
       <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-subtle flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
-              Distributor Marketplace
+            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200">
+              Verified Wholesale Buyer
             </span>
             <span className="text-xs text-slate-500">
-              Authorized with {distributorAuthorizedTenants.length} Principal(s)
+              Authorized with {distributorAuthorizedTenants.length} Manufacturing Principal(s)
             </span>
           </div>
-          <h1 className="text-2xl font-extrabold text-slate-900 mt-1 tracking-tight">
+          <h1 className="text-2xl font-black text-slate-900 mt-1 tracking-tight">
             {currentDistributor.name}
           </h1>
-          <p className="text-xs text-slate-600 mt-0.5">
-            Form 20B/21B Wholesale License Verified • Showing catalog filtered strictly to authorized manufacturing principals.
-          </p>
+          <div className="flex flex-wrap items-center gap-2 pt-1 text-xs text-slate-600">
+            <span className="inline-flex items-center gap-1 font-semibold text-emerald-700">
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              Form 20B/21B Wholesale License Verified
+            </span>
+            <span>•</span>
+            <span className="font-mono text-slate-500">GSTIN: {currentDistributor.gstin}</span>
+            <span>•</span>
+            <span className="text-slate-500">{currentDistributor.city}, {currentDistributor.state}</span>
+          </div>
         </div>
 
-        {/* Authorized Principals Pills */}
+        {/* Authorized Principals Badges */}
         <div className="flex items-center gap-2 flex-wrap">
           {distributorAuthorizedTenants.map((t) => (
             <div
@@ -187,8 +226,8 @@ export const BrowseMedicinesScreen: React.FC = () => {
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs shadow-2xs"
             >
               <div className={`w-2.5 h-2.5 rounded-full ${t.logoColor}`}></div>
-              <span className="font-semibold text-slate-800">{t.shortName}</span>
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+              <span className="font-bold text-slate-800">{t.shortName}</span>
+              <CheckCircle2 className="w-3.5 h-3.5 text-teal-600" />
             </div>
           ))}
         </div>
@@ -210,7 +249,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
         </div>
       )}
 
-      {/* 4. Deals / Best Bulk Pricing Highlights Rail */}
+      {/* 4. Deals / Best Bulk Pricing Highlights Rail (Biddano & Medimny Deals of the Day) */}
       <DealsBulkPricingRail onSelectMedicine={(med) => setDetailModalMedicine(med)} />
 
       {/* Search & Category Filter Section */}
@@ -222,8 +261,8 @@ export const BrowseMedicinesScreen: React.FC = () => {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search formulations by brand name, generic molecule, indication..."
-              className="w-full text-xs pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-indigo-500 transition-colors"
+              placeholder="Search formulations by brand name, generic molecule (e.g. Paracetamol), composition..."
+              className="w-full text-xs pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition-colors"
             />
           </div>
 
@@ -231,7 +270,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
           <select
             value={activeDistributorTenantFilter}
             onChange={(e) => setActiveDistributorTenantFilter(e.target.value)}
-            className="text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-hidden transition-colors"
+            className="text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-teal-500 outline-none transition-colors"
           >
             <option value="all">All Authorized Manufacturers</option>
             {distributorAuthorizedTenants.map((t) => (
@@ -246,7 +285,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
               type="checkbox"
               checked={inStockOnly}
               onChange={(e) => setInStockOnly(e.target.checked)}
-              className="rounded text-indigo-600 focus:ring-indigo-500"
+              className="rounded text-teal-600 focus:ring-teal-500"
             />
             <span>In-Stock Only</span>
           </label>
@@ -263,9 +302,9 @@ export const BrowseMedicinesScreen: React.FC = () => {
                 <button
                   key={cat.name}
                   onClick={() => setSelectedCategory(cat.name)}
-                  className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all shrink-0 ${
+                  className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0 ${
                     isSelected
-                      ? 'bg-indigo-600 text-white shadow-xs'
+                      ? 'bg-teal-600 text-white shadow-xs'
                       : 'bg-slate-100/80 text-slate-700 hover:bg-slate-200/80 hover:text-slate-900'
                   }`}
                 >
@@ -279,7 +318,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
         </div>
       </div>
 
-      {/* Redesigned Product Card Grid */}
+      {/* Redesigned Product Card Grid (Retailio, Biddano & IndiaMart Pharma Profile Style) */}
       {filteredMedicines.length === 0 ? (
         <EmptyState
           icon={Pill}
@@ -313,21 +352,24 @@ export const BrowseMedicinesScreen: React.FC = () => {
               <div
                 key={med.id}
                 onClick={() => setDetailModalMedicine(med)}
-                className="bg-white rounded-2xl sm:rounded-3xl p-5 border border-slate-200/90 hover:border-indigo-400 hover:shadow-card transition-all duration-200 cursor-pointer group flex flex-col justify-between relative overflow-hidden"
+                className="bg-white rounded-2xl sm:rounded-3xl p-5 border border-slate-200/90 hover:border-teal-500 hover:shadow-card transition-all duration-200 cursor-pointer group flex flex-col justify-between relative overflow-hidden"
               >
                 {/* Corner Bulk Discount Ribbon */}
                 {savingsPercent > 0 && (
-                  <div className="absolute -top-1 -right-1 bg-gradient-to-r from-indigo-600 to-sky-600 text-white font-black text-[10px] px-3 py-1 rounded-bl-xl shadow-xs tracking-wider">
+                  <div className="absolute -top-1 -right-1 bg-gradient-to-r from-teal-600 to-indigo-600 text-white font-black text-[10px] px-3 py-1 rounded-bl-xl shadow-xs tracking-wider">
                     {savingsPercent}% OFF
                   </div>
                 )}
 
-                <div className="space-y-3.5">
-                  {/* Manufacturer & Schedule Header */}
+                <div className="space-y-3">
+                  {/* Manufacturer & Schedule Header (IndiaMart Verified Vendor Seal) */}
                   <div className="flex items-center justify-between gap-2 pr-14">
-                    <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
-                      <div className={`w-2 h-2 rounded-full ${tenant?.logoColor || 'bg-slate-400'}`}></div>
+                    <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                      <div className={`w-2.5 h-2.5 rounded-full ${tenant?.logoColor || 'bg-slate-400'}`}></div>
                       <span className="truncate">{tenant?.shortName}</span>
+                      <span title="Verified Direct Principal">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+                      </span>
                     </span>
                     <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200 shrink-0">
                       {med.regulatory.scheduleClassification}
@@ -335,29 +377,54 @@ export const BrowseMedicinesScreen: React.FC = () => {
                   </div>
 
                   {/* Visual Category Gradient Tile with Icon */}
-                  <div className={`w-full h-24 rounded-2xl bg-gradient-to-br ${theme.bg} border border-slate-100 flex items-center justify-center relative overflow-hidden group-hover:scale-[1.01] transition-transform duration-200`}>
-                    <CategoryIcon className={`w-10 h-10 ${theme.text} opacity-70 stroke-[1.5]`} />
-                    <span className="absolute bottom-2 left-3 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+                  <div className={`w-full h-20 rounded-2xl bg-gradient-to-br ${theme.bg} border border-slate-100 flex items-center justify-center relative overflow-hidden group-hover:scale-[1.01] transition-transform duration-200`}>
+                    <CategoryIcon className={`w-8 h-8 ${theme.text} opacity-70 stroke-[1.5]`} />
+                    <span className="absolute bottom-2 left-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                       {med.category}
                     </span>
                   </div>
 
-                  {/* Medicine Name & Formulation */}
+                  {/* Medicine Name & Generic Composition Line (Indian B2B pharma hallmark) */}
                   <div>
-                    <h3 className="font-extrabold text-slate-900 text-base group-hover:text-indigo-600 transition-colors leading-snug">
+                    <h3 className="font-black text-slate-900 text-base group-hover:text-teal-700 transition-colors leading-snug">
                       {med.name}
                     </h3>
-                    <p className="text-xs text-slate-500 font-medium mt-0.5 line-clamp-1">
-                      {med.genericName}
-                    </p>
+                    <div className="flex items-center gap-1 mt-0.5 text-xs text-slate-600 font-medium line-clamp-1">
+                      <span className="text-slate-400">Molecule:</span>
+                      <span className="font-semibold text-slate-800">{med.genericName}</span>
+                    </div>
+                  </div>
+
+                  {/* 4-Box Spec Grid (Biddano & Retailio pattern) */}
+                  <div className="grid grid-cols-2 gap-1.5 p-2 rounded-xl bg-slate-50/90 border border-slate-200/70 text-[10px]">
+                    <div className="flex items-center justify-between px-2 py-1 rounded bg-white border border-slate-100">
+                      <span className="text-slate-400 font-medium">MRP:</span>
+                      <span className="font-bold text-slate-700 tabular-nums">{formatCurrency(med.mrp)}</span>
+                    </div>
+                    <div className="flex items-center justify-between px-2 py-1 rounded bg-white border border-slate-100">
+                      <span className="text-slate-400 font-medium">Batch:</span>
+                      <span className="font-bold text-slate-700 font-mono truncate max-w-[65px]">
+                        {activeBatch?.batchNumber || 'N/A'}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between px-2 py-1 rounded bg-white border border-slate-100">
+                      <span className="text-slate-400 font-medium">PKG:</span>
+                      <span className="font-bold text-slate-700 truncate max-w-[65px]">{med.packSize}</span>
+                    </div>
+                    <div className="flex items-center justify-between px-2 py-1 rounded bg-white border border-slate-100">
+                      <span className="text-slate-400 font-medium">Stock:</span>
+                      <span className={`font-bold tabular-nums ${totalStock > 0 ? 'text-emerald-700' : 'text-rose-600'}`}>
+                        {totalStock} {med.packagingUnit}s
+                      </span>
+                    </div>
                   </div>
 
                   {/* Price Block: MRP strikethrough + Prominent Distributor Rate */}
-                  <div className="bg-slate-50/80 rounded-xl p-3 border border-slate-100/90">
+                  <div className="bg-teal-50/50 rounded-xl p-3 border border-teal-100/80">
                     <div className="flex items-baseline justify-between">
                       <div>
-                        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
-                          Wholesale Price
+                        <span className="text-[10px] font-bold text-teal-800 uppercase tracking-wider block">
+                          Wholesale Net Rate
                         </span>
                         <div className="flex items-baseline gap-2 mt-0.5">
                           <span className="text-xl font-black text-slate-900 tracking-tight tabular-nums">
@@ -373,33 +440,18 @@ export const BrowseMedicinesScreen: React.FC = () => {
 
                       {savingsPercent > 0 && (
                         <div className="text-right">
-                          <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 tabular-nums">
+                          <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-200 tabular-nums">
                             {savingsPercent}% Margin
                           </span>
+                          <span className="text-[9px] text-slate-500 block mt-0.5">+ 12% GST</span>
                         </div>
                       )}
-                    </div>
-
-                    {/* Inline Meta Chips directly under Price: Batch, Pack Size, Stock */}
-                    <div className="grid grid-cols-2 sm:flex sm:items-center gap-1.5 pt-2.5 mt-2.5 border-t border-slate-200/60 text-[10px] text-slate-600 font-medium">
-                      {activeBatch && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white border border-slate-200/80 truncate">
-                          <Box className="w-3 h-3 text-slate-400 shrink-0" />
-                          <span className="truncate">Lot: <strong className="tabular-nums">{activeBatch.batchNumber}</strong></span>
-                        </span>
-                      )}
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white border border-slate-200/80">
-                        <span>PKG: <strong>{med.packSize}</strong></span>
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white border border-slate-200/80 col-span-2 sm:col-span-1">
-                        <span>Stock: <strong className={`tabular-nums ${totalStock > 0 ? 'text-emerald-700' : 'text-rose-600'}`}>{totalStock.toLocaleString()}</strong></span>
-                      </span>
                     </div>
                   </div>
 
                   {/* Ordering Conditions: Single Compact Row */}
                   <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-100/70 border border-slate-200/70 text-[10px] text-slate-600 font-medium tabular-nums">
-                    <Ruler className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+                    <Ruler className="w-3.5 h-3.5 text-teal-600 shrink-0" />
                     <span className="font-semibold text-slate-700">Rules:</span>
                     <span>Min {med.rules.minOrderQty}</span>
                     <span>•</span>
@@ -412,7 +464,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
                     <span>Max {med.rules.maxOrderQty} {med.packagingUnit}s</span>
                   </div>
 
-                  {/* Recalled or Near-Expiry Notice */}
+                  {/* Recalled Notice */}
                   {med.batches.some((b) => b.lifecycleStatus === 'recalled') && (
                     <div className="p-2 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-[10px] font-bold flex items-center gap-1.5">
                       <AlertTriangle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
@@ -430,13 +482,13 @@ export const BrowseMedicinesScreen: React.FC = () => {
                     }}
                     className="flex-1 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs transition-colors text-center"
                   >
-                    View Specs
+                    View Batches & FEFO
                   </button>
 
                   <button
                     onClick={(e) => handleQuickAdd(e, med)}
                     disabled={totalStock <= 0}
-                    className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-400 text-white font-bold text-xs shadow-2xs transition-all duration-150 flex items-center gap-1 active:scale-95 group/btn"
+                    className="px-3.5 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 disabled:bg-slate-200 disabled:text-slate-400 text-white font-bold text-xs shadow-2xs transition-all duration-150 flex items-center gap-1 active:scale-95 group/btn"
                     title={`Add MOQ (${med.rules.minOrderQty || 10} units) to Cart`}
                   >
                     <Plus className="w-4 h-4 transition-transform group-hover/btn:rotate-90" />
