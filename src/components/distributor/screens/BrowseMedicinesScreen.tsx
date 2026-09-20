@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useStore } from '../../../context/StoreContext';
 import { Medicine, CartItem } from '../../../types';
-import { formatCurrency, formatDate } from '../../../utils/formatters';
+import { formatCurrency } from '../../../utils/formatters';
 import { computeEffectivePrice } from '../../../engine/pricingEngine';
 import { validateOrderQuantity } from '../../../engine/rulesEngine';
 import { sortBatchesFEFO } from '../../../engine/inventoryEngine';
@@ -9,30 +9,15 @@ import { MedicineDetailModal } from './MedicineDetailModal';
 import { DealsBulkPricingRail } from './DealsBulkPricingRail';
 import { TrustAndCredibilityBar } from '../../common/TrustAndCredibilityBar';
 import { EmptyState } from '../../ui/EmptyState';
-import { Button } from '../../ui/Button';
 import { 
   Search, 
   Pill, 
   CheckCircle2, 
   ShieldAlert, 
   AlertTriangle, 
-  Clock, 
-  Layers, 
   Plus, 
-  Tag, 
-  HeartPulse, 
-  Activity, 
-  Sparkles, 
-  Droplet, 
-  Apple, 
-  ShieldCheck, 
-  Ruler, 
-  Box, 
-  Calendar,
-  Syringe,
-  MapPin,
   Truck,
-  Award,
+  Building2,
   FileText
 } from 'lucide-react';
 
@@ -65,40 +50,18 @@ export const BrowseMedicinesScreen: React.FC = () => {
     }
   }, [presetDemoTarget, distributorMedicines]);
 
-  // Visual Category Definitions with Representative Icons
-  const categoryDefinitions = [
-    { name: 'All', icon: Sparkles },
-    { name: 'Antibiotics', icon: Pill },
-    { name: 'Analgesics & Antipyretics', icon: Activity },
-    { name: 'Cardiovascular', icon: HeartPulse },
-    { name: 'Gastrointestinal', icon: Droplet },
-    { name: 'Respiratory', icon: ShieldCheck },
-    { name: 'Antidiabetic', icon: Layers },
-    { name: 'Dermatological', icon: Tag },
-    { name: 'Nutritional & Vitamins', icon: Apple },
+  // Visual Category Definitions
+  const categories = [
+    'All',
+    'Antibiotics',
+    'Analgesics & Antipyretics',
+    'Cardiovascular',
+    'Gastrointestinal',
+    'Respiratory',
+    'Antidiabetic',
+    'Dermatological',
+    'Nutritional & Vitamins',
   ];
-
-  // Curated harmonious pastel palette (Item 10)
-  const getCategoryTheme = (category: string) => {
-    switch (category) {
-      case 'Antibiotics':
-        return { bg: 'bg-teal-50/80 border-teal-100/70', icon: Pill, text: 'text-teal-700' };
-      case 'Analgesics & Antipyretics':
-        return { bg: 'bg-sky-50/80 border-sky-100/70', icon: Activity, text: 'text-sky-700' };
-      case 'Cardiovascular':
-        return { bg: 'bg-rose-50/80 border-rose-100/70', icon: HeartPulse, text: 'text-rose-700' };
-      case 'Gastrointestinal':
-        return { bg: 'bg-cyan-50/80 border-cyan-100/70', icon: Droplet, text: 'text-cyan-700' };
-      case 'Respiratory':
-        return { bg: 'bg-indigo-50/80 border-indigo-100/70', icon: ShieldCheck, text: 'text-indigo-700' };
-      case 'Nutritional & Vitamins':
-        return { bg: 'bg-amber-50/80 border-amber-100/70', icon: Apple, text: 'text-amber-700' };
-      case 'Antidiabetic':
-        return { bg: 'bg-emerald-50/80 border-emerald-100/70', icon: Layers, text: 'text-emerald-700' };
-      default:
-        return { bg: 'bg-slate-50/80 border-slate-100/70', icon: Pill, text: 'text-slate-700' };
-    }
-  };
 
   const filteredMedicines = distributorMedicines.filter((med) => {
     const matchesSearch =
@@ -118,7 +81,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
     (t) => currentDistributor.authorizedTenants[t.id]?.status !== 'approved'
   );
 
-  // Direct "Add" Quick Action with full rule validation
+  // Direct "Add to order" Quick Action with full rule validation
   const handleQuickAdd = (e: React.MouseEvent, med: Medicine) => {
     e.stopPropagation();
 
@@ -126,7 +89,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
     const validation = validateOrderQuantity(currentDistributor, med, qty);
 
     if (!validation.isValid) {
-      addToast('info', 'Configuration Required', validation.errors[0] || 'Please specify valid batch or quantity.');
+      addToast('info', 'Configuration required', validation.errors[0] || 'Please specify valid batch or quantity.');
       setDetailModalMedicine(med);
       return;
     }
@@ -140,7 +103,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
     );
 
     if (!validBatch) {
-      addToast('error', 'Batch Unavailable', 'No eligible active batch found with sufficient quantity.');
+      addToast('error', 'Batch unavailable', 'No eligible active batch found with sufficient quantity.');
       setDetailModalMedicine(med);
       return;
     }
@@ -160,7 +123,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
     };
 
     addToCart(item);
-    addToast('success', 'Added to Cart', `Added ${qty} ${med.packagingUnit}s of ${med.name} at ${formatCurrency(validation.effectivePrice)}/unit.`);
+    addToast('success', 'Added to order', `Added ${qty} ${med.packagingUnit}s of ${med.name} at ${formatCurrency(validation.effectivePrice)}/unit.`);
   };
 
   return (
@@ -169,56 +132,54 @@ export const BrowseMedicinesScreen: React.FC = () => {
       <TrustAndCredibilityBar variant="distributor" />
 
       {/* Regional Sourcing & Express Fulfillment Banner */}
-      <div className="bg-gradient-to-r from-teal-900 via-slate-900 to-indigo-950 text-white rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-teal-700/50 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="bg-[#1F2E28] text-white rounded-xl p-4 sm:p-5 border border-[#2C3E36] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-teal-500/20 text-teal-300 flex items-center justify-center shrink-0 border border-teal-500/30">
+          <div className="w-9 h-9 rounded-lg bg-[#3D6B52]/20 text-[#A8C9B3] flex items-center justify-center shrink-0 border border-[#3D6B52]/40">
             <Truck className="w-5 h-5 stroke-[1.75]" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-black uppercase tracking-wider text-teal-300">
-                Hub Fulfillment Active
+              <span className="text-xs font-sans font-semibold text-[#A8C9B3]">
+                Regional fulfillment hubs active
               </span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                24h Express Transit
+              <span className="stamp-seal text-[9px] py-0 px-1.5 border-[#C9A961] text-[#C9A961]">
+                24h Transit
               </span>
             </div>
-            <p className="text-xs text-slate-300 mt-0.5">
-              Fulfillment from <strong>Bhiwandi Central Depot (MH)</strong> & <strong>Lucknow Depot (UP)</strong> • Tamper-evident FEFO dispatches
+            <p className="text-xs text-[#E2DDD2]/80 mt-0.5 font-sans">
+              Direct dispatch from Bhiwandi Central Depot (MH) & Lucknow Central Depot (UP) with tamper-evident batch manifests.
             </p>
           </div>
         </div>
 
-        {/* Standardized Cutoff Badge (Item 14: Identical shape & color as hero) */}
-        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-medium self-start sm:self-auto">
-          <Clock className="w-3.5 h-3.5 text-amber-400 stroke-[1.75]" />
-          <span>Same-Day Dispatch Cutoff: <strong className="font-mono text-amber-200">5:30 PM</strong></span>
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded bg-[#2A3C34] border border-[#384F45] text-xs font-mono text-[#E2DDD2] self-start sm:self-auto">
+          <span className="text-[#C9A961]">Cutoff:</span>
+          <strong className="text-white">17:30 IST</strong>
         </div>
       </div>
 
-      {/* Buyer Header & Authorization Scope */}
-      <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-subtle flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* Buyer Header & Authorization Manifest */}
+      <div className="bg-[#FCFBF8] rounded-xl p-5 sm:p-6 border border-[#E2DDD2] shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200">
-              Verified Wholesale Buyer
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <span className="stamp-seal text-[10px]">
+              Form 20B/21B Verified
             </span>
-            <span className="text-xs text-slate-500">
-              Authorized with {distributorAuthorizedTenants.length} {distributorAuthorizedTenants.length === 1 ? 'Principal' : 'Principals'}
+            <span className="text-xs text-[#8A8578] font-sans">
+              Authorized with {distributorAuthorizedTenants.length} {distributorAuthorizedTenants.length === 1 ? 'manufacturing principal' : 'manufacturing principals'}
             </span>
           </div>
-          <h1 className="text-2xl font-black text-slate-900 mt-1 tracking-tight">
+
+          <h1 className="text-2xl font-serif font-bold text-[#1F2E28] mt-1 tracking-tight">
             {currentDistributor.name}
           </h1>
-          <div className="flex flex-wrap items-center gap-2 pt-1 text-xs text-slate-600">
-            <span className="inline-flex items-center gap-1 font-semibold text-emerald-700">
-              <ShieldCheck className="w-4 h-4 text-emerald-600 stroke-[1.75]" />
-              Form 20B/21B Wholesale License Verified
-            </span>
+
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-1.5 text-xs text-[#8A8578] font-mono">
+            <span>GSTIN: <strong className="text-[#1F2E28]">{currentDistributor.gstin}</strong></span>
             <span>•</span>
-            <span className="font-mono text-slate-500">GSTIN: {currentDistributor.gstin}</span>
+            <span>DL: <strong className="text-[#1F2E28]">{currentDistributor.licenses?.form20B || 'DL-MH-20B-99823'}</strong></span>
             <span>•</span>
-            <span className="text-slate-500">{currentDistributor.city}, {currentDistributor.state}</span>
+            <span className="font-sans text-[#1F2E28]">{currentDistributor.city}, {currentDistributor.state}</span>
           </div>
         </div>
 
@@ -227,46 +188,46 @@ export const BrowseMedicinesScreen: React.FC = () => {
           {distributorAuthorizedTenants.map((t) => (
             <div
               key={t.id}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs shadow-2xs"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-[#E2DDD2] text-xs shadow-2xs"
             >
-              <div className={`w-2.5 h-2.5 rounded-full ${t.logoColor}`}></div>
-              <span className="font-bold text-slate-800">{t.shortName}</span>
-              <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 stroke-[1.75]" />
+              <div className={`w-2 h-2 rounded-full ${t.logoColor}`} />
+              <span className="font-sans font-medium text-[#1F2E28]">{t.shortName}</span>
+              <CheckCircle2 className="w-3.5 h-3.5 text-[#3D6B52] stroke-[1.75]" />
             </div>
           ))}
         </div>
       </div>
 
-      {/* Unauthorized Manufacturer Alert Banner (Demonstrates tenant isolation) */}
+      {/* Unauthorized Manufacturer Notice (Demonstrates tenant isolation) */}
       {unauthorizedTenants.length > 0 && (
-        <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+        <div className="p-3.5 rounded-lg bg-[#FCFBF8] border border-[#E2DDD2] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2.5">
-            <ShieldAlert className="w-5 h-5 text-slate-400 shrink-0 stroke-[1.75]" />
-            <span className="text-slate-600">
-              <strong>Multi-Tenancy Isolation Notice:</strong> You are not currently authorized with{' '}
-              <strong className="text-slate-900">
+            <ShieldAlert className="w-4 h-4 text-[#8A8578] shrink-0 stroke-[1.75]" />
+            <span className="text-[#8A8578] font-sans">
+              <strong className="text-[#1F2E28]">Multi-tenancy segregation:</strong> You are not currently authorized with{' '}
+              <strong className="text-[#1F2E28]">
                 {unauthorizedTenants.map((t) => t.shortName).join(', ')}
               </strong>
-              . Their catalog, batches, and wholesale rates remain completely segregated.
+              . Their batch records, catalog, and wholesale rate contracts remain strictly isolated.
             </span>
           </div>
         </div>
       )}
 
-      {/* 4. Deals / Best Bulk Pricing Highlights Rail */}
+      {/* 4. Deals / Volume Schemes Register Rail */}
       <DealsBulkPricingRail onSelectMedicine={(med) => setDetailModalMedicine(med)} />
 
       {/* Search & Category Filter Section */}
-      <div className="bg-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-subtle space-y-4">
+      <div className="bg-[#FCFBF8] p-4 sm:p-5 rounded-xl border border-[#E2DDD2] shadow-2xs space-y-3.5">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-slate-400 stroke-[1.75] absolute left-3.5 top-3" />
+            <Search className="w-4 h-4 text-[#8A8578] stroke-[1.75] absolute left-3.5 top-3" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search formulations by brand name, generic molecule (e.g. Paracetamol), composition..."
-              className="w-full text-xs pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition-colors"
+              placeholder="Search by brand name, generic molecule (e.g. Paracetamol), or therapeutic composition..."
+              className="w-full text-xs font-sans pl-9 pr-3.5 py-2.5 rounded-lg border border-[#E2DDD2] bg-white focus:outline-none focus:border-[#3D6B52] transition-colors"
             />
           </div>
 
@@ -274,9 +235,9 @@ export const BrowseMedicinesScreen: React.FC = () => {
           <select
             value={activeDistributorTenantFilter}
             onChange={(e) => setActiveDistributorTenantFilter(e.target.value)}
-            className="text-xs font-semibold px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-teal-500 outline-none transition-colors"
+            className="text-xs font-sans px-3.5 py-2.5 rounded-lg border border-[#E2DDD2] bg-white focus:outline-none focus:border-[#3D6B52] transition-colors"
           >
-            <option value="all">All Authorized Manufacturers</option>
+            <option value="all">All authorized manufacturers</option>
             {distributorAuthorizedTenants.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.name}
@@ -284,55 +245,52 @@ export const BrowseMedicinesScreen: React.FC = () => {
             ))}
           </select>
 
-          <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer select-none sm:px-2 py-2 sm:py-0">
+          <label className="flex items-center gap-2 text-xs font-sans text-[#1F2E28] cursor-pointer select-none sm:px-2 py-2 sm:py-0">
             <input
               type="checkbox"
               checked={inStockOnly}
               onChange={(e) => setInStockOnly(e.target.checked)}
-              className="rounded text-teal-600 focus:ring-teal-500"
+              className="rounded text-[#3D6B52] focus:ring-[#3D6B52]"
             />
-            <span>In-Stock Only</span>
+            <span>In-stock only</span>
           </label>
         </div>
 
-        {/* Category Navigation */}
+        {/* Category Navigation Tabs */}
         <div className="relative">
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-0.5 scrollbar-thin scrollbar-thumb-slate-200">
-            {categoryDefinitions.map((cat) => {
-              const Icon = cat.icon;
-              const isSelected = selectedCategory === cat.name;
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-0.5 scrollbar-thin scrollbar-thumb-[#E2DDD2]">
+            {categories.map((cat) => {
+              const isSelected = selectedCategory === cat;
 
               return (
                 <button
-                  key={cat.name}
-                  onClick={() => setSelectedCategory(cat.name)}
-                  className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0 ${
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-sans whitespace-nowrap transition-colors shrink-0 ${
                     isSelected
-                      ? 'bg-teal-600 text-white shadow-xs'
-                      : 'bg-slate-100/80 text-slate-700 hover:bg-slate-200/80 hover:text-slate-900'
+                      ? 'bg-[#1F2E28] text-white font-medium'
+                      : 'bg-white text-[#1F2E28] border border-[#E2DDD2] hover:bg-[#F6F3EC]'
                   }`}
                 >
-                  <Icon className={`w-3.5 h-3.5 stroke-[1.75] ${isSelected ? 'text-white' : 'text-slate-500'}`} />
-                  <span>{cat.name}</span>
+                  {cat}
                 </button>
               );
             })}
           </div>
-          <div className="pointer-events-none absolute right-0 top-0 bottom-1 w-8 bg-gradient-to-l from-white to-transparent" />
         </div>
       </div>
 
-      {/* Redesigned Product Card Grid */}
+      {/* Redesigned Manifest Product Grid */}
       {filteredMedicines.length === 0 ? (
         <EmptyState
           icon={Pill}
-          title="No Formulations Found"
+          title="No formulations found"
           description={
             distributorAuthorizedTenants.length === 0
               ? 'Your distributor account is not authorized with any manufacturer yet. Submit access requests under Account & Licenses.'
               : 'No matching medicines found for your search criteria or manufacturer filter. Try clearing filters.'
           }
-          actionLabel="Clear Filters"
+          actionLabel="Clear filters"
           onAction={() => {
             setSearchQuery('');
             setSelectedCategory('All');
@@ -340,7 +298,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
           }}
         />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredMedicines.map((med) => {
             const tenant = tenants.find((t) => t.id === med.tenantId);
             const totalStock = med.batches.reduce((sum, b) => sum + b.availableQuantity, 0);
@@ -349,158 +307,147 @@ export const BrowseMedicinesScreen: React.FC = () => {
             const pricingResult = computeEffectivePrice(med, currentDistributor.id, med.rules.minOrderQty);
             const distributorPrice = pricingResult.effectiveUnitPrice;
             const savingsPercent = med.mrp > 0 ? Math.round(((med.mrp - distributorPrice) / med.mrp) * 100) : 0;
-            const theme = getCategoryTheme(med.category);
-            const CategoryIcon = theme.icon;
+            const isRecalled = med.batches.some((b) => b.lifecycleStatus === 'recalled');
+            const isScheduleH = med.regulatory.scheduleClassification.includes('H');
 
             return (
               <div
                 key={med.id}
                 onClick={() => setDetailModalMedicine(med)}
-                className="bg-white rounded-2xl sm:rounded-3xl p-5 border border-slate-200/90 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-150 ease-out cursor-pointer group flex flex-col justify-between relative overflow-hidden"
+                className="bg-white rounded-lg p-4 border border-[#E2DDD2] hover:border-[#3D6B52]/40 shadow-2xs transition-colors cursor-pointer group flex flex-col justify-between relative overflow-hidden pl-4"
               >
-                {/* Corner Bulk Discount Ribbon (Orange strictly for promo ribbon) */}
-                {savingsPercent > 0 && (
-                  <div className="absolute -top-1 -right-1 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-black text-[10px] px-3 py-1 rounded-bl-xl shadow-xs tracking-wider">
-                    {savingsPercent}% OFF
-                  </div>
-                )}
+                {/* Thin left-edge status bar */}
+                <div 
+                  className={`absolute left-0 top-0 bottom-0 w-1 ${
+                    isRecalled
+                      ? 'bg-[#B54A32]'
+                      : totalStock <= 0
+                      ? 'bg-[#8A8578]'
+                      : isScheduleH
+                      ? 'bg-[#C9A961]'
+                      : 'bg-[#3D6B52]'
+                  }`} 
+                />
 
                 <div className="space-y-3">
                   {/* Manufacturer & Schedule Header */}
-                  <div className="flex items-center justify-between gap-2 pr-14">
-                    <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                      <div className={`w-2.5 h-2.5 rounded-full ${tenant?.logoColor || 'bg-slate-400'}`}></div>
-                      <span className="truncate">{tenant?.shortName}</span>
-                      <span title="Verified Direct Principal">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 shrink-0 stroke-[1.75]" />
-                      </span>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-sans text-[#1F2E28] flex items-center gap-1.5">
+                      <div className={`w-2 h-2 rounded-full ${tenant?.logoColor || 'bg-slate-400'}`} />
+                      <span className="font-semibold truncate">{tenant?.shortName}</span>
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#3D6B52] shrink-0 stroke-[1.75]" />
                     </span>
-                    <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200 shrink-0">
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-mono text-[#8A8578] bg-[#F6F3EC] border border-[#E2DDD2] shrink-0">
                       {med.regulatory.scheduleClassification}
                     </span>
                   </div>
 
-                  {/* Curated Pastel Icon Tile (Item 10) */}
-                  <div className={`w-full h-20 rounded-2xl ${theme.bg} border flex items-center justify-center relative overflow-hidden group-hover:scale-[1.01] transition-transform duration-200`}>
-                    <CategoryIcon className={`w-8 h-8 ${theme.text} stroke-[1.75]`} />
-                    <span className="absolute bottom-2 left-3 text-[10px] font-bold text-slate-600 uppercase tracking-wider">
-                      {med.category}
-                    </span>
-                  </div>
-
-                  {/* Medicine Name & Generic Composition Line */}
+                  {/* Medicine Name & Molecule Line */}
                   <div>
-                    <h3 className="font-black text-slate-900 text-base group-hover:text-teal-700 transition-colors leading-snug">
+                    <h3 className="font-serif font-bold text-[#1F2E28] text-base group-hover:text-[#3D6B52] transition-colors leading-snug">
                       {med.name}
                     </h3>
-                    <div className="flex items-center gap-1 mt-0.5 text-xs text-slate-600 font-medium line-clamp-1">
-                      <span className="text-slate-400">Molecule:</span>
-                      <span className="font-semibold text-slate-800">{med.genericName}</span>
+                    <div className="mt-0.5 text-xs text-[#8A8578] font-sans line-clamp-1">
+                      <span>Molecule: </span>
+                      <span className="text-[#1F2E28] font-medium">{med.genericName}</span>
                     </div>
                   </div>
 
-                  {/* 4-Grid Spec Block (Item 3: Soft card without individual box borders) */}
-                  <div className="rounded-xl bg-slate-50/90 border border-slate-200/60 p-2 text-[10px] divide-y divide-slate-200/50">
-                    <div className="grid grid-cols-2 pb-1.5 divide-x divide-slate-200/50">
+                  {/* Register Specs Block */}
+                  <div className="rounded border border-[#E5E0D5] bg-[#FCFBF8] p-2 text-[10px] divide-y divide-[#E5E0D5]">
+                    <div className="grid grid-cols-2 pb-1.5 divide-x divide-[#E5E0D5]">
                       <div className="pr-2">
-                        <span className="text-[9px] font-medium text-slate-400 uppercase tracking-wider block">MRP</span>
-                        <span className="font-bold text-slate-800 tabular-nums">{formatCurrency(med.mrp)}</span>
+                        <span className="text-[9px] text-[#8A8578] block">MRP</span>
+                        <span className="font-serif font-bold text-[#1F2E28] tabular-nums">{formatCurrency(med.mrp)}</span>
                       </div>
                       <div className="pl-2">
-                        <span className="text-[9px] font-medium text-slate-400 uppercase tracking-wider block">Batch</span>
-                        <span className="font-bold text-slate-800 font-mono truncate block max-w-[70px]">
+                        <span className="text-[9px] text-[#8A8578] block">Batch (FEFO)</span>
+                        <span className="font-mono font-medium text-[#1F2E28] truncate block max-w-[80px]">
                           {activeBatch?.batchNumber || 'N/A'}
                         </span>
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 pt-1.5 divide-x divide-slate-200/50">
+                    <div className="grid grid-cols-2 pt-1.5 divide-x divide-[#E5E0D5]">
                       <div className="pr-2">
-                        <span className="text-[9px] font-medium text-slate-400 uppercase tracking-wider block">Packaging</span>
-                        <span className="font-bold text-slate-800 truncate block max-w-[70px]">{med.packSize}</span>
+                        <span className="text-[9px] text-[#8A8578] block">Pack size</span>
+                        <span className="font-mono text-[#1F2E28] truncate block max-w-[80px]">{med.packSize}</span>
                       </div>
                       <div className="pl-2">
-                        <span className="text-[9px] font-medium text-slate-400 uppercase tracking-wider block">Stock</span>
-                        <span className={`font-bold tabular-nums block ${totalStock > 0 ? 'text-emerald-700' : 'text-rose-600'}`}>
+                        <span className="text-[9px] text-[#8A8578] block">Available</span>
+                        <span className={`font-mono font-semibold tabular-nums block ${totalStock > 0 ? 'text-[#3D6B52]' : 'text-[#B54A32]'}`}>
                           {totalStock} {med.packagingUnit}s
                         </span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Price Block (Item 4: High Contrast Final Wholesale Rate & Separated GST line) */}
-                  <div className="bg-teal-50/50 rounded-xl p-3 border border-teal-100/70">
+                  {/* Rate Block */}
+                  <div className="bg-[#FCFBF8] rounded-lg p-2.5 border border-[#E2DDD2]">
                     <div>
-                      <span className="text-[10px] font-semibold text-teal-800 uppercase tracking-wider block">
-                        Wholesale Net Rate
+                      <span className="text-[10px] text-[#8A8578] font-sans block">
+                        Wholesale net rate
                       </span>
                       <div className="flex items-baseline gap-2 mt-0.5">
-                        <span className="text-2xl font-black text-slate-900 tracking-tight tabular-nums">
+                        <span className="text-2xl font-serif font-bold text-[#1F2E28] tracking-tight tabular-nums">
                           {formatCurrency(distributorPrice)}
                         </span>
                         {med.mrp > 0 && (
-                          <span className="text-xs text-slate-400 line-through font-normal tabular-nums">
+                          <span className="text-xs text-[#8A8578] line-through font-serif tabular-nums">
                             {formatCurrency(med.mrp)}
                           </span>
                         )}
                       </div>
                     </div>
 
-                    <div className="pt-2 mt-2 border-t border-teal-100/60 flex items-center justify-between text-[10px]">
-                      <span className="text-slate-500 font-medium">
-                        + 12% GST Credit Eligible
+                    <div className="pt-2 mt-2 border-t border-[#E5E0D5] flex items-center justify-between text-[10px]">
+                      <span className="text-[#8A8578] font-sans">
+                        + 12% GST credit eligible
                       </span>
                       {savingsPercent > 0 && (
-                        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200/80 tabular-nums">
-                          {savingsPercent}% Margin
+                        <span className="font-mono font-semibold text-[#3D6B52] tabular-nums">
+                          {savingsPercent}% margin
                         </span>
                       )}
                     </div>
                   </div>
 
                   {/* Ordering Conditions */}
-                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-100/70 border border-slate-200/70 text-[10px] text-slate-600 font-medium tabular-nums">
-                    <Ruler className="w-3.5 h-3.5 text-teal-600 shrink-0 stroke-[1.75]" />
-                    <span className="font-semibold text-slate-700">Rules:</span>
+                  <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-[#F6F3EC] text-[10px] text-[#8A8578] font-mono">
+                    <span className="text-[#1F2E28]">Rules:</span>
                     <span>Min {med.rules.minOrderQty}</span>
-                    <span>•</span>
-                    {med.rules.orderMultiple > 1 && (
-                      <>
-                        <span>Step ×{med.rules.orderMultiple}</span>
-                        <span>•</span>
-                      </>
-                    )}
-                    <span>Max {med.rules.maxOrderQty} {med.packagingUnit}s</span>
+                    {med.rules.orderMultiple > 1 && <span>• Mult ×{med.rules.orderMultiple}</span>}
+                    <span>• Max {med.rules.maxOrderQty} {med.packagingUnit}s</span>
                   </div>
 
                   {/* Recalled Notice */}
-                  {med.batches.some((b) => b.lifecycleStatus === 'recalled') && (
-                    <div className="p-2 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-[10px] font-bold flex items-center gap-1.5">
-                      <AlertTriangle className="w-3.5 h-3.5 text-rose-600 shrink-0 stroke-[1.75]" />
-                      <span>Batch Recall in Effect for this SKU</span>
+                  {isRecalled && (
+                    <div className="p-2 rounded bg-[#B54A32]/10 border border-[#B54A32]/20 text-[#B54A32] text-[10px] font-sans font-semibold flex items-center gap-1.5">
+                      <AlertTriangle className="w-3.5 h-3.5 text-[#B54A32] shrink-0 stroke-[1.75]" />
+                      <span>Batch recall in effect for this SKU</span>
                     </div>
                   )}
                 </div>
 
-                {/* Card Action Row: Unified Teal CTA */}
-                <div className="pt-3 mt-3 border-t border-slate-100 flex items-center gap-2">
+                {/* Card Action Row */}
+                <div className="pt-3 mt-3 border-t border-[#E5E0D5] flex items-center gap-2">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       setDetailModalMedicine(med);
                     }}
-                    className="flex-1 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs transition-colors text-center"
+                    className="flex-1 py-2 rounded border border-[#E2DDD2] bg-white hover:bg-[#F6F3EC] text-[#1F2E28] font-sans font-medium text-xs transition-colors text-center"
                   >
-                    View Batches & FEFO
+                    Inspect batches
                   </button>
 
                   <button
                     onClick={(e) => handleQuickAdd(e, med)}
                     disabled={totalStock <= 0}
-                    className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 disabled:bg-slate-200 disabled:text-slate-400 text-white font-bold text-xs shadow-xs transition-all duration-150 flex items-center gap-1 active:scale-95 group/btn"
-                    title={`Add MOQ (${med.rules.minOrderQty || 10} units) to Cart`}
+                    className="px-3.5 py-2 rounded bg-[#3D6B52] hover:bg-[#2F523E] disabled:bg-[#E5E0D5] disabled:text-[#8A8578] text-white font-sans font-semibold text-xs transition-colors flex items-center gap-1.5 active:scale-95 group/btn"
+                    title={`Add minimum order quantity (${med.rules.minOrderQty || 10} units) to order`}
                   >
-                    <Plus className="w-4 h-4 transition-transform group-hover/btn:rotate-90 stroke-[2]" />
-                    <span>Add</span>
+                    <Plus className="w-3.5 h-3.5 stroke-[2]" />
+                    <span>Add to order</span>
                   </button>
                 </div>
               </div>

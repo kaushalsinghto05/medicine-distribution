@@ -1,5 +1,4 @@
 import React from 'react';
-import { Activity } from 'lucide-react';
 
 interface BrandLogoProps {
   size?: 'sm' | 'md' | 'lg';
@@ -14,44 +13,28 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
   className = '',
   variant = 'dark',
 }) => {
-  const iconSizes = {
-    sm: 'w-7 h-7 rounded-lg',
-    md: 'w-9 h-9 sm:w-10 sm:h-10 rounded-xl',
-    lg: 'w-11 h-11 sm:w-12 sm:h-12 rounded-2xl',
-  };
-
-  const textSizes = {
-    sm: 'text-sm font-bold',
-    md: 'text-base sm:text-lg font-extrabold',
-    lg: 'text-xl sm:text-2xl font-black',
-  };
-
   const isDark = variant === 'dark';
 
   return (
-    <div className={`flex items-center gap-2.5 select-none ${className}`}>
-      <div
-        className={`${iconSizes[size]} bg-gradient-to-br from-teal-500 via-sky-600 to-indigo-700 flex items-center justify-center text-white shadow-md shadow-teal-500/20 shrink-0`}
-      >
-        <Activity className="w-5 h-5 stroke-[2.2]" />
+    <div className={`flex items-center gap-3 select-none ${className}`}>
+      {/* Apothecary Register Emblem */}
+      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-[#3D6B52] border border-[#4E8568] flex items-center justify-center text-[#F6F3EC] shadow-xs shrink-0">
+        <span className="font-serif font-bold text-lg leading-none">℞</span>
       </div>
+
       <div className="leading-tight">
-        <div className="flex items-center gap-1.5">
-          <span className={`${textSizes[size]} ${isDark ? 'text-white' : 'text-slate-900'} tracking-tight`}>
-            Pharm<span className="text-teal-400">Xpress</span>
+        <div className="flex items-center gap-2">
+          <span className={`font-serif text-lg sm:text-xl font-bold tracking-tight ${isDark ? 'text-[#F6F3EC]' : 'text-[#1F2E28]'}`}>
+            Pharm<span className="text-[#C9A961]">Xpress</span>
           </span>
           {showTag && (
-            <span className={`hidden md:inline-block px-1.5 py-0.5 text-[9px] font-bold tracking-wider uppercase rounded-md ${
-              isDark 
-                ? 'bg-teal-950/80 text-teal-300 border border-teal-800/80' 
-                : 'bg-indigo-50 text-indigo-700 border border-indigo-200/80'
-            }`}>
-              B2B Marketplace
+            <span className="hidden md:inline-block px-1.5 py-0.5 text-[9px] font-mono font-semibold tracking-wider uppercase rounded border border-[#C9A961]/40 text-[#C9A961] bg-[#C9A961]/10">
+              Form 20B/21B Register
             </span>
           )}
         </div>
-        <span className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-slate-500'} block font-medium`}>
-          Regulated Distribution Network
+        <span className="font-mono text-[10px] text-[#8A8578] block">
+          Regulated wholesale trade register
         </span>
       </div>
     </div>

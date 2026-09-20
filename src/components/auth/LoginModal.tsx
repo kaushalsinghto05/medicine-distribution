@@ -136,9 +136,9 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
         {activeTab === 'quick' ? (
           <div className="space-y-3">
-            <div className="flex items-center justify-between text-[11px] text-slate-400 font-bold uppercase tracking-wider">
-              <span>Select Persona to Issue Token</span>
-              <span>Permissions & Claims</span>
+            <div className="flex items-center justify-between text-[11px] text-[#8A8578] font-sans">
+              <span>Select persona to issue token</span>
+              <span>Permissions & claims</span>
             </div>
 
             <div className="space-y-2 max-h-[360px] overflow-y-auto pr-1">
@@ -147,10 +147,10 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                   key={user.id}
                   onClick={() => handleSelectPredefined(user)}
                   disabled={loading}
-                  className="w-full p-3 rounded-2xl border border-slate-200 hover:border-sky-400 hover:bg-sky-50/40 text-left transition-all group flex items-center justify-between gap-3 text-xs"
+                  className="w-full p-3 rounded-xl border border-[#E2DDD2] hover:border-[#3D6B52] hover:bg-[#F6F3EC] text-left transition-colors group flex items-center justify-between gap-3 text-xs"
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`w-9 h-9 rounded-xl ${user.avatarColor} text-white font-bold flex items-center justify-center shrink-0 shadow-sm`}>
+                    <div className={`w-9 h-9 rounded-lg ${user.avatarColor} text-white font-bold flex items-center justify-center shrink-0 shadow-2xs`}>
                       {user.role === 'distributor' ? (
                         <Store className="w-4 h-4" />
                       ) : (
@@ -159,24 +159,20 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-slate-900 group-hover:text-sky-700 transition-colors">
+                        <span className="font-serif font-bold text-[#1F2E28] group-hover:text-[#3D6B52] transition-colors">
                           {user.name}
                         </span>
-                        <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
-                          user.role === 'manufacturer_admin'
-                            ? 'bg-purple-100 text-purple-800'
-                            : user.role === 'manufacturer_staff'
-                            ? 'bg-cyan-100 text-cyan-800'
-                            : 'bg-indigo-100 text-indigo-800'
-                        }`}>
-                          {user.role.replace(/_/g, ' ').toUpperCase()}
+                        <span className="px-2 py-0.5 rounded text-[9px] font-mono text-[#1F2E28] bg-[#F6F3EC] border border-[#E2DDD2]">
+                          {user.role.replace(/_/g, ' ')}
                         </span>
                       </div>
-                      <span className="text-[11px] text-slate-500 block">{user.designation}</span>
+                      <span className="text-[11px] text-[#8A8578] block font-sans">{user.designation}</span>
                     </div>
                   </div>
 
-                  <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-sky-600 transition-transform group-hover:translate-x-0.5 shrink-0" />
+                  <span className="text-xs font-sans text-[#3D6B52] font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+                    Select
+                  </span>
                 </button>
               ))}
             </div>
