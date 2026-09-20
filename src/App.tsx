@@ -11,6 +11,7 @@ import { LoginModal } from './components/auth/LoginModal';
 import { JwtDebuggerBar } from './components/auth/JwtDebuggerBar';
 import { HeroSection } from './components/landing/HeroSection';
 import { FooterSection } from './components/landing/FooterSection';
+import { TitlePlateSplash } from './components/common/TitlePlateSplash';
 import { ShieldAlert, ArrowRight, Building2, Store, Sparkles } from 'lucide-react';
 
 const AppContent: React.FC = () => {
@@ -30,6 +31,9 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-sky-500 selection:text-white">
+      {/* Title Plate Splash Screen (First Load Once-Per-Session) */}
+      <TitlePlateSplash />
+
       {/* Global Top Navbar */}
       <Navbar
         onOpenCart={() => setIsCartOpen(true)}

@@ -103,6 +103,111 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               </p>
             </div>
 
+            {/* Clear Role-First Fork: Manufacturer vs. Distributor Choice */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
+              {/* Panel 1: Manufacturer */}
+              <button
+                type="button"
+                onClick={() => {
+                  setPortalMode('manufacturer');
+                  switchPredefinedUser('usr-acme-admin-01');
+                  const element = document.getElementById('marketplace-content');
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+                className={`group relative text-left rounded-xl p-4 sm:p-5 border transition-all cursor-pointer overflow-hidden ${
+                  portalMode === 'manufacturer'
+                    ? 'bg-[#16221E] border-[#C9A961] ring-1 ring-[#C9A961]/50 shadow-sm'
+                    : 'bg-[#16221E]/80 border-[#2C3E36] hover:border-[#C9A961]/60 hover:bg-[#16221E]'
+                }`}
+              >
+                {/* Thin left color bar */}
+                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#C9A961]" />
+
+                <div className="pl-2 space-y-2">
+                  {/* Monospace micro-detail & stamp seal */}
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono text-[10px] text-[#C9A961] tracking-wider uppercase font-semibold">
+                      Licensed Manufacturer
+                    </span>
+                    <span className="stamp-seal text-[9px] py-0 px-1.5 border-[#C9A961] text-[#C9A961]">
+                      Form 25 / 28
+                    </span>
+                  </div>
+
+                  {/* Role Heading */}
+                  <div className="flex items-center gap-2">
+                    <Building2 className="w-4 h-4 text-[#C9A961] shrink-0 stroke-[1.75]" />
+                    <h2 className="font-serif text-base sm:text-lg font-bold text-[#F6F3EC] group-hover:text-white transition-colors">
+                      I manufacture medicine
+                    </h2>
+                  </div>
+
+                  {/* One-line plain description */}
+                  <p className="font-sans text-xs text-[#8A8578] leading-relaxed">
+                    List your formulations, set trade rules, manage your distributor network
+                  </p>
+
+                  {/* Active verb CTA */}
+                  <div className="pt-1 flex items-center gap-1.5 text-xs font-sans font-semibold text-[#C9A961]">
+                    <span>Open manufacturer register</span>
+                  </div>
+                </div>
+              </button>
+
+              {/* Panel 2: Distributor */}
+              <button
+                type="button"
+                onClick={() => {
+                  setPortalMode('distributor');
+                  if (onExploreCatalog) onExploreCatalog();
+                  const element = document.getElementById('marketplace-content');
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+                className={`group relative text-left rounded-xl p-4 sm:p-5 border transition-all cursor-pointer overflow-hidden ${
+                  portalMode === 'distributor'
+                    ? 'bg-[#16221E] border-[#3D6B52] ring-1 ring-[#3D6B52]/50 shadow-sm'
+                    : 'bg-[#16221E]/80 border-[#2C3E36] hover:border-[#3D6B52]/60 hover:bg-[#16221E]'
+                }`}
+              >
+                {/* Thin left color bar */}
+                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#3D6B52]" />
+
+                <div className="pl-2 space-y-2">
+                  {/* Monospace micro-detail & stamp seal */}
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono text-[10px] text-[#A8C9B3] tracking-wider uppercase font-semibold">
+                      Wholesale Stockist
+                    </span>
+                    <span className="stamp-seal stamp-seal-green text-[9px] py-0 px-1.5">
+                      Form 20B / 21B
+                    </span>
+                  </div>
+
+                  {/* Role Heading */}
+                  <div className="flex items-center gap-2">
+                    <Store className="w-4 h-4 text-[#3D6B52] shrink-0 stroke-[1.75]" />
+                    <h2 className="font-serif text-base sm:text-lg font-bold text-[#F6F3EC] group-hover:text-white transition-colors">
+                      I distribute medicine
+                    </h2>
+                  </div>
+
+                  {/* One-line plain description */}
+                  <p className="font-sans text-xs text-[#8A8578] leading-relaxed">
+                    Order from manufacturers you're licensed to trade with, track batches and dispatch
+                  </p>
+
+                  {/* Active verb CTA */}
+                  <div className="pt-1 flex items-center gap-1.5 text-xs font-sans font-semibold text-[#A8C9B3]">
+                    <span>Open distributor register</span>
+                  </div>
+                </div>
+              </button>
+            </div>
+
             {/* Plain working register search */}
             <div className="space-y-2 pt-1">
               <form onSubmit={handleSearchSubmit} className="flex items-stretch rounded-lg overflow-hidden border border-[#2C3E36] bg-[#16221E] focus-within:border-[#3D6B52]">
@@ -137,35 +242,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   </button>
                 ))}
               </div>
-            </div>
-
-            {/* Action Buttons: Explicit Labels, NO arrow glyphs */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
-              <button
-                onClick={() => {
-                  setPortalMode('distributor');
-                  if (onExploreCatalog) onExploreCatalog();
-                }}
-                className={`flex items-center justify-center gap-2 px-5 py-3 rounded-lg text-xs sm:text-sm font-sans font-semibold transition-colors ${
-                  portalMode === 'distributor'
-                    ? 'bg-[#3D6B52] hover:bg-[#4E8568] text-[#F6F3EC]'
-                    : 'bg-[#3D6B52] hover:bg-[#4E8568] text-[#F6F3EC]'
-                }`}
-              >
-                <Store className="w-4 h-4" />
-                <span>Explore medicine register</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  setPortalMode('manufacturer');
-                  switchPredefinedUser('usr-acme-admin-01');
-                }}
-                className="flex items-center justify-center gap-2 px-5 py-3 rounded-lg text-xs sm:text-sm font-sans font-semibold border border-[#2C3E36] bg-[#16221E] hover:border-[#3D6B52] text-[#F6F3EC] transition-colors"
-              >
-                <Building2 className="w-4 h-4 text-[#C9A961]" />
-                <span>Manufacturer operations</span>
-              </button>
             </div>
 
             {/* Section 3 KPI Numbers: Serif Numerals, Caps-Free Sentence Case, NO Icon-in-Circle */}
