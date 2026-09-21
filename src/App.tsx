@@ -197,6 +197,18 @@ const AppContent: React.FC = () => {
       {/* JWT Debugger Bar (Collapsible Bottom Inspector) */}
       <JwtDebuggerBar onOpenLogin={() => setIsLoginModalOpen(true)} />
 
+      {/* Floating WhatsApp B2B Helpdesk Pill (Apollo & PharmEasy Pattern) */}
+      <a
+        href="https://wa.me/919999999999?text=Hello%20PharmXpress%2C%20I%20want%20to%20place%20a%20wholesale%20B2B%20medicine%20order."
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-5 right-5 z-40 flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#25D366] hover:bg-[#20BD5A] text-white shadow-xl hover:shadow-2xl font-black text-xs transition-all duration-200 hover:scale-105 active:scale-95 group border border-white/20"
+        title="Chat with B2B Wholesale Pharmacist on WhatsApp"
+      >
+        <span className="text-base leading-none">💬</span>
+        <span className="font-extrabold tracking-wide uppercase">ORDER ON WHATSAPP</span>
+      </a>
+
       {/* Mobile Sticky Cart Summary Bar */}
       <MobileStickyCartBar onOpenCart={() => setIsCartOpen(true)} />
 

@@ -20,6 +20,7 @@ import {
   AlertTriangle,
   Building2,
   Lock,
+  Store,
 } from 'lucide-react';
 
 interface NavItem {
@@ -45,8 +46,8 @@ export const ManufacturerPortal: React.FC<ManufacturerPortalProps> = ({
   mobileMenuOpen,
   setMobileMenuOpen,
 }) => {
-  const { currentTenant, tenantReturnRequests, tenantOrders, tenantWasteReturnRequests } = useStore();
-  const [activeTab, setActiveTab] = useState<string>('dashboard');
+  const { currentTenant, tenantReturnRequests, tenantOrders, tenantWasteReturnRequests, navigateToPage, setPortalMode } = useStore();
+  const [activeTab, setActiveTab] = useState<string>('orders');
 
   const pendingReturnsCount = tenantReturnRequests.filter((r) => r.status === 'pending').length;
   const pendingWasteReturnsCount = tenantWasteReturnRequests.filter(
@@ -118,23 +119,39 @@ export const ManufacturerPortal: React.FC<ManufacturerPortalProps> = ({
             mobileMenuOpen ? 'block' : 'hidden lg:block'
           }`}
         >
-          <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-subtle sticky top-24 space-y-5">
+          <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-2xs sticky top-24 space-y-5">
+            {/* Quick Switch Button back to Wholesale Storefront */}
+            <button
+              type="button"
+              onClick={() => {
+                setPortalMode('distributor');
+                navigateToPage('marketplace');
+              }}
+              className="w-full flex items-center justify-between p-2.5 rounded-xl bg-[#E8F3F1] hover:bg-[#D5EAE5] text-[#1A504C] font-extrabold text-xs transition-colors border border-[#1A504C]/20"
+            >
+              <div className="flex items-center gap-2">
+                <Store className="w-4 h-4 text-[#1A504C]" />
+                <span>Switch to Buyer Storefront</span>
+              </div>
+              <span className="text-[10px]">➔</span>
+            </button>
+
             {/* Active Tenant Card */}
-            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+            <div className="p-3.5 rounded-xl bg-[#F5F8F6] border border-gray-200">
               <div className="flex items-center gap-2.5">
-                <div className={`w-3 h-3 rounded-full ${currentTenant.logoColor}`}></div>
-                <div className="min-w-0">
-                  <span className="font-bold text-xs text-slate-900 block truncate">
+                <div className={`w-3.5 h-3.5 rounded-full ${currentTenant.logoColor || 'bg-[#1A504C]'}`}></div>
+                <div className="min-w-0 flex-1">
+                  <span className="font-heading font-extrabold text-xs text-[#1A1A1A] block truncate">
                     {currentTenant.name}
                   </span>
-                  <span className="text-[10px] text-slate-500 font-mono block">
+                  <span className="text-[10px] text-[#6B7280] font-mono block">
                     DL: {currentTenant.drugLicenseNumber}
                   </span>
                 </div>
               </div>
-              <div className="mt-2.5 pt-2 border-t border-slate-200/60 flex items-center justify-between text-[10px]">
-                <span className="text-slate-400">Tenant Workspace</span>
-                <span className="font-mono font-bold text-slate-700 bg-white px-1.5 py-0.5 rounded border border-slate-200">
+              <div className="mt-2.5 pt-2 border-t border-gray-200 flex items-center justify-between text-[10px]">
+                <span className="text-[#6B7280]">Tenant Workspace</span>
+                <span className="font-mono font-bold text-[#1A504C] bg-white px-2 py-0.5 rounded border border-gray-200">
                   {currentTenant.id}
                 </span>
               </div>
@@ -144,7 +161,7 @@ export const ManufacturerPortal: React.FC<ManufacturerPortalProps> = ({
             <nav className="space-y-4">
               {navSections.map((section) => (
                 <div key={section.title} className="space-y-1">
-                  <span className="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                  <span className="px-3 text-[10px] font-black text-[#6B7280] uppercase tracking-wider block">
                     {section.title}
                   </span>
                   <div className="space-y-0.5">
@@ -156,26 +173,22 @@ export const ManufacturerPortal: React.FC<ManufacturerPortalProps> = ({
                         <button
                           key={item.id}
                           onClick={() => handleNavClick(item.id)}
-                          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-150 ${
+                          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all duration-150 ${
                             isActive
-                              ? item.isHazard
-                                ? 'border-l-4 border-l-amber-500 bg-amber-50 text-amber-950 font-bold shadow-2xs'
-                                : 'border-l-4 border-l-indigo-600 bg-indigo-50/80 text-indigo-950 font-bold shadow-2xs'
+                              ? 'bg-[#1A504C] text-white shadow-xs'
                               : item.isHazard
-                              ? 'text-amber-800/80 hover:text-amber-950 hover:bg-amber-50/40'
-                              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                              ? 'text-amber-800 hover:text-amber-950 hover:bg-amber-50/60'
+                              : 'text-[#4B5563] hover:text-[#1A1A1A] hover:bg-[#F5F8F6]'
                           }`}
                         >
                           <div className="flex items-center gap-2.5 min-w-0">
                             <Icon
                               className={`w-4 h-4 shrink-0 ${
                                 isActive
-                                  ? item.isHazard
-                                    ? 'text-amber-600'
-                                    : 'text-indigo-600'
+                                  ? 'text-white'
                                   : item.isHazard
-                                  ? 'text-amber-500'
-                                  : 'text-slate-400'
+                                  ? 'text-amber-600'
+                                  : 'text-[#6B7280]'
                               }`}
                             />
                             <span className="truncate">{item.label}</span>
@@ -185,7 +198,9 @@ export const ManufacturerPortal: React.FC<ManufacturerPortalProps> = ({
                             {item.alertBadge && (
                               <span
                                 className={`px-1.5 py-0.2 rounded-full text-[9px] font-bold ${
-                                  item.isHazard
+                                  isActive
+                                    ? 'bg-white/20 text-white'
+                                    : item.isHazard
                                     ? 'bg-amber-200 text-amber-900'
                                     : 'bg-rose-100 text-rose-800'
                                 }`}
@@ -194,7 +209,13 @@ export const ManufacturerPortal: React.FC<ManufacturerPortalProps> = ({
                               </span>
                             )}
                             {item.badge && (
-                              <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800">
+                              <span
+                                className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                                  isActive
+                                    ? 'bg-white/20 text-white'
+                                    : 'bg-[#E8F3F1] text-[#1A504C]'
+                                }`}
+                              >
                                 {item.badge}
                               </span>
                             )}
@@ -208,10 +229,10 @@ export const ManufacturerPortal: React.FC<ManufacturerPortalProps> = ({
             </nav>
 
             {/* Tenant Isolation Reassurance */}
-            <div className="pt-3 border-t border-slate-100">
-              <div className="flex items-center gap-2 text-[10px] text-slate-400 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                <Lock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                <span>Multi-tenant encrypted isolation active</span>
+            <div className="pt-3 border-t border-gray-100">
+              <div className="flex items-center gap-2 text-[10px] text-[#6B7280] bg-[#F5F8F6] p-2.5 rounded-xl border border-gray-200">
+                <Lock className="w-3.5 h-3.5 text-[#1A504C] shrink-0" />
+                <span className="font-semibold">Multi-tenant encrypted isolation active</span>
               </div>
             </div>
           </div>

@@ -224,16 +224,20 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [activePage, setActivePage] = useState<AppPage>(() =>
     loadFromStorage<AppPage>('activePage', 'home')
   );
-  const [portalMode, setPortalMode] = useState<PortalMode>(() =>
+  const [portalMode, setPortalModeState] = useState<PortalMode>(() =>
     loadFromStorage<PortalMode>('portalMode', 'distributor')
   );
+
+  const setPortalMode = (mode: PortalMode) => {
+    setPortalModeState(mode);
+    saveToStorage('portalMode', mode);
+  };
 
   const navigateToPage = (page: AppPage) => {
     setActivePage(page);
     saveToStorage('activePage', page);
-    if (page === 'marketplace' || page === 'orders' || page === 'waste' || page === 'licenses' || page === 'credit') {
-      setPortalMode('distributor');
-    }
+    // Any customer-facing page navigation switches back to distributor wholesale view
+    setPortalMode('distributor');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   const [activeTenantId, setActiveTenantId] = useState<string>(() =>

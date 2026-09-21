@@ -143,18 +143,85 @@ export const OrderManagementScreen: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Header with Title & Live Regulatory Badge */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-gray-200 shadow-2xs">
         <div>
-          <h1 className="font-heading font-bold text-xl text-slate-900">Order Fulfilment & Returns</h1>
-          <p className="text-xs text-slate-500">
+          <div className="flex items-center gap-2">
+            <h1 className="font-heading font-black text-xl text-[#1A1A1A]">Order Fulfilment & Operations Hub</h1>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[#E8F3F1] text-[#1A504C] uppercase">
+              Principal Ops
+            </span>
+          </div>
+          <p className="text-xs text-[#6B7280] mt-0.5">
             Manage 8-stage lifecycle progression, carrier dispatch, tracking references, and return restock authorizations.
           </p>
+        </div>
+
+        <div className="flex items-center gap-2 text-xs">
+          <span className="px-3 py-1.5 rounded-xl bg-[#F5F8F6] text-[#1A504C] font-extrabold border border-gray-200 flex items-center gap-1.5">
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>Form 25/28 Licensed Principal</span>
+          </span>
+        </div>
+      </div>
+
+      {/* Top 4 KPI Executive Metric Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div className="p-4 rounded-2xl bg-white border border-gray-200 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-[#6B7280]">Total Inquiries</span>
+            <span className="w-8 h-8 rounded-xl bg-[#E8F3F1] text-[#1A504C] flex items-center justify-center font-bold text-xs">
+              📦
+            </span>
+          </div>
+          <div className="text-2xl font-black text-[#1A1A1A] mt-2">
+            {tenantOrders.length}
+          </div>
+          <span className="text-[10px] text-[#6B7280] font-semibold mt-1 block">Active Wholesale Consignments</span>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-white border border-gray-200 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-[#6B7280]">New Inbound</span>
+            <span className="w-8 h-8 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center font-bold text-xs">
+              ⚡
+            </span>
+          </div>
+          <div className="text-2xl font-black text-amber-600 mt-2">
+            {tenantOrders.filter((o) => o.status === 'new').length}
+          </div>
+          <span className="text-[10px] text-[#6B7280] font-semibold mt-1 block">Awaiting Confirmation</span>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-white border border-gray-200 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-[#6B7280]">Warehouse Ready</span>
+            <span className="w-8 h-8 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center font-bold text-xs">
+              🚚
+            </span>
+          </div>
+          <div className="text-2xl font-black text-blue-600 mt-2">
+            {tenantOrders.filter((o) => o.status === 'ready_for_dispatch').length}
+          </div>
+          <span className="text-[10px] text-[#6B7280] font-semibold mt-1 block">Ready for Carrier Dispatch</span>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-white border border-gray-200 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-[#6B7280]">In Transit</span>
+            <span className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold text-xs">
+              ❄️
+            </span>
+          </div>
+          <div className="text-2xl font-black text-emerald-600 mt-2">
+            {tenantOrders.filter((o) => o.status === 'dispatched').length}
+          </div>
+          <span className="text-[10px] text-[#6B7280] font-semibold mt-1 block">2°C–8°C Monitored Transit</span>
         </div>
       </div>
 
       {/* Tabs Bar */}
-      <div className="bg-white p-2 rounded-lg border border-slate-200 shadow-none flex items-center gap-1.5 overflow-x-auto">
+      <div className="bg-white p-2 rounded-2xl border border-gray-200 shadow-2xs flex items-center gap-1.5 overflow-x-auto scrollbar-none">
         {[
           { id: 'all', label: 'All Orders', count: tenantOrders.length },
           { id: 'new', label: 'New', count: tenantOrders.filter((o) => o.status === 'new').length },
@@ -203,22 +270,22 @@ export const OrderManagementScreen: React.FC = () => {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`px-3 py-2 text-xs font-semibold rounded-lg whitespace-nowrap transition-all flex items-center gap-1.5 ${
+            className={`px-3.5 py-2 text-xs font-extrabold rounded-xl whitespace-nowrap transition-all flex items-center gap-2 ${
               activeTab === tab.id
-                ? 'bg-sky-600 text-white shadow-none'
+                ? 'bg-[#1A504C] text-white shadow-xs'
                 : tab.highlight
                 ? 'bg-amber-100 text-amber-900 hover:bg-amber-200 font-bold'
-                : 'text-slate-600 hover:bg-slate-100'
+                : 'text-[#6B7280] hover:text-[#1A1A1A] hover:bg-[#F5F8F6]'
             }`}
           >
             <span>{tab.label}</span>
             <span
-              className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+              className={`px-1.5 py-0.5 rounded-full text-[10px] font-black ${
                 activeTab === tab.id
-                  ? 'bg-sky-700 text-white'
+                  ? 'bg-white/20 text-white'
                   : tab.highlight
                   ? 'bg-amber-200 text-amber-900'
-                  : 'bg-slate-200 text-slate-700'
+                  : 'bg-[#F5F8F6] text-[#6B7280]'
               }`}
             >
               {tab.count}
@@ -392,25 +459,25 @@ export const OrderManagementScreen: React.FC = () => {
         </div>
       ) : (
         /* STANDARD ORDERS TABLE */
-        <div className="bg-white rounded-lg border border-slate-200 shadow-none overflow-hidden">
+        <div className="bg-white rounded-3xl border border-gray-200 shadow-2xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 border-b border-slate-100 text-slate-600 font-semibold uppercase tracking-wider">
+              <thead className="bg-[#F5F8F6] border-b border-gray-200 text-[#1A1A1A] font-black text-[11px] uppercase tracking-wider">
                 <tr>
-                  <th className="py-3.5 px-4">Order Ref</th>
-                  <th className="py-3.5 px-4">Distributor</th>
-                  <th className="py-3.5 px-4">Items & Batches</th>
-                  <th className="py-3.5 px-4">Total (₹)</th>
-                  <th className="py-3.5 px-4">Logistics / Tracking</th>
-                  <th className="py-3.5 px-4">Status</th>
-                  <th className="py-3.5 px-4 text-right">Workflow Action</th>
+                  <th className="py-4 px-4">Order Ref</th>
+                  <th className="py-4 px-4">Distributor Buyer</th>
+                  <th className="py-4 px-4">Items & FEFO Batches</th>
+                  <th className="py-4 px-4">Total (₹)</th>
+                  <th className="py-4 px-4">Logistics / Tracking</th>
+                  <th className="py-4 px-4">Status</th>
+                  <th className="py-4 px-4 text-right">Workflow Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-700">
+              <tbody className="divide-y divide-gray-100 text-[#1A1A1A]">
                 {filteredOrders.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-8 text-center text-slate-400 text-xs">
-                      No orders in this status category.
+                    <td colSpan={7} className="py-12 text-center text-[#6B7280] text-xs">
+                      No wholesale orders in this status category.
                     </td>
                   </tr>
                 ) : (
@@ -418,26 +485,31 @@ export const OrderManagementScreen: React.FC = () => {
                     const dist = tenantDistributors.find((d) => d.id === ord.distributorId);
 
                     return (
-                      <tr key={ord.id} className="hover:bg-slate-50/80 transition-colors">
-                        <td className="py-4 px-4 font-bold text-slate-900">
-                          {ord.orderNumber}
-                          <span className="text-[10px] text-slate-400 font-normal block">
+                      <tr key={ord.id} className="hover:bg-[#F9FBFA] transition-colors">
+                        <td className="py-4 px-4">
+                          <span className="font-heading font-black text-sm text-[#1A1A1A] block">
+                            {ord.orderNumber}
+                          </span>
+                          <span className="text-[10px] text-[#6B7280] font-semibold block mt-0.5">
                             {formatDate(ord.createdAt)}
                           </span>
                         </td>
 
                         <td className="py-4 px-4">
-                          <span className="font-semibold text-slate-900 block">{dist?.name}</span>
-                          <span className="text-[10px] text-slate-500">{dist?.city}, {dist?.state}</span>
+                          <span className="font-bold text-xs text-[#1A1A1A] block">{dist?.name}</span>
+                          <span className="text-[10px] text-[#6B7280] flex items-center gap-1 mt-0.5 font-medium">
+                            <span>📍</span>
+                            <span>{dist?.city}, {dist?.state}</span>
+                          </span>
                         </td>
 
                         <td className="py-4 px-4">
-                          <div className="space-y-0.5">
+                          <div className="space-y-1">
                             {ord.items.map((it, idx) => (
-                              <div key={idx} className="flex items-center gap-1.5">
-                                <span className="font-medium text-slate-800">{it.medicineName}</span>
-                                <span className="text-slate-400">({it.fulfilledQuantity} {it.packagingUnit}s)</span>
-                                <span className="font-mono text-[10px] bg-slate-100 px-1 py-0.5 rounded text-slate-600">
+                              <div key={idx} className="flex items-center gap-1.5 flex-wrap">
+                                <span className="font-bold text-xs text-[#1A1A1A]">{it.medicineName}</span>
+                                <span className="text-[#6B7280] text-[11px]">({it.fulfilledQuantity} {it.packagingUnit}s)</span>
+                                <span className="font-mono text-[10px] font-bold bg-[#E8F3F1] text-[#1A504C] px-1.5 py-0.5 rounded">
                                   {it.batchNumber}
                                 </span>
                               </div>
@@ -446,24 +518,24 @@ export const OrderManagementScreen: React.FC = () => {
                         </td>
 
                         <td className="py-4 px-4">
-                          <div className="font-bold text-slate-900">{formatCurrency(ord.totalAmount)}</div>
-                          <span className="text-[10px] text-slate-500 capitalize">
-                            {ord.paymentMethod} • {ord.paymentStatus}
+                          <div className="font-heading font-black text-sm text-[#1A1A1A]">{formatCurrency(ord.totalAmount)}</div>
+                          <span className="text-[10px] text-[#6B7280] font-semibold capitalize block mt-0.5">
+                            {ord.paymentMethod === 'credit' ? 'Trade Credit' : 'Online Prepaid'} • {ord.paymentStatus}
                           </span>
                         </td>
 
                         <td className="py-4 px-4">
                           {ord.trackingReference ? (
                             <div>
-                              <span className="font-semibold text-slate-800 block">
-                                {ord.logisticsPartnerName || 'Logistics Partner'}
+                              <span className="font-bold text-xs text-[#1A1A1A] block">
+                                {ord.logisticsPartnerName || 'Logistics Fleet'}
                               </span>
-                              <span className="font-mono text-[10px] text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded">
+                              <span className="font-mono text-[10px] text-[#1A504C] bg-[#E8F3F1] font-bold px-1.5 py-0.5 rounded inline-block mt-0.5">
                                 {ord.trackingReference}
                               </span>
                             </div>
                           ) : (
-                            <span className="text-slate-400 italic text-[11px]">Unassigned</span>
+                            <span className="text-[#9CA3AF] italic text-[11px]">Unassigned</span>
                           )}
                         </td>
 
@@ -472,13 +544,13 @@ export const OrderManagementScreen: React.FC = () => {
                         </td>
 
                         <td className="py-4 px-4 text-right">
-                          <div className="flex items-center justify-end gap-1.5">
+                          <div className="flex items-center justify-end gap-2">
                             <button
                               onClick={() => {
                                 setSelectedOrder(ord);
                                 setOrderModalTab('details');
                               }}
-                              className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700"
+                              className="px-3 py-1.5 text-xs font-bold rounded-xl bg-[#F5F8F6] hover:bg-[#E8F3F1] text-[#1A504C] border border-gray-200 transition-colors"
                             >
                               Inspect
                             </button>
@@ -486,7 +558,7 @@ export const OrderManagementScreen: React.FC = () => {
                             {ord.status === 'new' && (
                               <button
                                 onClick={() => advanceOrderStatus(ord)}
-                                className="px-2.5 py-1 text-xs font-bold rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs"
+                                className="px-3.5 py-1.5 text-xs font-black rounded-xl bg-[#1A504C] hover:bg-[#143F3C] text-white shadow-xs transition-colors"
                               >
                                 Confirm Order
                               </button>
@@ -495,16 +567,16 @@ export const OrderManagementScreen: React.FC = () => {
                             {ord.status === 'confirmed' && (
                               <button
                                 onClick={() => advanceOrderStatus(ord)}
-                                className="px-2.5 py-1 text-xs font-bold rounded-lg bg-amber-600 hover:bg-amber-700 text-white shadow-xs"
+                                className="px-3.5 py-1.5 text-xs font-black rounded-xl bg-amber-600 hover:bg-amber-700 text-white shadow-xs transition-colors"
                               >
-                                Process in WH
+                                Process In WH
                               </button>
                             )}
 
                             {ord.status === 'processing' && (
                               <button
                                 onClick={() => advanceOrderStatus(ord)}
-                                className="px-2.5 py-1 text-xs font-bold rounded-lg bg-purple-600 hover:bg-purple-700 text-white shadow-xs"
+                                className="px-3.5 py-1.5 text-xs font-black rounded-xl bg-[#24AEB1] hover:bg-[#1DA1A4] text-white shadow-xs transition-colors"
                               >
                                 Mark Ready
                               </button>
@@ -513,10 +585,10 @@ export const OrderManagementScreen: React.FC = () => {
                             {ord.status === 'ready_for_dispatch' && (
                               <button
                                 onClick={() => advanceOrderStatus(ord)}
-                                className="px-2.5 py-1 text-xs font-bold rounded-lg bg-sky-600 hover:bg-sky-700 text-white shadow-xs flex items-center gap-1"
+                                className="px-3.5 py-1.5 text-xs font-black rounded-xl bg-[#1A504C] hover:bg-[#143F3C] text-white shadow-xs transition-colors flex items-center gap-1.5"
                               >
                                 <Truck className="w-3.5 h-3.5" />
-                                Dispatch Shipment
+                                <span>Dispatch</span>
                               </button>
                             )}
 

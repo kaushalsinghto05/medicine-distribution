@@ -451,12 +451,15 @@ export const Navbar: React.FC<NavbarProps> = ({
               { id: 'credit', label: 'Trade Credit' },
               { id: 'orders', label: 'Orders & Tracking' },
             ].map((tab) => {
-              const isCurrent = activePage === tab.id;
+              const isCurrent = activePage === tab.id && portalMode === 'distributor';
               return (
                 <button
                   key={tab.id}
                   type="button"
-                  onClick={() => navigateToPage(tab.id as any)}
+                  onClick={() => {
+                    setPortalMode('distributor');
+                    navigateToPage(tab.id as any);
+                  }}
                   className={`px-3.5 py-1.5 rounded-lg font-extrabold transition-all whitespace-nowrap text-xs ${
                     isCurrent
                       ? 'bg-[#1A504C] text-white shadow-2xs'

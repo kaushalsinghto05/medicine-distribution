@@ -16,6 +16,7 @@ import { HeroOmnibar } from './HeroOmnibar';
 import { QuickActionCards } from './QuickActionCards';
 import { CuratedTreatmentsRail } from './CuratedTreatmentsRail';
 import { PopularManufacturerBrands } from './PopularManufacturerBrands';
+import { ApolloPharmEasyShowcase } from './ApolloPharmEasyShowcase';
 
 interface HeroSectionProps {
   onOpenLogin?: () => void;
@@ -194,6 +195,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         {/* Biddano Floating Omnibar pinned at base of Hero Stage */}
         <div className="pt-2">
           <HeroOmnibar onSearchSubmit={handleStartOrder} />
+        </div>
+
+        {/* Apollo & PharmEasy Showcase: What Are You Looking For + Rich Banners */}
+        <div className="pt-4">
+          <ApolloPharmEasyShowcase />
         </div>
 
         {/* Apollo & Medkart Quick Action Feature Cards & Trust Metrics */}
