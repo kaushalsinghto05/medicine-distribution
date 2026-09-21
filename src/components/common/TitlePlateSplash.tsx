@@ -29,21 +29,21 @@ export const TitlePlateSplash: React.FC<TitlePlateSplashProps> = ({ onDismiss })
     sessionStorage.setItem('pharmxpress_title_plate_shown', 'true');
 
     // 3. Calm title plate sequence:
-    // Frame 1: soft fade in (450ms)
+    // Frame 1: soft fade in (400ms)
     const fadeInTimer = setTimeout(() => {
       setOpacity(1);
-    }, 50);
+    }, 40);
 
-    // Frame 2: hold (~850ms), then begin smooth cross-fade out (500ms)
+    // Frame 2: hold (~850ms), then begin smooth cross-fade out (450ms)
     const fadeOutTimer = setTimeout(() => {
       setOpacity(0);
-    }, 1400);
+    }, 1300);
 
     // Frame 3: fully unmount from DOM
     const removeTimer = setTimeout(() => {
       setIsVisible(false);
       if (onDismiss) onDismiss();
-    }, 1900);
+    }, 1800);
 
     return () => {
       clearTimeout(fadeInTimer);
@@ -74,34 +74,32 @@ export const TitlePlateSplash: React.FC<TitlePlateSplashProps> = ({ onDismiss })
   return (
     <div
       onClick={handleInstantDismiss}
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#1F2E28] cursor-pointer select-none transition-opacity duration-500 ease-out"
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white cursor-pointer select-none transition-opacity duration-500 ease-out"
       style={{ opacity }}
       role="banner"
       aria-label="PharmXpress Title Plate"
     >
-      {/* Centered Title Plate Card */}
+      {/* Centered Brand Moment (Apollo / Retail Style) */}
       <div className="flex flex-col items-center text-center px-6 max-w-lg">
-        {/* Apothecary ℞ Mark Emblem (4-6x normal header size) */}
-        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-[#16221E] border border-[#3D6B52]/60 flex items-center justify-center mb-6 shadow-2xl relative">
-          {/* Subtle inner hairline border */}
-          <div className="absolute inset-1.5 rounded-xl border border-[#C9A961]/30 pointer-events-none" />
-          <span className="font-serif text-4xl sm:text-5xl font-bold text-[#C9A961] tracking-normal select-none">
+        {/* Deep Apollo Teal Emblem (4-6x normal header size) */}
+        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-[#1A504C] flex items-center justify-center mb-6 shadow-xl relative">
+          <span className="text-4xl sm:text-5xl font-extrabold text-white leading-none select-none">
             ℞
           </span>
         </div>
 
-        {/* Wordmark in Source Serif 4 */}
-        <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-[#F6F3EC]">
-          PharmXpress
+        {/* Wordmark in Bold Sans-Serif */}
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-[#1A1A1A]">
+          Pharm<span className="text-[#1A504C]">Xpress</span>
         </h1>
 
-        {/* Small Tagline in IBM Plex Mono */}
-        <p className="font-mono text-xs sm:text-sm text-[#8A8578] uppercase tracking-[0.2em] mt-3.5">
-          Regulated wholesale trade register
+        {/* Tagline */}
+        <p className="text-xs sm:text-sm text-[#6B7280] font-bold uppercase tracking-[0.2em] mt-3">
+          Regulated Wholesale Trade Platform
         </p>
 
-        {/* Discreet skip hint */}
-        <span className="text-[10px] font-mono text-[#8A8578]/50 mt-10">
+        {/* Subtle skip hint */}
+        <span className="text-[11px] text-gray-400 mt-8">
           Click anywhere to enter
         </span>
       </div>

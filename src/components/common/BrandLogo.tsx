@@ -11,30 +11,30 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
   size = 'md',
   showTag = true,
   className = '',
-  variant = 'dark',
+  variant = 'light',
 }) => {
   const isDark = variant === 'dark';
 
   return (
-    <div className={`flex items-center gap-3 select-none ${className}`}>
-      {/* Apothecary Register Emblem */}
-      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-[#3D6B52] border border-[#4E8568] flex items-center justify-center text-[#F6F3EC] shadow-xs shrink-0">
-        <span className="font-serif font-bold text-lg leading-none">℞</span>
+    <div className={`flex items-center gap-2.5 select-none ${className}`}>
+      {/* Brand Icon Tile: Deep Apollo Teal Tile with Clean Medical Emblem */}
+      <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#1A504C] flex items-center justify-center text-white shadow-xs shrink-0">
+        <span className="font-bold text-lg tracking-tight leading-none">℞</span>
       </div>
 
       <div className="leading-tight">
         <div className="flex items-center gap-2">
-          <span className={`font-serif text-lg sm:text-xl font-bold tracking-tight ${isDark ? 'text-[#F6F3EC]' : 'text-[#1F2E28]'}`}>
-            Pharm<span className="text-[#C9A961]">Xpress</span>
+          <span className={`text-xl sm:text-2xl font-extrabold tracking-tight ${isDark ? 'text-white' : 'text-[#1A1A1A]'}`}>
+            Pharm<span className="text-[#1A504C]">Xpress</span>
           </span>
           {showTag && (
-            <span className="hidden md:inline-block px-1.5 py-0.5 text-[9px] font-mono font-semibold tracking-wider uppercase rounded border border-[#C9A961]/40 text-[#C9A961] bg-[#C9A961]/10">
-              Form 20B/21B Register
+            <span className="hidden sm:inline-block px-2 py-0.5 text-[10px] font-bold uppercase rounded-md bg-[#E8F3F1] text-[#1A504C]">
+              B2B Wholesale
             </span>
           )}
         </div>
-        <span className="font-mono text-[10px] text-[#8A8578] block">
-          Regulated wholesale trade register
+        <span className={`text-[11px] font-medium block ${isDark ? 'text-gray-300' : 'text-[#6B7280]'}`}>
+          Regulated Wholesale Medicine Network
         </span>
       </div>
     </div>

@@ -7,10 +7,16 @@ import { validateOrderQuantity } from '../../../engine/rulesEngine';
 import { sortBatchesFEFO } from '../../../engine/inventoryEngine';
 import { 
   Clock, 
-  Tag, 
+  Flame, 
   Plus, 
   CheckCircle2, 
-  FileSpreadsheet
+  Pill,
+  Activity,
+  HeartPulse,
+  Droplet,
+  ShieldCheck,
+  Layers,
+  Sparkles
 } from 'lucide-react';
 
 interface DealsBulkPricingRailProps {
@@ -20,18 +26,16 @@ interface DealsBulkPricingRailProps {
 export const DealsBulkPricingRail: React.FC<DealsBulkPricingRailProps> = ({ onSelectMedicine }) => {
   const { distributorMedicines, currentDistributor, tenants, addToCart, addToast } = useStore();
 
-  // Filter medicines that have quantity slabs or discounts or custom overrides configured
   const bulkDeals = distributorMedicines.filter((m) => {
     const hasSlabs = m.pricing?.slabs && m.pricing.slabs.length > 0;
     const hasDiscounts = m.pricing?.discounts && m.pricing.discounts.length > 0;
     const hasDistributorOverride = m.pricing?.distributorOverrides && !!m.pricing.distributorOverrides[currentDistributor.id];
     const isBelowMrp = m.mrp > 0 && m.mrp > m.pricing.standardDistributorPrice;
     return hasSlabs || hasDiscounts || hasDistributorOverride || isBelowMrp;
-  }).slice(0, 6); // Top deals
+  }).slice(0, 6);
 
   if (bulkDeals.length === 0) return null;
 
-  // Direct quick addition to cart
   const handleQuickAdd = (e: React.MouseEvent, med: Medicine) => {
     e.stopPropagation();
 
@@ -39,7 +43,7 @@ export const DealsBulkPricingRail: React.FC<DealsBulkPricingRailProps> = ({ onSe
     const validation = validateOrderQuantity(currentDistributor, med, qty);
 
     if (!validation.isValid) {
-      addToast('info', 'Configuration required', validation.errors[0] || 'Please specify valid batch or quantity.');
+      addToast('info', 'Configuration Required', validation.errors[0] || 'Please specify valid batch or quantity.');
       onSelectMedicine(med);
       return;
     }
@@ -53,7 +57,7 @@ export const DealsBulkPricingRail: React.FC<DealsBulkPricingRailProps> = ({ onSe
     );
 
     if (!validBatch) {
-      addToast('error', 'Batch unavailable', 'No eligible active batch found with sufficient quantity.');
+      addToast('error', 'Batch Unavailable', 'No eligible active batch found with sufficient quantity.');
       onSelectMedicine(med);
       return;
     }
@@ -73,40 +77,51 @@ export const DealsBulkPricingRail: React.FC<DealsBulkPricingRailProps> = ({ onSe
     };
 
     addToCart(item);
-    addToast('success', 'Added to order', `Added ${qty} ${med.packagingUnit}s of ${med.name} at ${formatCurrency(validation.effectivePrice)}/unit.`);
+    addToast('success', 'Added to Cart', `Added ${qty} ${med.packagingUnit}s of ${med.name} at ${formatCurrency(validation.effectivePrice)}/unit.`);
+  };
+
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'Antibiotics': return Pill;
+      case 'Analgesics & Antipyretics': return Activity;
+      case 'Cardiovascular': return HeartPulse;
+      case 'Gastrointestinal': return Droplet;
+      case 'Respiratory': return ShieldCheck;
+      default: return Layers;
+    }
   };
 
   return (
-    <div className="bg-[#FCFBF8] rounded-xl p-4 sm:p-5 border border-[#E2DDD2] shadow-2xs space-y-4">
-      {/* Rail Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#E5E0D5]">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-[#3D6B52]/10 text-[#3D6B52] flex items-center justify-center shrink-0 border border-[#3D6B52]/20">
-            <FileSpreadsheet className="w-4 h-4 stroke-[1.75]" />
+    <div className="bg-[#F5F8F6] rounded-2xl p-4 sm:p-6 border border-gray-200 shadow-2xs space-y-4">
+      {/* Rail Header: Deals of the Day pattern */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-[#EA580C] text-white flex items-center justify-center shrink-0 shadow-xs">
+            <Flame className="w-4 h-4 fill-white" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-base font-serif font-bold text-[#1F2E28] tracking-tight">
-                Volume pricing & scheme register
+              <h3 className="text-base sm:text-lg font-extrabold text-[#1A1A1A] tracking-tight">
+                Deals of the Day & Bulk Schemes
               </h3>
-              <span className="stamp-seal text-[10px] py-0.5 px-2">
-                Special PTR Slabs
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[#EA580C] text-white uppercase">
+                Special PTR
               </span>
             </div>
-            <p className="text-xs text-[#8A8578] font-sans">
-              Formulations with direct manufacturer volume tiers and authorized scheme rates
+            <p className="text-xs text-[#6B7280]">
+              Direct manufacturer volume tier rates and PTR discounts
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 text-xs text-[#8A8578] font-mono self-start sm:self-auto">
-          <Clock className="w-3.5 h-3.5 text-[#3D6B52] stroke-[1.75]" />
-          <span>Refreshed daily at 09:00 IST</span>
+        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-gray-200 text-xs font-semibold text-[#1A1A1A] self-start sm:self-auto shadow-2xs">
+          <Clock className="w-3.5 h-3.5 text-[#EA580C]" />
+          <span>Refreshed daily at 09:00 AM</span>
         </div>
       </div>
 
       {/* Horizontally Scrollable Deal Cards Track */}
-      <div className="flex items-stretch gap-4 overflow-x-auto pb-2 pt-1 scrollbar-thin scrollbar-thumb-[#E2DDD2]">
+      <div className="flex items-stretch gap-4 overflow-x-auto pb-2 pt-1 scrollbar-thin scrollbar-thumb-gray-200">
         {bulkDeals.map((med) => {
           const tenant = tenants.find((t) => t.id === med.tenantId);
           const totalStock = med.batches.reduce((sum, b) => sum + b.availableQuantity, 0);
@@ -115,116 +130,101 @@ export const DealsBulkPricingRail: React.FC<DealsBulkPricingRailProps> = ({ onSe
           const pricingResult = computeEffectivePrice(med, currentDistributor.id, med.rules.minOrderQty);
           const distributorPrice = pricingResult.effectiveUnitPrice;
           const savingsPercent = med.mrp > 0 ? Math.round(((med.mrp - distributorPrice) / med.mrp) * 100) : 0;
-
-          // Check if best slab exists
-          const bestSlab = med.pricing?.slabs && med.pricing.slabs.length > 0
-            ? [...med.pricing.slabs].sort((a, b) => a.pricePerUnit - b.pricePerUnit)[0]
-            : null;
+          const CategoryIcon = getCategoryIcon(med.category);
 
           return (
             <div
               key={`deal-${med.id}`}
               onClick={() => onSelectMedicine(med)}
-              className="w-72 sm:w-80 shrink-0 bg-white rounded-lg p-4 border border-[#E2DDD2] hover:border-[#3D6B52]/40 shadow-2xs transition-colors cursor-pointer flex flex-col justify-between group relative overflow-hidden pl-4"
+              className="w-68 sm:w-72 shrink-0 bg-white rounded-2xl p-4 border border-gray-200 hover:border-[#1A504C] hover:shadow-md transition-all duration-150 cursor-pointer flex flex-col justify-between group relative overflow-hidden"
             >
-              {/* Thin left-edge indicator bar */}
-              <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#3D6B52]" />
+              <div className="space-y-3">
+                {/* Product Image Tile Area with Category Icon & Warm Discount Badge */}
+                <div className="w-full h-28 rounded-xl bg-[#F5F8F6] border border-gray-100 flex items-center justify-center relative overflow-hidden">
+                  <CategoryIcon className="w-10 h-10 text-[#1A504C]/70 group-hover:scale-105 transition-transform" />
+                  
+                  {/* Warm Discount Tag: Top Right Corner */}
+                  {savingsPercent > 0 && (
+                    <div className="absolute top-2 right-2 bg-[#EA580C] text-white font-extrabold text-[10px] px-2 py-0.5 rounded shadow-xs">
+                      {savingsPercent}% OFF
+                    </div>
+                  )}
 
-              <div className="space-y-2.5">
-                {/* Manufacturer & Schedule */}
-                <div className="flex items-center justify-between gap-1.5">
-                  <div className="flex items-center gap-1.5 text-xs font-sans text-[#1F2E28]">
-                    <div className={`w-2 h-2 rounded-full ${tenant?.logoColor || 'bg-slate-400'}`} />
-                    <span className="font-semibold truncate">{tenant?.shortName}</span>
+                  {/* Manufacturer Pill: Bottom Left Corner */}
+                  <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-white/90 backdrop-blur-2xs border border-gray-200 text-[10px] font-bold text-[#1A1A1A] flex items-center gap-1">
+                    <div className={`w-1.5 h-1.5 rounded-full ${tenant?.logoColor || 'bg-gray-400'}`} />
+                    <span className="truncate max-w-[90px]">{tenant?.shortName}</span>
                   </div>
-                  <span className="px-1.5 py-0.5 rounded text-[10px] font-mono text-[#8A8578] bg-[#F6F3EC] border border-[#E2DDD2]">
-                    {med.regulatory.scheduleClassification}
-                  </span>
                 </div>
 
-                {/* Medicine Brand & Molecule */}
+                {/* Product Name & Molecule Subtext */}
                 <div>
-                  <h4 className="font-serif font-bold text-[#1F2E28] text-sm group-hover:text-[#3D6B52] transition-colors line-clamp-1">
+                  <h4 className="font-extrabold text-sm text-[#1A1A1A] group-hover:text-[#1A504C] transition-colors line-clamp-1 leading-snug">
                     {med.name}
                   </h4>
-                  <p className="text-[11px] text-[#8A8578] truncate font-sans mt-0.5">
+                  <p className="text-[11px] text-[#6B7280] truncate mt-0.5">
                     {med.genericName}
                   </p>
                 </div>
 
-                {/* Ledger Register Specs Block */}
-                <div className="rounded border border-[#E5E0D5] bg-[#FCFBF8] p-2 text-[10px] divide-y divide-[#E5E0D5]">
-                  <div className="grid grid-cols-2 pb-1.5 divide-x divide-[#E5E0D5]">
-                    <div className="pr-2">
-                      <span className="text-[9px] text-[#8A8578] block">MRP</span>
-                      <span className="font-serif font-bold text-[#1F2E28] tabular-nums">{formatCurrency(med.mrp)}</span>
-                    </div>
-                    <div className="pl-2">
-                      <span className="text-[9px] text-[#8A8578] block">Batch (FEFO)</span>
-                      <span className="font-mono font-medium text-[#1F2E28] truncate block max-w-[80px]">
-                        {activeBatch?.batchNumber || 'LOT-NEW'}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 pt-1.5 divide-x divide-[#E5E0D5]">
-                    <div className="pr-2">
-                      <span className="text-[9px] text-[#8A8578] block">Pack size</span>
-                      <span className="font-mono text-[#1F2E28] truncate block max-w-[80px]">{med.packSize}</span>
-                    </div>
-                    <div className="pl-2">
-                      <span className="text-[9px] text-[#8A8578] block">Available</span>
-                      <span className={`font-mono font-semibold tabular-nums block ${totalStock > 0 ? 'text-[#3D6B52]' : 'text-[#B54A32]'}`}>
-                        {totalStock} {med.packagingUnit}s
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Tier Slab Callout */}
-                {bestSlab ? (
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#F6F3EC] text-[#1F2E28] text-[11px] border border-[#E2DDD2]">
-                    <Tag className="w-3.5 h-3.5 text-[#3D6B52] shrink-0 stroke-[1.75]" />
-                    <span className="truncate font-sans">
-                      Tier rate: <strong className="font-serif font-bold text-[#1F2E28]">{formatCurrency(bestSlab.pricePerUnit)}</strong> at ≥<span className="font-mono">{bestSlab.minQty}</span> {med.packagingUnit}s
-                    </span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#3D6B52]/5 text-[#3D6B52] text-[11px] border border-[#3D6B52]/20 font-sans">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[#3D6B52] shrink-0 stroke-[1.75]" />
-                    <span className="truncate font-medium">Direct wholesale net pricing</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Bottom Price Block & Plain Active-Voice Button */}
-              <div className="pt-3 mt-3 border-t border-[#E5E0D5] flex items-end justify-between gap-2">
-                <div className="min-w-0">
-                  <span className="text-[10px] text-[#8A8578] font-sans block">
-                    Wholesale net
-                  </span>
-                  <div className="flex items-baseline gap-2 mt-0.5">
-                    <span className="text-xl sm:text-2xl font-serif font-bold text-[#1F2E28] tracking-tight tabular-nums">
+                {/* Retail Price Block: "₹145 ₹210 (31% off)" on a single line */}
+                <div>
+                  <div className="flex items-baseline gap-2 flex-wrap">
+                    <span className="text-xl font-extrabold text-[#1A1A1A] tabular-nums">
                       {formatCurrency(distributorPrice)}
                     </span>
                     {med.mrp > 0 && (
-                      <span className="text-xs text-[#8A8578] line-through font-serif tabular-nums">
+                      <span className="text-xs text-gray-400 line-through tabular-nums">
                         {formatCurrency(med.mrp)}
                       </span>
                     )}
+                    {savingsPercent > 0 && (
+                      <span className="text-xs font-bold text-emerald-700">
+                        ({savingsPercent}% off)
+                      </span>
+                    )}
                   </div>
-                  <span className="text-[10px] text-[#8A8578] font-sans block mt-0.5">
-                    + 12% GST credit eligible
+                  <span className="text-[10px] text-[#6B7280] block mt-0.5">
+                    + 12% GST Credit Eligible
                   </span>
                 </div>
+
+                {/* Subordinated B2B Specs Row: Batch, Pack Size, Stock, MOQ */}
+                <div className="pt-2 border-t border-gray-100 grid grid-cols-2 gap-1 text-[10px] text-[#6B7280]">
+                  <div>
+                    <span className="text-gray-400 block">Pack:</span>
+                    <span className="font-semibold text-[#1A1A1A] truncate block">{med.packSize}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 block">Batch:</span>
+                    <span className="font-semibold text-[#1A1A1A] truncate block">{activeBatch?.batchNumber || 'LOT-NEW'}</span>
+                  </div>
+                  <div className="pt-1">
+                    <span className="text-gray-400 block">Stock:</span>
+                    <span className={`font-bold tabular-nums ${totalStock > 0 ? 'text-emerald-700' : 'text-red-600'}`}>
+                      {totalStock} {med.packagingUnit}s
+                    </span>
+                  </div>
+                  <div className="pt-1">
+                    <span className="text-gray-400 block">Min Qty:</span>
+                    <span className="font-semibold text-[#1A1A1A]">{med.rules.minOrderQty} units</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Retail-Grade ADD Button */}
+              <div className="pt-3 mt-3 border-t border-gray-100 flex items-center justify-between gap-2">
+                <span className="text-[11px] font-bold text-[#1A504C]">
+                  Direct PTR
+                </span>
 
                 <button
                   onClick={(e) => handleQuickAdd(e, med)}
                   disabled={totalStock <= 0}
-                  className="px-3.5 py-2 rounded bg-[#3D6B52] hover:bg-[#2F523E] disabled:bg-[#E5E0D5] disabled:text-[#8A8578] text-white font-sans font-semibold text-xs transition-colors flex items-center gap-1.5 active:scale-95 shrink-0"
-                  title={`Add minimum order quantity (${med.rules.minOrderQty} units) to order`}
+                  className="px-4 py-1.5 rounded-lg bg-[#1A504C] hover:bg-[#143F3C] disabled:bg-gray-200 disabled:text-gray-400 text-white font-extrabold text-xs uppercase transition-colors flex items-center gap-1 shadow-xs active:scale-95 shrink-0"
                 >
-                  <Plus className="w-3.5 h-3.5 stroke-[2]" />
-                  <span>Add to order</span>
+                  <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                  <span>ADD</span>
                 </button>
               </div>
             </div>

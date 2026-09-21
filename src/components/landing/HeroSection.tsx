@@ -8,9 +8,12 @@ import {
   MapPin, 
   Clock, 
   CheckCircle2, 
-  FileText, 
   ShieldCheck, 
-  AlertCircle 
+  Truck,
+  ArrowRight,
+  Package,
+  Users,
+  Shield
 } from 'lucide-react';
 
 interface HeroSectionProps {
@@ -19,7 +22,6 @@ interface HeroSectionProps {
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
-  onOpenLogin,
   onExploreCatalog,
 }) => {
   const { 
@@ -31,12 +33,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     activeTenantId,
     setActiveTenantId,
     currentTenant,
-    currentDistributor
+    currentDistributor,
+    globalSearchQuery,
+    setGlobalSearchQuery,
   } = useStore();
   const { switchPredefinedUser } = useAuth();
 
   const [selectedHub, setSelectedHub] = useState('bhiwandi');
-  const [heroSearch, setHeroSearch] = useState('');
 
   const totalSKUs = medicines.length;
 
@@ -61,50 +64,61 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     e.preventDefault();
     setPortalMode('distributor');
     if (onExploreCatalog) onExploreCatalog();
+    const element = document.getElementById('marketplace-content');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   const handleMoleculeClick = (molecule: string) => {
-    setHeroSearch(molecule);
+    setGlobalSearchQuery(molecule);
     setPortalMode('distributor');
     if (onExploreCatalog) onExploreCatalog();
+    const element = document.getElementById('marketplace-content');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
-    <section className="bg-[#1F2E28] text-[#F6F3EC] border-b border-[#2C3E36]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
-        {/* Working Register Header Row */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pb-6 border-b border-[#2C3E36]/80 text-xs">
+    <section className="bg-gradient-to-b from-[#F5F8F6] via-white to-white text-[#1A1A1A] border-b border-gray-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        {/* Compliance Trust Header Strip */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-5 border-b border-gray-200 text-xs">
           <div className="flex items-center gap-2">
-            <span className="font-mono text-[#8A8578] uppercase text-[10px] tracking-wider">
-              Statutory register:
+            <span className="px-2 py-0.5 rounded-full bg-[#E8F3F1] text-[#1A504C] font-bold text-[10px] uppercase tracking-wider">
+              CDSCO Verified
             </span>
-            <span className="font-mono text-[#C9A961] font-semibold">
-              Drugs and Cosmetics Act, 1940 (Rules 1945)
+            <span className="text-[#6B7280]">
+              Drugs and Cosmetics Act, 1940 & Rules 1945 Compliant
             </span>
           </div>
 
-          <div className="flex items-center gap-3 font-mono text-[11px] text-[#8A8578]">
-            <span>Form 20B wholesale licence required</span>
+          <div className="flex items-center gap-3 text-[#6B7280] text-xs">
+            <span className="flex items-center gap-1 font-semibold text-[#1A504C]">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              Form 20B/21B Verified Network
+            </span>
             <span>•</span>
-            <span>Batch-level FEFO reservation</span>
+            <span>100% FEFO Batch Allocation</span>
           </div>
         </div>
 
-        {/* Main Content Grid: Left Working Tool + Right Manifest & Hub Selector */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start pt-8">
-          {/* Left Column: Purpose & Search Register */}
+        {/* Main Content Grid: Left Role Fork & Search + Right Active Trade Manifest */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start pt-6">
+          {/* Left Column: Headline & Role Fork */}
           <div className="lg:col-span-7 space-y-6">
             <div className="space-y-3">
-              <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#F6F3EC] leading-[1.15]">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-[#1A1A1A] leading-[1.15]">
                 Order directly from manufacturers you're licensed to trade with
               </h1>
-              <p className="font-sans text-sm sm:text-base text-[#8A8578] leading-relaxed max-w-xl font-normal">
-                B2B pharmaceutical trade register. Transparent wholesale net rates, batch-level FEFO auto-allocation, configurable minimum order quantities, and certified reverse waste logistics.
+              <p className="text-sm sm:text-base text-[#6B7280] leading-relaxed max-w-xl">
+                India's regulated B2B pharmaceutical marketplace. Transparent manufacturer PTR rates, batch-level FEFO auto-allocation, configurable order quantities, and certified cold-chain logistics.
               </p>
             </div>
 
             {/* Clear Role-First Fork: Manufacturer vs. Distributor Choice */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
               {/* Panel 1: Manufacturer */}
               <button
                 type="button"
@@ -116,42 +130,41 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                     element.scrollIntoView({ behavior: 'smooth' });
                   }
                 }}
-                className={`group relative text-left rounded-xl p-4 sm:p-5 border transition-all cursor-pointer overflow-hidden ${
+                className={`group relative text-left rounded-2xl p-5 border transition-all cursor-pointer overflow-hidden ${
                   portalMode === 'manufacturer'
-                    ? 'bg-[#16221E] border-[#C9A961] ring-1 ring-[#C9A961]/50 shadow-sm'
-                    : 'bg-[#16221E]/80 border-[#2C3E36] hover:border-[#C9A961]/60 hover:bg-[#16221E]'
+                    ? 'bg-white border-[#1A504C] ring-2 ring-[#1A504C]/20 shadow-md'
+                    : 'bg-white border-gray-200 hover:border-[#1A504C]/50 hover:shadow-sm'
                 }`}
               >
                 {/* Thin left color bar */}
-                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#C9A961]" />
+                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#1A504C]" />
 
                 <div className="pl-2 space-y-2">
-                  {/* Monospace micro-detail & stamp seal */}
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono text-[10px] text-[#C9A961] tracking-wider uppercase font-semibold">
-                      Licensed Manufacturer
+                    <span className="text-[10px] text-[#1A504C] font-bold uppercase tracking-wider">
+                      Manufacturing Principal
                     </span>
-                    <span className="stamp-seal text-[9px] py-0 px-1.5 border-[#C9A961] text-[#C9A961]">
+                    <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#E8F3F1] text-[#1A504C]">
                       Form 25 / 28
                     </span>
                   </div>
 
-                  {/* Role Heading */}
-                  <div className="flex items-center gap-2">
-                    <Building2 className="w-4 h-4 text-[#C9A961] shrink-0 stroke-[1.75]" />
-                    <h2 className="font-serif text-base sm:text-lg font-bold text-[#F6F3EC] group-hover:text-white transition-colors">
+                  <div className="flex items-center gap-2 pt-0.5">
+                    <div className="w-8 h-8 rounded-lg bg-[#E8F3F1] text-[#1A504C] flex items-center justify-center shrink-0">
+                      <Building2 className="w-4 h-4 stroke-[2]" />
+                    </div>
+                    <h2 className="text-base sm:text-lg font-extrabold text-[#1A1A1A] group-hover:text-[#1A504C] transition-colors">
                       I manufacture medicine
                     </h2>
                   </div>
 
-                  {/* One-line plain description */}
-                  <p className="font-sans text-xs text-[#8A8578] leading-relaxed">
+                  <p className="text-xs text-[#6B7280] leading-relaxed">
                     List your formulations, set trade rules, manage your distributor network
                   </p>
 
-                  {/* Active verb CTA */}
-                  <div className="pt-1 flex items-center gap-1.5 text-xs font-sans font-semibold text-[#C9A961]">
-                    <span>Open manufacturer register</span>
+                  <div className="pt-2 flex items-center gap-1.5 text-xs font-bold text-[#1A504C]">
+                    <span>Open Manufacturer Portal</span>
+                    <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
                   </div>
                 </div>
               </button>
@@ -167,76 +180,75 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                     element.scrollIntoView({ behavior: 'smooth' });
                   }
                 }}
-                className={`group relative text-left rounded-xl p-4 sm:p-5 border transition-all cursor-pointer overflow-hidden ${
+                className={`group relative text-left rounded-2xl p-5 border transition-all cursor-pointer overflow-hidden ${
                   portalMode === 'distributor'
-                    ? 'bg-[#16221E] border-[#3D6B52] ring-1 ring-[#3D6B52]/50 shadow-sm'
-                    : 'bg-[#16221E]/80 border-[#2C3E36] hover:border-[#3D6B52]/60 hover:bg-[#16221E]'
+                    ? 'bg-white border-[#1A504C] ring-2 ring-[#1A504C]/20 shadow-md'
+                    : 'bg-white border-gray-200 hover:border-[#1A504C]/50 hover:shadow-sm'
                 }`}
               >
                 {/* Thin left color bar */}
-                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#3D6B52]" />
+                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#1A504C]" />
 
                 <div className="pl-2 space-y-2">
-                  {/* Monospace micro-detail & stamp seal */}
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono text-[10px] text-[#A8C9B3] tracking-wider uppercase font-semibold">
+                    <span className="text-[10px] text-[#1A504C] font-bold uppercase tracking-wider">
                       Wholesale Stockist
                     </span>
-                    <span className="stamp-seal stamp-seal-green text-[9px] py-0 px-1.5">
+                    <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#E8F3F1] text-[#1A504C]">
                       Form 20B / 21B
                     </span>
                   </div>
 
-                  {/* Role Heading */}
-                  <div className="flex items-center gap-2">
-                    <Store className="w-4 h-4 text-[#3D6B52] shrink-0 stroke-[1.75]" />
-                    <h2 className="font-serif text-base sm:text-lg font-bold text-[#F6F3EC] group-hover:text-white transition-colors">
+                  <div className="flex items-center gap-2 pt-0.5">
+                    <div className="w-8 h-8 rounded-lg bg-[#E8F3F1] text-[#1A504C] flex items-center justify-center shrink-0">
+                      <Store className="w-4 h-4 stroke-[2]" />
+                    </div>
+                    <h2 className="text-base sm:text-lg font-extrabold text-[#1A1A1A] group-hover:text-[#1A504C] transition-colors">
                       I distribute medicine
                     </h2>
                   </div>
 
-                  {/* One-line plain description */}
-                  <p className="font-sans text-xs text-[#8A8578] leading-relaxed">
+                  <p className="text-xs text-[#6B7280] leading-relaxed">
                     Order from manufacturers you're licensed to trade with, track batches and dispatch
                   </p>
 
-                  {/* Active verb CTA */}
-                  <div className="pt-1 flex items-center gap-1.5 text-xs font-sans font-semibold text-[#A8C9B3]">
-                    <span>Open distributor register</span>
+                  <div className="pt-2 flex items-center gap-1.5 text-xs font-bold text-[#1A504C]">
+                    <span>Explore Wholesale Catalog</span>
+                    <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
                   </div>
                 </div>
               </button>
             </div>
 
-            {/* Plain working register search */}
+            {/* Quick Formulation Search Input */}
             <div className="space-y-2 pt-1">
-              <form onSubmit={handleSearchSubmit} className="flex items-stretch rounded-lg overflow-hidden border border-[#2C3E36] bg-[#16221E] focus-within:border-[#3D6B52]">
+              <form onSubmit={handleSearchSubmit} className="flex items-stretch rounded-xl overflow-hidden border border-gray-200 bg-white shadow-xs focus-within:border-[#1A504C] focus-within:ring-2 focus-within:ring-[#1A504C]/15 transition-all">
                 <div className="relative flex-1 flex items-center">
-                  <Search className="w-4 h-4 text-[#8A8578] absolute left-3.5" />
+                  <Search className="w-4 h-4 text-gray-400 absolute left-3.5" />
                   <input
                     type="text"
-                    value={heroSearch}
-                    onChange={(e) => setHeroSearch(e.target.value)}
-                    placeholder="Search register by generic molecule, brand name, or principal..."
-                    className="w-full bg-transparent pl-10 pr-3 py-3 text-xs sm:text-sm text-[#F6F3EC] placeholder-[#8A8578] outline-none font-sans"
+                    value={globalSearchQuery}
+                    onChange={(e) => setGlobalSearchQuery(e.target.value)}
+                    placeholder="Search formulations by brand, molecule (e.g. Paracetamol), or principal..."
+                    className="w-full bg-transparent pl-10 pr-3 py-3 text-xs sm:text-sm text-[#1A1A1A] placeholder-[#6B7280] outline-none"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="px-5 py-3 bg-[#3D6B52] hover:bg-[#4E8568] text-[#F6F3EC] font-sans font-semibold text-xs transition-colors shrink-0"
+                  className="px-5 py-3 bg-[#1A504C] hover:bg-[#143F3C] text-white font-bold text-xs transition-colors shrink-0"
                 >
-                  Search register
+                  Search Catalog
                 </button>
               </form>
 
-              {/* Sample molecules for scanability */}
-              <div className="flex items-center gap-2 pt-1 overflow-x-auto text-[11px] font-mono text-[#8A8578]">
-                <span className="text-[#8A8578]">Reference molecules:</span>
+              {/* Sample molecules quick tags */}
+              <div className="flex items-center gap-2 pt-1 overflow-x-auto text-xs text-[#6B7280]">
+                <span className="font-semibold text-gray-400">Popular:</span>
                 {sampleMolecules.map((m) => (
                   <button
                     key={m}
                     onClick={() => handleMoleculeClick(m)}
-                    className="hover:text-[#F6F3EC] underline underline-offset-2 decoration-[#2C3E36] hover:decoration-[#3D6B52] transition-colors whitespace-nowrap"
+                    className="px-2 py-0.5 rounded-full bg-gray-100 hover:bg-[#E8F3F1] hover:text-[#1A504C] transition-colors whitespace-nowrap text-[11px] font-medium"
                   >
                     {m}
                   </button>
@@ -244,90 +256,89 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               </div>
             </div>
 
-            {/* Section 3 KPI Numbers: Serif Numerals, Caps-Free Sentence Case, NO Icon-in-Circle */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 border-t border-[#2C3E36]">
-              <div>
-                <div className="font-serif text-2xl sm:text-3xl font-bold text-[#F6F3EC] tabular-nums">
+            {/* Section KPI Metrics: Clean Light Retail Trust Cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-gray-200">
+              <div className="p-3 rounded-xl bg-[#F5F8F6] border border-gray-100">
+                <div className="text-xl sm:text-2xl font-extrabold text-[#1A1A1A] tabular-nums">
                   {tenants.length}
                 </div>
-                <div className="font-sans text-xs text-[#8A8578] mt-0.5">
-                  GMP manufacturing tenants
+                <div className="text-xs text-[#6B7280] mt-0.5">
+                  GMP Principals
                 </div>
               </div>
 
-              <div>
-                <div className="font-serif text-2xl sm:text-3xl font-bold text-[#F6F3EC] tabular-nums">
-                  {totalSKUs}
+              <div className="p-3 rounded-xl bg-[#F5F8F6] border border-gray-100">
+                <div className="text-xl sm:text-2xl font-extrabold text-[#1A1A1A] tabular-nums">
+                  {totalSKUs}+
                 </div>
-                <div className="font-sans text-xs text-[#8A8578] mt-0.5">
-                  Registered formulations
+                <div className="text-xs text-[#6B7280] mt-0.5">
+                  Active SKUs
                 </div>
               </div>
 
-              <div>
-                <div className="font-serif text-2xl sm:text-3xl font-bold text-[#F6F3EC] tabular-nums">
+              <div className="p-3 rounded-xl bg-[#F5F8F6] border border-gray-100">
+                <div className="text-xl sm:text-2xl font-extrabold text-[#1A1A1A] tabular-nums">
                   {distributors.length}
                 </div>
-                <div className="font-sans text-xs text-[#8A8578] mt-0.5">
-                  Authorized wholesale stockists
+                <div className="text-xs text-[#6B7280] mt-0.5">
+                  Licensed Stockists
                 </div>
               </div>
 
-              <div>
-                <div className="font-serif text-2xl sm:text-3xl font-bold text-[#3D6B52] tabular-nums">
+              <div className="p-3 rounded-xl bg-[#E8F3F1] border border-teal-100">
+                <div className="text-xl sm:text-2xl font-extrabold text-[#1A504C] tabular-nums">
                   100%
                 </div>
-                <div className="font-sans text-xs text-[#8A8578] mt-0.5">
-                  FEFO batch reservation
+                <div className="text-xs text-[#1A504C] mt-0.5 font-medium">
+                  FEFO Traceability
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Right Column: Ledger-Style Hub Selector & Stamped Manifest Card */}
+          {/* Right Column: Clean White Active Trade Manifest Card & Hubs */}
           <div className="lg:col-span-5 space-y-4">
-            {/* 1. Stamped Trade Manifest Card */}
-            <div className="bg-[#16221E] rounded-lg border border-[#2C3E36] p-4 sm:p-5 relative overflow-hidden space-y-3.5">
+            {/* 1. Active Trade Manifest Card */}
+            <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-xs relative overflow-hidden space-y-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <span className="font-mono text-[10px] text-[#8A8578] uppercase tracking-wider block">
-                    Active trade manifest
+                  <span className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider block">
+                    Active Trade Relationship
                   </span>
-                  <div className="font-serif text-base font-bold text-[#F6F3EC] mt-0.5">
+                  <div className="text-lg font-bold text-[#1A1A1A] mt-0.5">
                     {currentTenant.name}
                   </div>
                 </div>
 
-                {/* Authentic Stamped Seal (Rotated 2-4 deg, aged-brass gold) */}
-                <div className="stamp-seal">
-                  <span>Form 20B/21B Verified</span>
+                <div className="px-2.5 py-1 rounded-full bg-[#E8F3F1] text-[#1A504C] text-[10px] font-bold border border-[#1A504C]/20">
+                  Form 20B/21B Verified
                 </div>
               </div>
 
-              {/* Manifest Specifications Table */}
-              <div className="border-t border-b border-[#2C3E36] py-2.5 space-y-2 text-xs font-mono">
-                <div className="flex items-center justify-between text-[11px]">
-                  <span className="text-[#8A8578]">Manufacturer licence:</span>
-                  <span className="text-[#F6F3EC] font-semibold">{currentTenant.drugLicenseNumber}</span>
+              {/* Manifest Specifications */}
+              <div className="border-t border-b border-gray-100 py-3 space-y-2 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-[#6B7280]">Manufacturer Licence:</span>
+                  <span className="text-[#1A1A1A] font-bold">{currentTenant.drugLicenseNumber}</span>
                 </div>
-                <div className="flex items-center justify-between text-[11px]">
-                  <span className="text-[#8A8578]">Authorized buyer:</span>
-                  <span className="text-[#3D6B52] font-semibold">{currentDistributor.name}</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-[#6B7280]">Authorized Buyer:</span>
+                  <span className="text-[#1A504C] font-bold">{currentDistributor.name}</span>
                 </div>
-                <div className="flex items-center justify-between text-[11px]">
-                  <span className="text-[#8A8578]">Buyer Form 20B:</span>
-                  <span className="text-[#F6F3EC]">{currentDistributor.licenses?.form20B || currentDistributor.gstin}</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-[#6B7280]">Buyer Form 20B:</span>
+                  <span className="text-[#1A1A1A]">{currentDistributor.licenses?.form20B || currentDistributor.gstin}</span>
                 </div>
-                <div className="flex items-center justify-between text-[11px]">
-                  <span className="text-[#8A8578]">Statutory status:</span>
-                  <span className="text-[#C9A961] font-semibold">Approved for Schedule H/H1</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-[#6B7280]">Statutory Compliance:</span>
+                  <span className="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded">Schedule H/H1 Authorized</span>
                 </div>
               </div>
 
-              {/* Principal Selection Rows */}
-              <div className="space-y-1.5 pt-1">
-                <span className="text-[11px] font-mono text-[#8A8578] block">
-                  Select manufacturing principal:
+              {/* Switch Manufacturer Principal Quick Buttons */}
+              <div className="space-y-2 pt-1">
+                <span className="text-xs font-bold text-[#6B7280] block">
+                  Select Manufacturing Principal:
                 </span>
                 <div className="grid grid-cols-2 gap-2">
                   {tenants.map((t) => {
@@ -335,16 +346,18 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                     return (
                       <button
                         key={t.id}
-                        type="button"
                         onClick={() => setActiveTenantId(t.id)}
-                        className={`p-2 rounded text-left border text-xs transition-colors ${
+                        className={`p-2.5 rounded-xl border text-left transition-all flex items-center justify-between ${
                           isSelected
-                            ? 'bg-[#1F2E28] border-[#C9A961] text-[#F6F3EC]'
-                            : 'bg-[#16221E] border-[#2C3E36] text-[#8A8578] hover:border-[#4E8568]'
+                            ? 'bg-[#E8F3F1] border-[#1A504C] text-[#1A504C] font-bold shadow-2xs'
+                            : 'bg-gray-50 border-gray-200 text-[#1A1A1A] hover:bg-white'
                         }`}
                       >
-                        <div className="font-serif font-semibold truncate text-[#F6F3EC]">{t.shortName}</div>
-                        <div className="font-mono text-[10px] text-[#8A8578] truncate">{t.drugLicenseNumber}</div>
+                        <div className="min-w-0 pr-1">
+                          <div className="text-xs font-bold truncate">{t.shortName}</div>
+                          <div className="text-[10px] text-[#6B7280] truncate">{t.drugLicenseNumber}</div>
+                        </div>
+                        {isSelected && <CheckCircle2 className="w-4 h-4 text-[#1A504C] shrink-0" />}
                       </button>
                     );
                   })}
@@ -352,48 +365,43 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               </div>
             </div>
 
-            {/* 2. Ledger-Style Hub Selector (Rows, NOT tiles) */}
-            <div className="bg-[#16221E] rounded-lg border border-[#2C3E36] p-4 space-y-2.5">
+            {/* 2. Regional Fulfillment Depots Selector */}
+            <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-xs space-y-3">
               <div className="flex items-center justify-between">
-                <span className="font-mono text-[10px] text-[#8A8578] uppercase tracking-wider">
-                  Regional fulfillment depots
-                </span>
-                <span className="font-mono text-[11px] text-[#C9A961]">
-                  Cutoff: {activeHubData.cutoff}
+                <div className="flex items-center gap-2">
+                  <Truck className="w-4 h-4 text-[#1A504C]" />
+                  <h3 className="text-xs font-bold text-[#1A1A1A] uppercase tracking-wider">
+                    Regional Fulfillment Depots
+                  </h3>
+                </div>
+                <span className="text-[11px] text-[#1A504C] font-bold">
+                  {activeHubData.cutoff} Cutoff
                 </span>
               </div>
 
-              {/* Rows with dotted leaders */}
-              <div className="divide-y divide-[#2C3E36] text-xs">
+              <div className="grid grid-cols-2 gap-2">
                 {distributionHubs.map((hub) => {
                   const isSelected = hub.id === selectedHub;
                   return (
-                    <div
+                    <button
                       key={hub.id}
                       onClick={() => setSelectedHub(hub.id)}
-                      className={`py-2.5 px-2 flex items-center justify-between cursor-pointer rounded transition-colors ${
-                        isSelected ? 'bg-[#1F2E28] text-[#F6F3EC]' : 'text-[#8A8578] hover:text-[#F6F3EC]'
+                      className={`p-2.5 rounded-xl border text-left transition-all ${
+                        isSelected
+                          ? 'bg-[#E8F3F1] border-[#1A504C] text-[#1A504C] font-bold'
+                          : 'bg-gray-50 border-gray-200 text-[#1A1A1A] hover:bg-white'
                       }`}
                     >
-                      <div className="flex items-center gap-2 min-w-0 pr-2">
-                        <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-[#3D6B52]' : 'bg-[#2C3E36]'}`} />
-                        <span className={`font-serif text-xs truncate ${isSelected ? 'text-[#F6F3EC] font-bold' : 'text-[#8A8578]'}`}>
-                          {hub.name}
-                        </span>
-                      </div>
-
-                      {/* Dotted Leader Line */}
-                      <div className="flex-1 mx-2 border-b border-dotted border-[#2C3E36] hidden sm:block" />
-
-                      <div className="flex items-center gap-2 shrink-0 font-mono text-[11px]">
-                        <span className={isSelected ? 'text-[#3D6B52] font-semibold' : 'text-[#8A8578]'}>
-                          {hub.transit}
-                        </span>
-                        <span className="text-[#8A8578]">›</span>
-                      </div>
-                    </div>
+                      <div className="text-xs font-bold truncate">{hub.name.split(' ')[0]} Hub</div>
+                      <div className="text-[10px] text-[#6B7280]">{hub.state}</div>
+                    </button>
                   );
                 })}
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-[#F5F8F6] border border-gray-100 flex items-center justify-between text-xs text-[#6B7280]">
+                <span>Status: <strong className="text-[#1A1A1A]">{activeHubData.transit}</strong></span>
+                <span className="font-semibold text-[#1A504C]">Tamper-Proof FEFO</span>
               </div>
             </div>
           </div>

@@ -22,122 +22,130 @@ export const FooterSection: React.FC<FooterSectionProps> = () => {
   const { setPortalMode, setActiveTenantId, setActiveDistributorId, tenants, distributors } = useStore();
 
   return (
-    <footer className="relative bg-[#1F2E28] text-[#A8B5AF] text-xs selection:bg-[#3D6B52] selection:text-white border-t border-[#2C3E36]">
-      {/* Upper Footer: Regulatory Compliance Manifest Cards */}
-      <div className="border-b border-[#2C3E36] bg-[#1A2621]">
+    <footer className="relative bg-[#F9FAFB] text-[#1A1A1A] text-xs border-t border-gray-200">
+      {/* Upper Footer: Regulatory Compliance Cards (Apollo / PharmEasy Light Style) */}
+      <div className="border-b border-gray-200 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {/* Pillar 1 */}
-            <div className="p-4 sm:p-5 rounded-lg bg-[#22332C] border border-[#2D423A]">
-              <div className="flex items-center gap-3 mb-2.5">
-                <ShieldCheck className="w-5 h-5 text-[#C9A961] stroke-[1.75]" />
-                <h4 className="text-white font-serif font-bold text-sm">CDSCO Form 20B/21B</h4>
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#F5F8F6] border border-gray-100">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl bg-[#E8F3F1] text-[#1A504C] flex items-center justify-center shrink-0">
+                  <ShieldCheck className="w-5 h-5 stroke-[2]" />
+                </div>
+                <h4 className="font-bold text-sm text-[#1A1A1A]">CDSCO Form 20B/21B</h4>
               </div>
-              <p className="text-[#A8B5AF] text-xs leading-relaxed font-sans">
-                Wholesale drug licenses verified against state regulatory registers before catalog access or dispatch manifest issuance.
+              <p className="text-[#6B7280] text-xs leading-relaxed">
+                Wholesale drug licenses strictly verified against state licensing authority registers before commercial checkout.
               </p>
             </div>
 
             {/* Pillar 2 */}
-            <div className="p-4 sm:p-5 rounded-lg bg-[#22332C] border border-[#2D423A]">
-              <div className="flex items-center gap-3 mb-2.5">
-                <ThermometerSnowflake className="w-5 h-5 text-[#A8C9B3] stroke-[1.75]" />
-                <h4 className="text-white font-serif font-bold text-sm">Cold chain 2°C – 8°C</h4>
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#F5F8F6] border border-gray-100">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl bg-[#E8F3F1] text-[#1A504C] flex items-center justify-center shrink-0">
+                  <ThermometerSnowflake className="w-5 h-5 stroke-[2]" />
+                </div>
+                <h4 className="font-bold text-sm text-[#1A1A1A]">Cold Chain 2°C – 8°C</h4>
               </div>
-              <p className="text-[#A8B5AF] text-xs leading-relaxed font-sans">
-                Validated thermal packing with continuous data logger telemetry for biologics, insulins, and temperature-sensitive formulations.
+              <p className="text-[#6B7280] text-xs leading-relaxed">
+                Validated thermal packaging with continuous temperature data logger telemetry for biologics, insulins & vaccines.
               </p>
             </div>
 
             {/* Pillar 3 */}
-            <div className="p-4 sm:p-5 rounded-lg bg-[#22332C] border border-[#2D423A]">
-              <div className="flex items-center gap-3 mb-2.5">
-                <RotateCcw className="w-5 h-5 text-[#B54A32] stroke-[1.75]" />
-                <h4 className="text-white font-serif font-bold text-sm">CPCB Form 6 waste manifest</h4>
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#F5F8F6] border border-gray-100">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl bg-orange-50 text-[#EA580C] flex items-center justify-center shrink-0">
+                  <RotateCcw className="w-5 h-5 stroke-[2]" />
+                </div>
+                <h4 className="font-bold text-sm text-[#1A1A1A]">CPCB Form 6 Manifest</h4>
               </div>
-              <p className="text-[#A8B5AF] text-xs leading-relaxed font-sans">
-                Statutory bio-hazardous waste tracking and authorized TSDF incinerator destruction certificates for recalled or expired batches.
+              <p className="text-[#6B7280] text-xs leading-relaxed">
+                Certified bio-hazardous waste destruction manifests and CPCB-authorized TSDF incinerator tracking for expired SKUs.
               </p>
             </div>
 
             {/* Pillar 4 */}
-            <div className="p-4 sm:p-5 rounded-lg bg-[#22332C] border border-[#2D423A]">
-              <div className="flex items-center gap-3 mb-2.5">
-                <FileCheck2 className="w-5 h-5 text-[#C9A961] stroke-[1.75]" />
-                <h4 className="text-white font-serif font-bold text-sm">100% Tax invoiced</h4>
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#F5F8F6] border border-gray-100">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl bg-[#E8F3F1] text-[#1A504C] flex items-center justify-center shrink-0">
+                  <FileCheck2 className="w-5 h-5 stroke-[2]" />
+                </div>
+                <h4 className="font-bold text-sm text-[#1A1A1A]">100% Tax Invoiced</h4>
               </div>
-              <p className="text-[#A8B5AF] text-xs leading-relaxed font-sans">
-                Automated GST E-Way bill generation with synchronized input tax credit (ITC) reconciliation for institutional hospital buyers.
+              <p className="text-[#6B7280] text-xs leading-relaxed">
+                Automated GST E-Way bill generation with synchronized Input Tax Credit (ITC) reconciliation for institutional buyers.
               </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Main Footer Directory */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-14">
+      {/* Main Multi-Column Directory */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-12">
-          {/* Column 1: Brand Wordmark & Direct Desk Contact */}
+          {/* Column 1: Brand & Contact Info */}
           <div className="lg:col-span-4 space-y-4">
-            <BrandLogo size="md" />
+            <BrandLogo size="md" variant="light" />
 
-            <p className="text-[#A8B5AF] text-xs leading-relaxed max-w-sm font-sans">
-              Pan-India regulated wholesale pharmaceutical marketplace connecting licensed pharmaceutical manufacturers directly with verified distributors and hospital networks.
+            <p className="text-[#6B7280] text-xs leading-relaxed max-w-sm">
+              India's leading regulated multi-tenant B2B pharmaceutical marketplace connecting licensed medicine manufacturers directly with authorized wholesale distributors and hospital networks.
             </p>
 
-            <div className="space-y-2 pt-1 text-xs font-sans">
-              <div className="flex items-center gap-2.5 text-[#E2DDD2]">
-                <Phone className="w-4 h-4 text-[#C9A961] shrink-0 stroke-[1.75]" />
-                <span>Wholesale desk: <strong className="font-mono text-white">1800-266-PHARMA</strong></span>
+            <div className="space-y-2 pt-1 text-xs">
+              <div className="flex items-center gap-2.5 text-[#1A1A1A]">
+                <Phone className="w-4 h-4 text-[#1A504C] shrink-0" />
+                <span>Wholesale Desk: <strong className="font-bold">1800-266-PHARMA</strong></span>
               </div>
-              <div className="flex items-center gap-2.5 text-[#E2DDD2]">
-                <Mail className="w-4 h-4 text-[#C9A961] shrink-0 stroke-[1.75]" />
-                <span>Trade inquiries: <strong className="text-white font-mono">orders@pharmxpress.in</strong></span>
+              <div className="flex items-center gap-2.5 text-[#1A1A1A]">
+                <Mail className="w-4 h-4 text-[#1A504C] shrink-0" />
+                <span>Order Inquiries: <strong className="text-[#1A504C]">orders@pharmxpress.in</strong></span>
               </div>
             </div>
 
-            <div className="pt-2 flex flex-wrap items-center gap-2 text-[11px] font-mono">
-              <span className="stamp-seal text-[9px] py-0.5 px-2">ISO 9001:2015</span>
-              <span className="stamp-seal text-[9px] py-0.5 px-2">WHO-GMP</span>
-              <span className="stamp-seal text-[9px] py-0.5 px-2">CDSCO Sched-M</span>
-            </div>
-          </div>
-
-          {/* Column 2: Regional Hubs */}
-          <div className="lg:col-span-3 space-y-4">
-            <h4 className="text-white font-serif font-bold text-xs pb-1 border-b border-[#2C3E36] flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-[#C9A961] stroke-[1.75]" />
-              <span>Regional fulfillment hubs</span>
-            </h4>
-            
-            <div className="space-y-3">
-              <div className="p-3 rounded bg-[#22332C] border border-[#2D423A] space-y-1">
-                <div className="font-serif font-bold text-white text-xs">Lucknow Central Depot (UP)</div>
-                <div className="text-[11px] text-[#A8B5AF] font-sans">Transport Nagar Industrial Area, Lucknow - 226012</div>
-                <div className="text-[#C9A961] text-[10px] font-mono pt-0.5">Priority 24h delivery: UP West & UP East</div>
-              </div>
-
-              <div className="p-3 rounded bg-[#22332C] border border-[#2D423A] space-y-1">
-                <div className="font-serif font-bold text-white text-xs">Bhiwandi Central DC (MH)</div>
-                <div className="text-[11px] text-[#A8B5AF] font-sans">Mankoli Logistics Park, Bhiwandi, Thane - 421302</div>
-                <div className="text-[#C9A961] text-[10px] font-mono pt-0.5">Same-day express dispatch: Western Zone</div>
-              </div>
-
-              <div className="p-3 rounded bg-[#22332C] border border-[#2D423A] space-y-1">
-                <div className="font-serif font-bold text-white text-xs">Baddi Pharma Cluster (HP)</div>
-                <div className="text-[11px] text-[#A8B5AF] font-sans">Phase-1 Industrial Area, Baddi, Solan - 173205</div>
-                <div className="text-[#A8C9B3] text-[10px] font-mono pt-0.5">Primary factory dispatch & cold chain DC</div>
-              </div>
+            <div className="pt-2 flex flex-wrap items-center gap-2 text-[11px] font-semibold">
+              <span className="px-2.5 py-1 rounded-md bg-white border border-gray-200 text-[#1A1A1A]">ISO 9001:2015</span>
+              <span className="px-2.5 py-1 rounded-md bg-white border border-gray-200 text-[#1A1A1A]">WHO-GMP</span>
+              <span className="px-2.5 py-1 rounded-md bg-white border border-gray-200 text-[#1A1A1A]">CDSCO Schedule-M</span>
             </div>
           </div>
 
-          {/* Column 3: Active Principals & Platform Switch */}
-          <div className="lg:col-span-2 space-y-4">
-            <h4 className="text-white font-serif font-bold text-xs pb-1 border-b border-[#2C3E36]">
-              Active principals
+          {/* Column 2: Regional Fulfillment Depots */}
+          <div className="lg:col-span-3 space-y-3">
+            <h4 className="font-extrabold text-xs text-[#1A1A1A] uppercase tracking-wider pb-1 border-b border-gray-200 flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5 text-[#1A504C]" />
+              <span>Regional Fulfillment Hubs</span>
             </h4>
             
-            <ul className="space-y-2.5">
+            <div className="space-y-2.5">
+              <div className="p-3 rounded-xl bg-white border border-gray-200 space-y-0.5">
+                <div className="font-bold text-[#1A1A1A] text-xs">Lucknow Central Depot (UP)</div>
+                <div className="text-[11px] text-[#6B7280]">Transport Nagar Industrial Area, Lucknow - 226012</div>
+                <div className="text-[#1A504C] text-[10px] font-bold pt-0.5">Priority 24h Transit: UP West & UP East</div>
+              </div>
+
+              <div className="p-3 rounded-xl bg-white border border-gray-200 space-y-0.5">
+                <div className="font-bold text-[#1A1A1A] text-xs">Bhiwandi Central DC (MH)</div>
+                <div className="text-[11px] text-[#6B7280]">Mankoli Logistics Park, Bhiwandi, Thane - 421302</div>
+                <div className="text-[#1A504C] text-[10px] font-bold pt-0.5">Same-Day Express: Western Zone</div>
+              </div>
+
+              <div className="p-3 rounded-xl bg-white border border-gray-200 space-y-0.5">
+                <div className="font-bold text-[#1A1A1A] text-xs">Baddi Pharma Cluster (HP)</div>
+                <div className="text-[11px] text-[#6B7280]">Phase-1 Industrial Area, Baddi, Solan - 173205</div>
+                <div className="text-blue-700 text-[10px] font-bold pt-0.5">Primary Manufacturing Dispatch Facility</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Column 3: Active Principals & Portals */}
+          <div className="lg:col-span-2 space-y-3">
+            <h4 className="font-extrabold text-xs text-[#1A1A1A] uppercase tracking-wider pb-1 border-b border-gray-200">
+              Active Principals
+            </h4>
+            
+            <ul className="space-y-2">
               {tenants.map((t) => (
                 <li key={t.id}>
                   <button
@@ -145,60 +153,60 @@ export const FooterSection: React.FC<FooterSectionProps> = () => {
                       setActiveTenantId(t.id);
                       setPortalMode('manufacturer');
                     }}
-                    className="hover:text-white transition-colors text-left flex items-start gap-2 group w-full"
+                    className="hover:text-[#1A504C] transition-colors text-left flex items-start gap-2 group w-full"
                   >
                     <span className={`w-2 h-2 rounded-full ${t.logoColor} mt-1 shrink-0`} />
                     <div>
-                      <div className="text-xs font-sans font-medium text-[#E2DDD2] group-hover:text-white truncate">{t.shortName}</div>
-                      <div className="text-[10px] text-[#A8B5AF] font-mono">{t.drugLicenseNumber}</div>
+                      <div className="text-xs font-bold text-[#1A1A1A] group-hover:text-[#1A504C] truncate">{t.shortName}</div>
+                      <div className="text-[10px] text-[#6B7280]">{t.drugLicenseNumber}</div>
                     </div>
                   </button>
                 </li>
               ))}
             </ul>
 
-            <div className="pt-2">
-              <h5 className="text-[11px] font-serif font-bold text-[#A8B5AF] mb-2">Portal manifest</h5>
+            <div className="pt-2 border-t border-gray-200">
+              <h5 className="text-[11px] font-bold text-[#6B7280] uppercase tracking-wider mb-2">Platform Portals</h5>
               <div className="space-y-2">
                 <button
                   onClick={() => setPortalMode('distributor')}
-                  className="hover:text-white transition-colors flex items-center gap-1.5 text-[#E2DDD2] text-xs font-sans"
+                  className="hover:text-[#1A504C] transition-colors flex items-center gap-1.5 text-xs font-semibold text-[#1A1A1A]"
                 >
-                  <Store className="w-3.5 h-3.5 text-[#3D6B52] stroke-[1.75]" />
-                  <span>Distributor portal</span>
+                  <Store className="w-3.5 h-3.5 text-[#1A504C]" />
+                  <span>Distributor Portal</span>
                 </button>
                 <button
                   onClick={() => setPortalMode('manufacturer')}
-                  className="hover:text-white transition-colors flex items-center gap-1.5 text-[#E2DDD2] text-xs font-sans"
+                  className="hover:text-[#1A504C] transition-colors flex items-center gap-1.5 text-xs font-semibold text-[#1A1A1A]"
                 >
-                  <Building2 className="w-3.5 h-3.5 text-[#C9A961] stroke-[1.75]" />
-                  <span>Manufacturer operations</span>
+                  <Building2 className="w-3.5 h-3.5 text-[#1A504C]" />
+                  <span>Manufacturer Operations</span>
                 </button>
               </div>
             </div>
           </div>
 
           {/* Column 4: Verified Distributors */}
-          <div className="lg:col-span-3 space-y-4">
-            <h4 className="text-white font-serif font-bold text-xs pb-1 border-b border-[#2C3E36]">
-              Verified distributors
+          <div className="lg:col-span-3 space-y-3">
+            <h4 className="font-extrabold text-xs text-[#1A1A1A] uppercase tracking-wider pb-1 border-b border-gray-200">
+              Verified Stockists
             </h4>
             
             <ul className="space-y-2.5">
               {distributors.map((d) => (
-                <li key={d.id} className="p-2.5 rounded bg-[#22332C] border border-[#2D423A]">
+                <li key={d.id} className="p-2.5 rounded-xl bg-white border border-gray-200">
                   <button
                     onClick={() => {
                       setActiveDistributorId(d.id);
                       setPortalMode('distributor');
                     }}
-                    className="hover:text-white transition-colors text-left w-full block"
+                    className="hover:text-[#1A504C] transition-colors text-left w-full block"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-serif font-bold text-[#E2DDD2] text-xs truncate">{d.name}</span>
-                      <span className="text-[10px] text-[#A8B5AF] font-mono">({d.city})</span>
+                      <span className="font-bold text-[#1A1A1A] text-xs truncate">{d.name}</span>
+                      <span className="text-[10px] text-[#6B7280]">({d.city})</span>
                     </div>
-                    <div className="text-[10px] text-[#A8B5AF] font-mono mt-0.5 truncate">
+                    <div className="text-[10px] text-[#6B7280] mt-0.5 truncate">
                       DL: {d.licenses?.form20B || d.gstin}
                     </div>
                   </button>
@@ -209,21 +217,21 @@ export const FooterSection: React.FC<FooterSectionProps> = () => {
         </div>
 
         {/* Regulatory Statutory Disclaimer */}
-        <div className="mt-10 pt-5 border-t border-[#2C3E36] bg-[#1A2621] rounded-lg p-4 sm:p-5 text-[11px] text-[#A8B5AF] leading-relaxed space-y-1.5 font-sans">
-          <div className="flex items-center gap-2 font-serif font-bold text-[#E2DDD2]">
-            <AlertCircle className="w-4 h-4 text-[#C9A961] shrink-0 stroke-[1.75]" />
-            <span>Statutory pharmaceutical regulation & compliance disclaimer</span>
+        <div className="mt-8 pt-4 border-t border-gray-200 bg-white rounded-2xl p-4 sm:p-5 text-[11px] text-[#6B7280] leading-relaxed space-y-1.5 border border-gray-200">
+          <div className="flex items-center gap-2 font-bold text-[#1A1A1A]">
+            <AlertCircle className="w-4 h-4 text-[#EA580C] shrink-0" />
+            <span>Statutory Pharmaceutical Wholesale Compliance Disclaimer</span>
           </div>
           <p>
-            PharmXpress is a restricted B2B pharmaceutical marketplace intended exclusively for licensed entities. Sale, purchase, and distribution of formulations under Schedules H, H1, and X are strictly governed by the Drugs and Cosmetics Act, 1940 and the Drugs and Cosmetics Rules, 1945. Possession of valid wholesale drug licenses under Form 20B and Form 21B is mandatory for commercial transactions.
+            PharmXpress is a restricted B2B pharmaceutical marketplace intended exclusively for licensed entities. Sale, purchase, and distribution of medicines falling under Schedules H, H1, and X are strictly governed by the Drugs and Cosmetics Act, 1940 and the Drugs and Cosmetics Rules, 1945. Possession of valid wholesale drug licenses under Form 20B and Form 21B is mandatory for commercial transactions.
           </p>
         </div>
 
         {/* Bottom Legal & Copyright Bar */}
-        <div className="mt-8 pt-5 border-t border-[#2C3E36] flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-[#8A8578] font-sans">
-          <p>© 2026 PharmXpress B2B Platform • Pan-India Regulated Pharmaceutical Wholesale Network</p>
-          <div className="flex items-center gap-3 text-[#A8B5AF]">
-            <span>Form 20B / Form 21B Compliant</span>
+        <div className="mt-6 pt-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#6B7280]">
+          <p>© 2026 PharmXpress B2B Platform • Pan-India Regulated Pharmaceutical Distribution Network</p>
+          <div className="flex items-center gap-3">
+            <span>Form 20B/21B Compliant</span>
             <span>•</span>
             <span>CDSCO Schedule M</span>
             <span>•</span>

@@ -147,7 +147,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                   key={user.id}
                   onClick={() => handleSelectPredefined(user)}
                   disabled={loading}
-                  className="w-full p-3 rounded-xl border border-[#E2DDD2] hover:border-[#3D6B52] hover:bg-[#F6F3EC] text-left transition-colors group flex items-center justify-between gap-3 text-xs"
+                  className="w-full p-3 rounded-xl border border-gray-200 hover:border-[#1A504C] hover:bg-[#F5F8F6] text-left transition-colors group flex items-center justify-between gap-3 text-xs"
                 >
                   <div className="flex items-center gap-3">
                     <div className={`w-9 h-9 rounded-lg ${user.avatarColor} text-white font-bold flex items-center justify-center shrink-0 shadow-2xs`}>
@@ -159,18 +159,18 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-serif font-bold text-[#1F2E28] group-hover:text-[#3D6B52] transition-colors">
+                        <span className="font-bold text-[#1A1A1A] group-hover:text-[#1A504C] transition-colors">
                           {user.name}
                         </span>
-                        <span className="px-2 py-0.5 rounded text-[9px] font-mono text-[#1F2E28] bg-[#F6F3EC] border border-[#E2DDD2]">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold text-[#1A504C] bg-[#E8F3F1] border border-[#1A504C]/20">
                           {user.role.replace(/_/g, ' ')}
                         </span>
                       </div>
-                      <span className="text-[11px] text-[#8A8578] block font-sans">{user.designation}</span>
+                      <span className="text-[11px] text-[#6B7280] block">{user.designation}</span>
                     </div>
                   </div>
 
-                  <span className="text-xs font-sans text-[#3D6B52] font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="text-xs text-[#1A504C] font-bold opacity-0 group-hover:opacity-100 transition-opacity">
                     Select
                   </span>
                 </button>

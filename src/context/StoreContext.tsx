@@ -54,6 +54,8 @@ interface StoreContextType {
   setActiveDistributorId: (id: string) => void;
   activeDistributorTenantFilter: string; // 'all' or specific tenantId for distributor marketplace
   setActiveDistributorTenantFilter: (id: string) => void;
+  globalSearchQuery: string;
+  setGlobalSearchQuery: (query: string) => void;
 
   // Active Entities
   currentTenant: Tenant;
@@ -225,6 +227,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     loadFromStorage<string>('activeDistributorId', 'dist-medplus')
   );
   const [activeDistributorTenantFilter, setActiveDistributorTenantFilter] = useState<string>('all');
+  const [globalSearchQuery, setGlobalSearchQuery] = useState<string>('');
 
   // Interactive Test Preset Helper
   const [presetDemoTarget, setPresetDemoTarget] = useState<{
@@ -1508,6 +1511,8 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         resetToSeedData,
         presetDemoTarget,
         setPresetDemoTarget,
+        globalSearchQuery,
+        setGlobalSearchQuery,
       }}
     >
       {children}

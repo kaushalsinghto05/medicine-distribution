@@ -16,9 +16,16 @@ import {
   ShieldAlert, 
   AlertTriangle, 
   Plus, 
-  Truck,
-  Building2,
-  FileText
+  Activity, 
+  HeartPulse, 
+  Droplet, 
+  Apple, 
+  ShieldCheck, 
+  Layers, 
+  Tag, 
+  Sparkles,
+  Info,
+  Truck
 } from 'lucide-react';
 
 export const BrowseMedicinesScreen: React.FC = () => {
@@ -26,16 +33,17 @@ export const BrowseMedicinesScreen: React.FC = () => {
     currentDistributor,
     tenants,
     distributorAuthorizedTenants,
-    distributorMedicines, // STRICT: already hard-filtered to only authorized manufacturers!
+    distributorMedicines, // STRICT: already hard-filtered to authorized manufacturers!
     activeDistributorTenantFilter,
     setActiveDistributorTenantFilter,
     presetDemoTarget,
     setPresetDemoTarget,
     addToCart,
     addToast,
+    globalSearchQuery,
+    setGlobalSearchQuery,
   } = useStore();
 
-  const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [inStockOnly, setInStockOnly] = useState(false);
   const [detailModalMedicine, setDetailModalMedicine] = useState<Medicine | null>(null);
@@ -50,24 +58,26 @@ export const BrowseMedicinesScreen: React.FC = () => {
     }
   }, [presetDemoTarget, distributorMedicines]);
 
-  // Visual Category Definitions
-  const categories = [
-    'All',
-    'Antibiotics',
-    'Analgesics & Antipyretics',
-    'Cardiovascular',
-    'Gastrointestinal',
-    'Respiratory',
-    'Antidiabetic',
-    'Dermatological',
-    'Nutritional & Vitamins',
+  // Visual Category Definitions with Representative Icons
+  const categoryDefinitions = [
+    { name: 'All', icon: Sparkles, color: 'bg-teal-50 text-[#1A504C]' },
+    { name: 'Antibiotics', icon: Pill, color: 'bg-emerald-50 text-emerald-700' },
+    { name: 'Analgesics & Antipyretics', icon: Activity, color: 'bg-blue-50 text-blue-700' },
+    { name: 'Cardiovascular', icon: HeartPulse, color: 'bg-rose-50 text-rose-700' },
+    { name: 'Gastrointestinal', icon: Droplet, color: 'bg-amber-50 text-amber-700' },
+    { name: 'Respiratory', icon: ShieldCheck, color: 'bg-indigo-50 text-indigo-700' },
+    { name: 'Antidiabetic', icon: Layers, color: 'bg-cyan-50 text-cyan-700' },
+    { name: 'Dermatological', icon: Tag, color: 'bg-purple-50 text-purple-700' },
+    { name: 'Nutritional & Vitamins', icon: Apple, color: 'bg-orange-50 text-orange-700' },
   ];
 
   const filteredMedicines = distributorMedicines.filter((med) => {
+    const query = globalSearchQuery.trim().toLowerCase();
     const matchesSearch =
-      med.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      med.genericName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      med.regulatory.composition.toLowerCase().includes(searchQuery.toLowerCase());
+      !query ||
+      med.name.toLowerCase().includes(query) ||
+      med.genericName.toLowerCase().includes(query) ||
+      med.regulatory.composition.toLowerCase().includes(query);
     const matchesCat = selectedCategory === 'All' || med.category === selectedCategory;
 
     const totalStock = med.batches.reduce((sum, b) => sum + b.availableQuantity, 0);
@@ -76,12 +86,10 @@ export const BrowseMedicinesScreen: React.FC = () => {
     return matchesSearch && matchesCat && matchesStock;
   });
 
-  // Find unauthorized manufacturers that the distributor is NOT yet approved with
   const unauthorizedTenants = tenants.filter(
     (t) => currentDistributor.authorizedTenants[t.id]?.status !== 'approved'
   );
 
-  // Direct "Add to order" Quick Action with full rule validation
   const handleQuickAdd = (e: React.MouseEvent, med: Medicine) => {
     e.stopPropagation();
 
@@ -89,7 +97,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
     const validation = validateOrderQuantity(currentDistributor, med, qty);
 
     if (!validation.isValid) {
-      addToast('info', 'Configuration required', validation.errors[0] || 'Please specify valid batch or quantity.');
+      addToast('info', 'Configuration Required', validation.errors[0] || 'Please specify valid batch or quantity.');
       setDetailModalMedicine(med);
       return;
     }
@@ -103,7 +111,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
     );
 
     if (!validBatch) {
-      addToast('error', 'Batch unavailable', 'No eligible active batch found with sufficient quantity.');
+      addToast('error', 'Batch Unavailable', 'No eligible active batch found with sufficient quantity.');
       setDetailModalMedicine(med);
       return;
     }
@@ -123,7 +131,21 @@ export const BrowseMedicinesScreen: React.FC = () => {
     };
 
     addToCart(item);
-    addToast('success', 'Added to order', `Added ${qty} ${med.packagingUnit}s of ${med.name} at ${formatCurrency(validation.effectivePrice)}/unit.`);
+    addToast('success', 'Added to Cart', `Added ${qty} ${med.packagingUnit}s of ${med.name} at ${formatCurrency(validation.effectivePrice)}/unit.`);
+  };
+
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'Antibiotics': return Pill;
+      case 'Analgesics & Antipyretics': return Activity;
+      case 'Cardiovascular': return HeartPulse;
+      case 'Gastrointestinal': return Droplet;
+      case 'Respiratory': return ShieldCheck;
+      case 'Antidiabetic': return Layers;
+      case 'Dermatological': return Tag;
+      case 'Nutritional & Vitamins': return Apple;
+      default: return Sparkles;
+    }
   };
 
   return (
@@ -131,113 +153,63 @@ export const BrowseMedicinesScreen: React.FC = () => {
       {/* 1. Trust & Credibility Stats Strip */}
       <TrustAndCredibilityBar variant="distributor" />
 
-      {/* Regional Sourcing & Express Fulfillment Banner */}
-      <div className="bg-[#1F2E28] text-white rounded-xl p-4 sm:p-5 border border-[#2C3E36] shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-[#3D6B52]/20 text-[#A8C9B3] flex items-center justify-center shrink-0 border border-[#3D6B52]/40">
-            <Truck className="w-5 h-5 stroke-[1.75]" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-sans font-semibold text-[#A8C9B3]">
-                Regional fulfillment hubs active
-              </span>
-              <span className="stamp-seal text-[9px] py-0 px-1.5 border-[#C9A961] text-[#C9A961]">
-                24h Transit
-              </span>
-            </div>
-            <p className="text-xs text-[#E2DDD2]/80 mt-0.5 font-sans">
-              Direct dispatch from Bhiwandi Central Depot (MH) & Lucknow Central Depot (UP) with tamper-evident batch manifests.
-            </p>
-          </div>
-        </div>
-
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded bg-[#2A3C34] border border-[#384F45] text-xs font-mono text-[#E2DDD2] self-start sm:self-auto">
-          <span className="text-[#C9A961]">Cutoff:</span>
-          <strong className="text-white">17:30 IST</strong>
-        </div>
-      </div>
-
-      {/* Buyer Header & Authorization Manifest */}
-      <div className="bg-[#FCFBF8] rounded-xl p-5 sm:p-6 border border-[#E2DDD2] shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <span className="stamp-seal text-[10px]">
-              Form 20B/21B Verified
-            </span>
-            <span className="text-xs text-[#8A8578] font-sans">
-              Authorized with {distributorAuthorizedTenants.length} {distributorAuthorizedTenants.length === 1 ? 'manufacturing principal' : 'manufacturing principals'}
-            </span>
-          </div>
-
-          <h1 className="text-2xl font-serif font-bold text-[#1F2E28] mt-1 tracking-tight">
-            {currentDistributor.name}
-          </h1>
-
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-1.5 text-xs text-[#8A8578] font-mono">
-            <span>GSTIN: <strong className="text-[#1F2E28]">{currentDistributor.gstin}</strong></span>
-            <span>•</span>
-            <span>DL: <strong className="text-[#1F2E28]">{currentDistributor.licenses?.form20B || 'DL-MH-20B-99823'}</strong></span>
-            <span>•</span>
-            <span className="font-sans text-[#1F2E28]">{currentDistributor.city}, {currentDistributor.state}</span>
-          </div>
-        </div>
-
-        {/* Authorized Principals Badges */}
-        <div className="flex items-center gap-2 flex-wrap">
-          {distributorAuthorizedTenants.map((t) => (
-            <div
-              key={t.id}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-[#E2DDD2] text-xs shadow-2xs"
-            >
-              <div className={`w-2 h-2 rounded-full ${t.logoColor}`} />
-              <span className="font-sans font-medium text-[#1F2E28]">{t.shortName}</span>
-              <CheckCircle2 className="w-3.5 h-3.5 text-[#3D6B52] stroke-[1.75]" />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Unauthorized Manufacturer Notice (Demonstrates tenant isolation) */}
-      {unauthorizedTenants.length > 0 && (
-        <div className="p-3.5 rounded-lg bg-[#FCFBF8] border border-[#E2DDD2] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2.5">
-            <ShieldAlert className="w-4 h-4 text-[#8A8578] shrink-0 stroke-[1.75]" />
-            <span className="text-[#8A8578] font-sans">
-              <strong className="text-[#1F2E28]">Multi-tenancy segregation:</strong> You are not currently authorized with{' '}
-              <strong className="text-[#1F2E28]">
-                {unauthorizedTenants.map((t) => t.shortName).join(', ')}
-              </strong>
-              . Their batch records, catalog, and wholesale rate contracts remain strictly isolated.
-            </span>
-          </div>
-        </div>
-      )}
-
-      {/* 4. Deals / Volume Schemes Register Rail */}
+      {/* 2. Deals of the Day & Bulk Pricing Rail */}
       <DealsBulkPricingRail onSelectMedicine={(med) => setDetailModalMedicine(med)} />
 
-      {/* Search & Category Filter Section */}
-      <div className="bg-[#FCFBF8] p-4 sm:p-5 rounded-xl border border-[#E2DDD2] shadow-2xs space-y-3.5">
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <Search className="w-4 h-4 text-[#8A8578] stroke-[1.75] absolute left-3.5 top-3" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by brand name, generic molecule (e.g. Paracetamol), or therapeutic composition..."
-              className="w-full text-xs font-sans pl-9 pr-3.5 py-2.5 rounded-lg border border-[#E2DDD2] bg-white focus:outline-none focus:border-[#3D6B52] transition-colors"
-            />
-          </div>
+      {/* 3. Shop by Category: Circular Icon Rail (Apollo / PharmEasy Pattern) */}
+      <div className="bg-white rounded-2xl p-5 border border-gray-200 shadow-2xs space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-base font-extrabold text-[#1A1A1A] tracking-tight">
+            Shop Formulations by Category
+          </h3>
+          <span className="text-xs text-[#6B7280]">
+            {filteredMedicines.length} Formulations Available
+          </span>
+        </div>
 
-          {/* Manufacturer Selector Dropdown */}
+        {/* Circular Category Buttons */}
+        <div className="flex items-center gap-3 sm:gap-5 overflow-x-auto pb-2 pt-1 scrollbar-thin scrollbar-thumb-gray-200">
+          {categoryDefinitions.map((cat) => {
+            const Icon = cat.icon;
+            const isSelected = selectedCategory === cat.name;
+
+            return (
+              <button
+                key={cat.name}
+                onClick={() => setSelectedCategory(cat.name)}
+                className="flex flex-col items-center gap-2 shrink-0 group focus:outline-none"
+              >
+                <div
+                  className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center transition-all duration-150 ${
+                    isSelected
+                      ? 'bg-[#1A504C] text-white shadow-md ring-2 ring-[#1A504C] ring-offset-2 scale-105'
+                      : 'bg-[#F5F8F6] text-[#1A504C] group-hover:bg-[#E8F3F1] group-hover:scale-102 border border-gray-200'
+                  }`}
+                >
+                  <Icon className="w-6 h-6 stroke-[1.75]" />
+                </div>
+                <span
+                  className={`text-[11px] sm:text-xs font-semibold text-center max-w-[84px] line-clamp-1 leading-tight ${
+                    isSelected ? 'text-[#1A504C] font-extrabold' : 'text-[#6B7280] group-hover:text-[#1A1A1A]'
+                  }`}
+                >
+                  {cat.name}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 4. Filter & In-Stock Toolbar */}
+      <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-2 flex-1">
           <select
             value={activeDistributorTenantFilter}
             onChange={(e) => setActiveDistributorTenantFilter(e.target.value)}
-            className="text-xs font-sans px-3.5 py-2.5 rounded-lg border border-[#E2DDD2] bg-white focus:outline-none focus:border-[#3D6B52] transition-colors"
+            className="text-xs font-semibold px-3 py-2 rounded-xl border border-gray-200 bg-[#F5F8F6] text-[#1A1A1A] focus:outline-none focus:border-[#1A504C]"
           >
-            <option value="all">All authorized manufacturers</option>
+            <option value="all">All Authorized Principals</option>
             {distributorAuthorizedTenants.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.name}
@@ -245,60 +217,65 @@ export const BrowseMedicinesScreen: React.FC = () => {
             ))}
           </select>
 
-          <label className="flex items-center gap-2 text-xs font-sans text-[#1F2E28] cursor-pointer select-none sm:px-2 py-2 sm:py-0">
+          <label className="flex items-center gap-2 text-xs font-semibold text-[#1A1A1A] cursor-pointer select-none px-2 py-1.5 rounded-lg hover:bg-gray-50">
             <input
               type="checkbox"
               checked={inStockOnly}
               onChange={(e) => setInStockOnly(e.target.checked)}
-              className="rounded text-[#3D6B52] focus:ring-[#3D6B52]"
+              className="rounded text-[#1A504C] focus:ring-[#1A504C]"
             />
-            <span>In-stock only</span>
+            <span>In-Stock Only</span>
           </label>
         </div>
 
-        {/* Category Navigation Tabs */}
-        <div className="relative">
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-0.5 scrollbar-thin scrollbar-thumb-[#E2DDD2]">
-            {categories.map((cat) => {
-              const isSelected = selectedCategory === cat;
-
-              return (
-                <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-sans whitespace-nowrap transition-colors shrink-0 ${
-                    isSelected
-                      ? 'bg-[#1F2E28] text-white font-medium'
-                      : 'bg-white text-[#1F2E28] border border-[#E2DDD2] hover:bg-[#F6F3EC]'
-                  }`}
-                >
-                  {cat}
-                </button>
-              );
-            })}
+        {globalSearchQuery && (
+          <div className="flex items-center gap-2 text-xs">
+            <span className="text-[#6B7280]">
+              Filtering for: <strong className="text-[#1A1A1A]">"{globalSearchQuery}"</strong>
+            </span>
+            <button
+              onClick={() => setGlobalSearchQuery('')}
+              className="text-[#EA580C] hover:underline font-bold text-xs"
+            >
+              Clear
+            </button>
           </div>
-        </div>
+        )}
       </div>
 
-      {/* Redesigned Manifest Product Grid */}
+      {/* Multi-Tenancy Isolation Alert */}
+      {unauthorizedTenants.length > 0 && (
+        <div className="p-3.5 rounded-xl bg-[#F5F8F6] border border-gray-200 flex items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2">
+            <ShieldAlert className="w-4 h-4 text-[#6B7280] shrink-0" />
+            <span className="text-[#6B7280]">
+              <strong className="text-[#1A1A1A]">B2B Tenant Isolation Active:</strong> Catalogs and wholesale pricing from{' '}
+              <strong className="text-[#1A1A1A]">{unauthorizedTenants.map((t) => t.shortName).join(', ')}</strong>{' '}
+              remain strictly isolated until your Form 20B/21B wholesale license access request is approved.
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* 5. Retail-Grade Product Cards Grid */}
       {filteredMedicines.length === 0 ? (
         <EmptyState
           icon={Pill}
-          title="No formulations found"
+          title="No Formulations Found"
           description={
             distributorAuthorizedTenants.length === 0
               ? 'Your distributor account is not authorized with any manufacturer yet. Submit access requests under Account & Licenses.'
-              : 'No matching medicines found for your search criteria or manufacturer filter. Try clearing filters.'
+              : 'No matching medicines found for your search criteria or filters. Try clearing search filters.'
           }
-          actionLabel="Clear filters"
+          actionLabel="Clear Filters"
           onAction={() => {
-            setSearchQuery('');
+            setGlobalSearchQuery('');
             setSelectedCategory('All');
             setInStockOnly(false);
           }}
         />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {filteredMedicines.map((med) => {
             const tenant = tenants.find((t) => t.id === med.tenantId);
             const totalStock = med.batches.reduce((sum, b) => sum + b.availableQuantity, 0);
@@ -308,146 +285,127 @@ export const BrowseMedicinesScreen: React.FC = () => {
             const distributorPrice = pricingResult.effectiveUnitPrice;
             const savingsPercent = med.mrp > 0 ? Math.round(((med.mrp - distributorPrice) / med.mrp) * 100) : 0;
             const isRecalled = med.batches.some((b) => b.lifecycleStatus === 'recalled');
-            const isScheduleH = med.regulatory.scheduleClassification.includes('H');
+            const CategoryIcon = getCategoryIcon(med.category);
 
             return (
               <div
                 key={med.id}
                 onClick={() => setDetailModalMedicine(med)}
-                className="bg-white rounded-lg p-4 border border-[#E2DDD2] hover:border-[#3D6B52]/40 shadow-2xs transition-colors cursor-pointer group flex flex-col justify-between relative overflow-hidden pl-4"
+                className="bg-white rounded-2xl p-4 sm:p-5 border border-gray-200 hover:border-[#1A504C] hover:shadow-lg transition-all duration-150 cursor-pointer flex flex-col justify-between group relative overflow-hidden"
               >
-                {/* Thin left-edge status bar */}
-                <div 
-                  className={`absolute left-0 top-0 bottom-0 w-1 ${
-                    isRecalled
-                      ? 'bg-[#B54A32]'
-                      : totalStock <= 0
-                      ? 'bg-[#8A8578]'
-                      : isScheduleH
-                      ? 'bg-[#C9A961]'
-                      : 'bg-[#3D6B52]'
-                  }`} 
-                />
-
                 <div className="space-y-3">
-                  {/* Manufacturer & Schedule Header */}
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs font-sans text-[#1F2E28] flex items-center gap-1.5">
-                      <div className={`w-2 h-2 rounded-full ${tenant?.logoColor || 'bg-slate-400'}`} />
-                      <span className="font-semibold truncate">{tenant?.shortName}</span>
-                      <CheckCircle2 className="w-3.5 h-3.5 text-[#3D6B52] shrink-0 stroke-[1.75]" />
-                    </span>
-                    <span className="px-1.5 py-0.5 rounded text-[10px] font-mono text-[#8A8578] bg-[#F6F3EC] border border-[#E2DDD2] shrink-0">
+                  {/* Product-Image-First Area: Soft pastel category placeholder tile */}
+                  <div className="w-full h-36 rounded-xl bg-[#F5F8F6] border border-gray-100 flex items-center justify-center relative overflow-hidden">
+                    <CategoryIcon className="w-12 h-12 text-[#1A504C]/60 group-hover:scale-110 transition-transform duration-200" />
+
+                    {/* Warm Discount Badge: Top Right Corner */}
+                    {savingsPercent > 0 && (
+                      <div className="absolute top-2.5 right-2.5 bg-[#EA580C] text-white font-extrabold text-[10px] px-2.5 py-0.5 rounded shadow-xs tracking-wide">
+                        {savingsPercent}% OFF
+                      </div>
+                    )}
+
+                    {/* Schedule Badge: Top Left Corner */}
+                    <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded text-[10px] font-bold bg-white/90 backdrop-blur-2xs border border-gray-200 text-purple-800">
                       {med.regulatory.scheduleClassification}
-                    </span>
+                    </div>
+
+                    {/* Manufacturing Principal Tag: Bottom Left */}
+                    <div className="absolute bottom-2.5 left-2.5 px-2 py-0.5 rounded bg-white/90 backdrop-blur-2xs border border-gray-200 text-[10px] font-bold text-[#1A1A1A] flex items-center gap-1">
+                      <div className={`w-1.5 h-1.5 rounded-full ${tenant?.logoColor || 'bg-gray-400'}`} />
+                      <span className="truncate max-w-[120px]">{tenant?.shortName}</span>
+                    </div>
                   </div>
 
-                  {/* Medicine Name & Molecule Line */}
+                  {/* Product Name & Molecule Composition */}
                   <div>
-                    <h3 className="font-serif font-bold text-[#1F2E28] text-base group-hover:text-[#3D6B52] transition-colors leading-snug">
+                    <h3 className="font-extrabold text-[#1A1A1A] text-base group-hover:text-[#1A504C] transition-colors line-clamp-2 leading-snug">
                       {med.name}
                     </h3>
-                    <div className="mt-0.5 text-xs text-[#8A8578] font-sans line-clamp-1">
-                      <span>Molecule: </span>
-                      <span className="text-[#1F2E28] font-medium">{med.genericName}</span>
-                    </div>
+                    <p className="text-xs text-[#6B7280] truncate mt-0.5 font-medium">
+                      {med.genericName}
+                    </p>
                   </div>
 
-                  {/* Register Specs Block */}
-                  <div className="rounded border border-[#E5E0D5] bg-[#FCFBF8] p-2 text-[10px] divide-y divide-[#E5E0D5]">
-                    <div className="grid grid-cols-2 pb-1.5 divide-x divide-[#E5E0D5]">
-                      <div className="pr-2">
-                        <span className="text-[9px] text-[#8A8578] block">MRP</span>
-                        <span className="font-serif font-bold text-[#1F2E28] tabular-nums">{formatCurrency(med.mrp)}</span>
-                      </div>
-                      <div className="pl-2">
-                        <span className="text-[9px] text-[#8A8578] block">Batch (FEFO)</span>
-                        <span className="font-mono font-medium text-[#1F2E28] truncate block max-w-[80px]">
-                          {activeBatch?.batchNumber || 'N/A'}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 pt-1.5 divide-x divide-[#E5E0D5]">
-                      <div className="pr-2">
-                        <span className="text-[9px] text-[#8A8578] block">Pack size</span>
-                        <span className="font-mono text-[#1F2E28] truncate block max-w-[80px]">{med.packSize}</span>
-                      </div>
-                      <div className="pl-2">
-                        <span className="text-[9px] text-[#8A8578] block">Available</span>
-                        <span className={`font-mono font-semibold tabular-nums block ${totalStock > 0 ? 'text-[#3D6B52]' : 'text-[#B54A32]'}`}>
-                          {totalStock} {med.packagingUnit}s
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Rate Block */}
-                  <div className="bg-[#FCFBF8] rounded-lg p-2.5 border border-[#E2DDD2]">
-                    <div>
-                      <span className="text-[10px] text-[#8A8578] font-sans block">
-                        Wholesale net rate
+                  {/* Retail Price Block: "₹145 ₹210 (31% off)" on a single line */}
+                  <div className="pt-1">
+                    <div className="flex items-baseline gap-2 flex-wrap">
+                      <span className="text-2xl font-extrabold text-[#1A1A1A] tabular-nums">
+                        {formatCurrency(distributorPrice)}
                       </span>
-                      <div className="flex items-baseline gap-2 mt-0.5">
-                        <span className="text-2xl font-serif font-bold text-[#1F2E28] tracking-tight tabular-nums">
-                          {formatCurrency(distributorPrice)}
+                      {med.mrp > 0 && (
+                        <span className="text-xs text-gray-400 line-through tabular-nums font-normal">
+                          {formatCurrency(med.mrp)}
                         </span>
-                        {med.mrp > 0 && (
-                          <span className="text-xs text-[#8A8578] line-through font-serif tabular-nums">
-                            {formatCurrency(med.mrp)}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="pt-2 mt-2 border-t border-[#E5E0D5] flex items-center justify-between text-[10px]">
-                      <span className="text-[#8A8578] font-sans">
-                        + 12% GST credit eligible
-                      </span>
+                      )}
                       {savingsPercent > 0 && (
-                        <span className="font-mono font-semibold text-[#3D6B52] tabular-nums">
-                          {savingsPercent}% margin
+                        <span className="text-xs font-bold text-emerald-700">
+                          ({savingsPercent}% off)
                         </span>
                       )}
                     </div>
+                    <span className="text-[10px] text-[#6B7280] block mt-0.5">
+                      + 12% GST Input Tax Credit Eligible
+                    </span>
                   </div>
 
-                  {/* Ordering Conditions */}
-                  <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-[#F6F3EC] text-[10px] text-[#8A8578] font-mono">
-                    <span className="text-[#1F2E28]">Rules:</span>
-                    <span>Min {med.rules.minOrderQty}</span>
-                    {med.rules.orderMultiple > 1 && <span>• Mult ×{med.rules.orderMultiple}</span>}
-                    <span>• Max {med.rules.maxOrderQty} {med.packagingUnit}s</span>
+                  {/* Compact Subordinated B2B Specs Row */}
+                  <div className="rounded-xl bg-[#F5F8F6] border border-gray-100 p-2.5 text-[11px] divide-y divide-gray-200/60">
+                    <div className="grid grid-cols-2 pb-1.5 divide-x divide-gray-200/60">
+                      <div className="pr-2">
+                        <span className="text-[9px] text-[#6B7280] block font-medium uppercase">Pack</span>
+                        <span className="font-bold text-[#1A1A1A] truncate block">{med.packSize}</span>
+                      </div>
+                      <div className="pl-2">
+                        <span className="text-[9px] text-[#6B7280] block font-medium uppercase">Batch (FEFO)</span>
+                        <span className="font-bold text-[#1A1A1A] truncate block">{activeBatch?.batchNumber || 'N/A'}</span>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 pt-1.5 divide-x divide-gray-200/60">
+                      <div className="pr-2">
+                        <span className="text-[9px] text-[#6B7280] block font-medium uppercase">Stock</span>
+                        <span className={`font-bold tabular-nums block ${totalStock > 0 ? 'text-emerald-700' : 'text-red-600'}`}>
+                          {totalStock} {med.packagingUnit}s
+                        </span>
+                      </div>
+                      <div className="pl-2">
+                        <span className="text-[9px] text-[#6B7280] block font-medium uppercase">MOQ Rules</span>
+                        <span className="font-bold text-[#1A1A1A] truncate block">
+                          Min {med.rules.minOrderQty}{med.rules.orderMultiple > 1 ? ` • ×${med.rules.orderMultiple}` : ''}
+                        </span>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Recalled Notice */}
                   {isRecalled && (
-                    <div className="p-2 rounded bg-[#B54A32]/10 border border-[#B54A32]/20 text-[#B54A32] text-[10px] font-sans font-semibold flex items-center gap-1.5">
-                      <AlertTriangle className="w-3.5 h-3.5 text-[#B54A32] shrink-0 stroke-[1.75]" />
-                      <span>Batch recall in effect for this SKU</span>
+                    <div className="p-2 rounded-lg bg-red-50 border border-red-200 text-red-700 text-[10px] font-bold flex items-center gap-1.5">
+                      <AlertTriangle className="w-3.5 h-3.5 text-red-600 shrink-0" />
+                      <span>Batch Recall in Effect for this SKU</span>
                     </div>
                   )}
                 </div>
 
-                {/* Card Action Row */}
-                <div className="pt-3 mt-3 border-t border-[#E5E0D5] flex items-center gap-2">
+                {/* Card Action Row: Retail "ADD" button */}
+                <div className="pt-3 mt-3 border-t border-gray-100 flex items-center gap-2">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       setDetailModalMedicine(med);
                     }}
-                    className="flex-1 py-2 rounded border border-[#E2DDD2] bg-white hover:bg-[#F6F3EC] text-[#1F2E28] font-sans font-medium text-xs transition-colors text-center"
+                    className="flex-1 py-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-[#1A1A1A] font-bold text-xs transition-colors text-center"
                   >
-                    Inspect batches
+                    Inspect Batches
                   </button>
 
                   <button
                     onClick={(e) => handleQuickAdd(e, med)}
                     disabled={totalStock <= 0}
-                    className="px-3.5 py-2 rounded bg-[#3D6B52] hover:bg-[#2F523E] disabled:bg-[#E5E0D5] disabled:text-[#8A8578] text-white font-sans font-semibold text-xs transition-colors flex items-center gap-1.5 active:scale-95 group/btn"
-                    title={`Add minimum order quantity (${med.rules.minOrderQty || 10} units) to order`}
+                    className="px-5 py-2 rounded-xl bg-[#1A504C] hover:bg-[#143F3C] disabled:bg-gray-200 disabled:text-gray-400 text-white font-extrabold text-xs uppercase shadow-xs transition-all flex items-center gap-1.5 active:scale-95 group/btn shrink-0"
+                    title={`Add MOQ (${med.rules.minOrderQty || 10} units) to Cart`}
                   >
-                    <Plus className="w-3.5 h-3.5 stroke-[2]" />
-                    <span>Add to order</span>
+                    <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                    <span>ADD</span>
                   </button>
                 </div>
               </div>

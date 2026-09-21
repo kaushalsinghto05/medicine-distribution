@@ -1,103 +1,79 @@
 @import "tailwindcss";
 
 :root {
-  font-family: 'Source Sans 3', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color-scheme: light;
-  --color-ledger-dark: #1F2E28;
-  --color-manifest-paper: #F6F3EC;
-  --color-apothecary: #3D6B52;
-  --color-sealing-wax: #B54A32;
-  --color-brass-gold: #C9A961;
-  --color-manifest-grey: #8A8578;
+  --color-primary: #1A504C;
+  --color-primary-hover: #143F3C;
+  --color-primary-light: #E8F3F1;
+  --color-accent-orange: #EA580C;
+  --color-bg-base: #FFFFFF;
+  --color-bg-section: #F5F8F6;
+  --color-text-primary: #1A1A1A;
+  --color-text-secondary: #6B7280;
 }
 
 html, body {
   margin: 0;
   padding: 0;
-  background-color: #F6F3EC;
-  color: #1F2E28;
+  background-color: #FFFFFF;
+  color: #1A1A1A;
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Typography Classes */
-.font-serif {
-  font-family: 'Source Serif 4', Georgia, Cambria, serif;
-}
-
-.font-mono {
-  font-family: 'IBM Plex Mono', 'JetBrains Mono', monospace;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
-}
-
-.font-sans {
-  font-family: 'Source Sans 3', 'Inter', system-ui, sans-serif;
-}
-
-/* Tabular Figures for Pharma Quantities & Financial Figures */
+/* Tabular Figures for Prices & Quantities */
 .tabular-nums {
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
 }
 
-/* Authentic Physical Stamped Seal (Rotated 2-4 deg, brass/apothecary ink) */
-.stamp-seal {
+/* Apollo Teal Brand Utility Classes */
+.bg-brand-teal {
+  background-color: #1A504C;
+}
+
+.text-brand-teal {
+  color: #1A504C;
+}
+
+.border-brand-teal {
+  border-color: #1A504C;
+}
+
+.hover\:bg-brand-teal-dark:hover {
+  background-color: #143F3C;
+}
+
+.bg-brand-teal-light {
+  background-color: #E8F3F1;
+}
+
+/* Clean Retail Badge Pill */
+.retail-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.375rem;
-  border: 1.5px dashed #C9A961;
-  color: #A3843B;
-  background-color: rgba(201, 169, 97, 0.08);
-  padding: 0.25rem 0.625rem;
-  border-radius: 4px;
-  font-family: 'IBM Plex Mono', monospace;
+  gap: 0.25rem;
   font-size: 0.6875rem;
   font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  transform: rotate(-2.5deg);
-  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-  user-select: none;
+  line-height: 1;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
 }
 
-.stamp-seal-green {
-  border: 1.5px solid #3D6B52;
-  color: #3D6B52;
-  background-color: rgba(61, 107, 82, 0.06);
-  transform: rotate(1.5deg);
+/* Clean Retail Discount Ribbon (Coral-Orange Strictly for Savings) */
+.retail-discount-tag {
+  background-color: #EA580C;
+  color: #FFFFFF;
+  font-weight: 800;
+  font-size: 0.6875rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  letter-spacing: 0.02em;
 }
 
-.stamp-seal-rust {
-  border: 1.5px dashed #B54A32;
-  color: #B54A32;
-  background-color: rgba(181, 74, 50, 0.06);
-  transform: rotate(-1.5deg);
-}
-
-/* Ledger Row Styling */
-.ledger-row {
-  border-bottom: 1px solid #E5E0D5;
-  transition: background-color 120ms ease;
-}
-.ledger-row:hover {
-  background-color: rgba(61, 107, 82, 0.03);
-}
-
-/* Subtle hairline borders on aged manifest paper */
-.border-manifest {
-  border-color: #E2DDD2;
-}
-
-.bg-manifest-paper {
-  background-color: #F6F3EC;
-}
-
-.bg-ledger-dark {
-  background-color: #1F2E28;
-}
-
-/* Invalid Submit Shake Micro-animation (User-action feedback only) */
+/* Invalid Submit Shake Micro-animation (User-action feedback) */
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
   20%, 60% { transform: translateX(-4px); }

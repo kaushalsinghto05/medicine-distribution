@@ -12,6 +12,7 @@ import { JwtDebuggerBar } from './components/auth/JwtDebuggerBar';
 import { HeroSection } from './components/landing/HeroSection';
 import { FooterSection } from './components/landing/FooterSection';
 import { TitlePlateSplash } from './components/common/TitlePlateSplash';
+import { MobileStickyCartBar } from './components/distributor/screens/MobileStickyCartBar';
 import { ShieldAlert, ArrowRight, Building2, Store, Sparkles } from 'lucide-react';
 
 const AppContent: React.FC = () => {
@@ -161,6 +162,9 @@ const AppContent: React.FC = () => {
 
       {/* JWT Debugger Bar (Collapsible Bottom Inspector) */}
       <JwtDebuggerBar onOpenLogin={() => setIsLoginModalOpen(true)} />
+
+      {/* Mobile Sticky Cart Summary Bar */}
+      <MobileStickyCartBar onOpenCart={() => setIsCartOpen(true)} />
 
       {/* Rich B2B Compliance & Multi-Tenant Footer */}
       <FooterSection onOpenLogin={() => setIsLoginModalOpen(true)} />
