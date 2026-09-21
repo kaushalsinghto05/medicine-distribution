@@ -1,22 +1,20 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { useStore } from '../../../context/StoreContext';
-import { Medicine, CartItem } from '../../../types';
-import { formatCurrency, formatDate, getExpiryStatus } from '../../../utils/formatters';
-import { computeEffectivePrice } from '../../../engine/pricingEngine';
-import { validateOrderQuantity } from '../../../engine/rulesEngine';
+import { Medicine } from '../../../types';
+import { getExpiryStatus } from '../../../utils/formatters';
 import { sortBatchesFEFO } from '../../../engine/inventoryEngine';
-import { getMedicineVisual } from '../../../utils/medicineVisuals';
+import { computeEffectivePrice } from '../../../engine/pricingEngine';
 import { MedicineDetailModal } from './MedicineDetailModal';
 import { DealsBulkPricingRail } from './DealsBulkPricingRail';
+import { MedicineCardNetmeds } from './MedicineCardNetmeds';
 import { TrustAndCredibilityBar } from '../../common/TrustAndCredibilityBar';
+import { CuratedTreatmentsRail } from '../../landing/CuratedTreatmentsRail';
+import { PopularManufacturerBrands } from '../../landing/PopularManufacturerBrands';
 import { EmptyState } from '../../ui/EmptyState';
 import { 
-  Search, 
   Pill, 
   CheckCircle2, 
   ShieldAlert, 
-  AlertTriangle, 
-  Plus, 
   Activity, 
   HeartPulse, 
   Droplet, 
@@ -25,19 +23,13 @@ import {
   Layers, 
   Tag, 
   Sparkles,
-  Info,
-  Truck,
-  MapPin,
-  ChevronDown,
-  Building2,
-  Snowflake,
-  Flame,
-  Percent,
-  Lock,
-  Clock,
-  ArrowUpDown,
-  Filter,
-  Check
+  MapPin, 
+  Building2, 
+  Snowflake, 
+  Flame, 
+  Percent, 
+  Lock, 
+  Clock 
 } from 'lucide-react';
 
 const DELIVERY_HUBS = [
@@ -57,7 +49,6 @@ export const BrowseMedicinesScreen: React.FC = () => {
     setActiveDistributorTenantFilter,
     presetDemoTarget,
     setPresetDemoTarget,
-    addToCart,
     addToast,
     globalSearchQuery,
     setGlobalSearchQuery,
@@ -143,62 +134,18 @@ export const BrowseMedicinesScreen: React.FC = () => {
     return matchesSearch && matchesCat && matchesStock && matchesCollection;
   });
 
-  const handleQuickAdd = (e: React.MouseEvent, med: Medicine) => {
-    e.stopPropagation();
-
-    const qty = med.rules.minOrderQty || 10;
-    const validation = validateOrderQuantity(currentDistributor, med, qty);
-
-    if (!validation.isValid) {
-      addToast('info', 'Configuration Required', validation.errors[0] || 'Please specify valid batch or quantity.');
-      setDetailModalMedicine(med);
-      return;
-    }
-
-    const fefoBatches = sortBatchesFEFO(med.batches);
-    const validBatch = fefoBatches.find(
-      (b) => b.availableQuantity >= qty &&
-      b.lifecycleStatus !== 'recalled' &&
-      b.lifecycleStatus !== 'expired' &&
-      b.lifecycleStatus !== 'expired_damaged'
-    );
-
-    if (!validBatch) {
-      addToast('error', 'Batch Unavailable', 'No eligible active batch found with sufficient quantity.');
-      setDetailModalMedicine(med);
-      return;
-    }
-
-    const item: CartItem = {
-      medicineId: med.id,
-      tenantId: med.tenantId,
-      batchId: validBatch.id,
-      quantity: qty,
-      unitPrice: validation.effectivePrice,
-      mrp: med.mrp,
-      packagingUnit: med.packagingUnit,
-      medicineName: med.name,
-      genericName: med.genericName,
-      batchNumber: validBatch.batchNumber,
-      expiryDate: validBatch.expiryDate,
-    };
-
-    addToCart(item);
-    addToast('success', 'Added to Cart', `Added ${qty} ${med.packagingUnit}s of ${med.name} at ${formatCurrency(validation.effectivePrice)}/unit.`);
-  };
-
   return (
     <div className="space-y-6">
       {/* 1. Trust & Credibility Stats Strip */}
       <TrustAndCredibilityBar variant="distributor" />
 
       {/* 2. Biddano-Inspired Delivery Hub & Trade Discount Basis Bar */}
-      <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-2xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-2xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         {/* Left: Regional Fulfillment Depot Selector */}
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#F5F8F6] border border-gray-200">
+          <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#F5F8F6] border border-gray-200">
             <MapPin className="w-4 h-4 text-[#1A504C] shrink-0" />
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#6B7280]">
+            <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#6B7280]">
               Delivery Hub:
             </span>
             <select
@@ -210,7 +157,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
                   addToast('info', 'Delivery Hub Switched', `Active inventory routing set to ${hub.name}.`);
                 }
               }}
-              className="text-xs font-bold text-[#1A1A1A] bg-transparent focus:outline-none cursor-pointer pr-1"
+              className="text-xs font-extrabold text-[#1A1A1A] bg-transparent focus:outline-none cursor-pointer pr-1"
             >
               {DELIVERY_HUBS.map((hub) => (
                 <option key={hub.id} value={hub.id}>
@@ -224,19 +171,19 @@ export const BrowseMedicinesScreen: React.FC = () => {
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span>Cutoff: <strong className="text-[#1A1A1A]">{currentHubObj.cutoff}</strong></span>
             <span className="text-gray-300">•</span>
-            <span className="text-emerald-700 font-medium">{currentHubObj.transit}</span>
+            <span className="text-emerald-700 font-bold">{currentHubObj.transit}</span>
           </div>
         </div>
 
         {/* Right: Biddano-Style Discount Basis Toggle: PTR vs MRP */}
         <div className="flex items-center gap-2 self-start lg:self-auto">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-[#6B7280]">
+          <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#6B7280]">
             Discount Basis:
           </span>
-          <div className="inline-flex rounded-lg p-0.5 bg-[#F5F8F6] border border-gray-200">
+          <div className="inline-flex rounded-xl p-0.5 bg-[#F5F8F6] border border-gray-200">
             <button
               onClick={() => setDiscountBasis('PTR')}
-              className={`px-2.5 py-1 text-xs font-bold rounded-md transition-all ${
+              className={`px-3 py-1 text-xs font-black rounded-lg transition-all ${
                 discountBasis === 'PTR'
                   ? 'bg-[#1A504C] text-white shadow-2xs'
                   : 'text-[#6B7280] hover:text-[#1A1A1A]'
@@ -247,7 +194,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
             </button>
             <button
               onClick={() => setDiscountBasis('MRP')}
-              className={`px-2.5 py-1 text-xs font-bold rounded-md transition-all ${
+              className={`px-3 py-1 text-xs font-black rounded-lg transition-all ${
                 discountBasis === 'MRP'
                   ? 'bg-[#1A504C] text-white shadow-2xs'
                   : 'text-[#6B7280] hover:text-[#1A1A1A]'
@@ -257,104 +204,30 @@ export const BrowseMedicinesScreen: React.FC = () => {
               MRP (Margin)
             </button>
           </div>
-          <span className="hidden md:inline text-[11px] text-[#6B7280]">
+          <span className="hidden md:inline text-[11px] text-[#6B7280] font-medium">
             Live GST 12% ITC
           </span>
         </div>
       </div>
 
-      {/* 3. MediMny & Retailio Pattern: Authorized Manufacturer Principals Brand Rail */}
-      <div className="bg-white rounded-xl p-4 sm:p-5 border border-gray-200 shadow-2xs space-y-3">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-          <div className="flex items-center gap-2">
-            <Building2 className="w-4 h-4 text-[#1A504C]" />
-            <h3 className="font-heading font-bold text-sm sm:text-base text-[#1A1A1A] tracking-tight">
-              Authorized Pharmaceutical Principals
-            </h3>
-          </div>
-          <span className="text-xs text-[#6B7280]">
-            {distributorAuthorizedTenants.length} of {tenants.length} Principals Authorized for your Drug License
-          </span>
-        </div>
-
-        {/* Horizontal Brand Chips */}
-        <div className="flex items-center gap-2.5 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-gray-200">
-          {/* All Principals Option */}
-          <button
-            onClick={() => setActiveDistributorTenantFilter('all')}
-            className={`px-3.5 py-2 rounded-lg text-xs font-bold shrink-0 transition-all flex items-center gap-2 border ${
-              activeDistributorTenantFilter === 'all'
-                ? 'bg-[#1A504C] text-white border-[#1A504C] shadow-2xs'
-                : 'bg-[#F5F8F6] text-[#1A1A1A] border-gray-200 hover:border-[#1A504C]/40 hover:bg-[#E8F3F1]'
-            }`}
-          >
-            <span>All Authorized Principals</span>
-            <span className={`px-1.5 py-0.2 rounded text-[10px] ${
-              activeDistributorTenantFilter === 'all' ? 'bg-white/20 text-white' : 'bg-gray-200 text-[#1A1A1A]'
-            }`}>
-              {distributorMedicines.length}
-            </span>
-          </button>
-
-          {/* Authorized Principals */}
-          {distributorAuthorizedTenants.map((t) => {
-            const isSelected = activeDistributorTenantFilter === t.id;
-            const medCount = distributorMedicines.filter((m) => m.tenantId === t.id).length;
-
-            return (
-              <button
-                key={t.id}
-                onClick={() => setActiveDistributorTenantFilter(t.id)}
-                className={`px-3.5 py-2 rounded-lg text-xs font-bold shrink-0 transition-all flex items-center gap-2 border ${
-                  isSelected
-                    ? 'bg-[#1A504C] text-white border-[#1A504C] shadow-2xs'
-                    : 'bg-white text-[#1A1A1A] border-gray-200 hover:border-[#1A504C]/40 hover:bg-[#F5F8F6]'
-                }`}
-              >
-                <div className={`w-2.5 h-2.5 rounded-full ${t.logoColor || 'bg-gray-400'}`} />
-                <span className="truncate max-w-[130px]">{t.name}</span>
-                <CheckCircle2 className={`w-3.5 h-3.5 ${isSelected ? 'text-emerald-300' : 'text-emerald-600'}`} />
-                <span className={`px-1.5 py-0.2 rounded text-[10px] ${
-                  isSelected ? 'bg-white/20 text-white' : 'bg-gray-100 text-[#6B7280]'
-                }`}>
-                  {medCount}
-                </span>
-              </button>
-            );
-          })}
-
-          {/* Locked / Unauthorized Principals (Tenant Isolation cues) */}
-          {unauthorizedTenants.map((t) => (
-            <button
-              key={`unauth-${t.id}`}
-              onClick={() => {
-                addToast(
-                  'warning',
-                  'Wholesale Authorization Required',
-                  `Form 20B/21B wholesale license access for ${t.name} is pending approval under Account & Licenses.`
-                );
-              }}
-              className="px-3.5 py-2 rounded-lg text-xs font-semibold shrink-0 transition-all flex items-center gap-1.5 bg-gray-50 text-gray-400 border border-dashed border-gray-200 hover:border-amber-300 hover:bg-amber-50/50 hover:text-amber-800"
-              title="Click to request wholesale Form 20B access"
-            >
-              <Lock className="w-3 h-3 text-gray-400" />
-              <span className="truncate max-w-[110px]">{t.shortName}</span>
-              <span className="text-[10px] text-amber-600 font-bold bg-amber-100/70 px-1 rounded">Locked</span>
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* 3. Apollo Popular Manufacturer Brands Showcase */}
+      <PopularManufacturerBrands
+        onSelectPrincipal={(tenantId) => setActiveDistributorTenantFilter(tenantId)}
+      />
 
       {/* 4. Deals of the Day & Bulk Pricing Rail */}
       <DealsBulkPricingRail onSelectMedicine={(med) => setDetailModalMedicine(med)} />
 
-      {/* 5. Shop by Category: Circular Icon Rail */}
-      <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-2xs space-y-3">
+      {/* 5. Netmeds & Truemeds Curated Treatment Formulations Rail */}
+      <CuratedTreatmentsRail onSelectCategory={(cat) => setSelectedCategory(cat)} />
+
+      {/* 6. Shop by Category: Circular Icon Rail */}
+      <div className="bg-white rounded-2xl p-5 border border-gray-200 shadow-2xs space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="font-heading font-bold text-base text-[#1A1A1A] tracking-tight">
-            Shop Formulations by Category
+          <h3 className="font-heading font-extrabold text-base text-[#1A1A1A] tracking-tight">
+            Shop Formulations by Molecule Classification
           </h3>
-          <span className="text-xs text-[#6B7280]">
+          <span className="text-xs text-[#6B7280] font-medium">
             {filteredMedicines.length} Formulations Available
           </span>
         </div>
@@ -393,14 +266,14 @@ export const BrowseMedicinesScreen: React.FC = () => {
         </div>
       </div>
 
-      {/* 6. Smart Collection Pills & Filter Toolbar */}
-      <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-2xs space-y-3">
+      {/* 7. Smart Collection Pills & Filter Toolbar */}
+      <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           {/* Smart Collection Pills */}
           <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
             <button
               onClick={() => setActiveCollection('all')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
                 activeCollection === 'all'
                   ? 'bg-[#1A504C] text-white shadow-2xs'
                   : 'bg-[#F5F8F6] text-[#6B7280] hover:bg-gray-100 hover:text-[#1A1A1A]'
@@ -410,7 +283,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveCollection('schemes')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 ${
                 activeCollection === 'schemes'
                   ? 'bg-[#EA580C] text-white shadow-2xs'
                   : 'bg-[#F5F8F6] text-[#EA580C] hover:bg-orange-50'
@@ -421,7 +294,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveCollection('high_margin')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 ${
                 activeCollection === 'high_margin'
                   ? 'bg-emerald-700 text-white shadow-2xs'
                   : 'bg-[#F5F8F6] text-emerald-700 hover:bg-emerald-50'
@@ -432,7 +305,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveCollection('cold_chain')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 ${
                 activeCollection === 'cold_chain'
                   ? 'bg-blue-600 text-white shadow-2xs'
                   : 'bg-[#F5F8F6] text-blue-600 hover:bg-blue-50'
@@ -443,7 +316,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveCollection('fefo')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 ${
                 activeCollection === 'fefo'
                   ? 'bg-teal-700 text-white shadow-2xs'
                   : 'bg-[#F5F8F6] text-teal-700 hover:bg-teal-50'
@@ -455,7 +328,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
           </div>
 
           {/* In-Stock Only Toggle */}
-          <label className="flex items-center gap-2 text-xs font-semibold text-[#1A1A1A] cursor-pointer select-none px-2 py-1.5 rounded-lg hover:bg-gray-50 border border-gray-100">
+          <label className="flex items-center gap-2 text-xs font-bold text-[#1A1A1A] cursor-pointer select-none px-3 py-1.5 rounded-xl hover:bg-gray-50 border border-gray-100">
             <input
               type="checkbox"
               checked={inStockOnly}
@@ -484,8 +357,8 @@ export const BrowseMedicinesScreen: React.FC = () => {
 
       {/* Multi-Tenancy Isolation Alert */}
       {unauthorizedTenants.length > 0 && (
-        <div className="p-3.5 rounded-xl bg-[#F5F8F6] border border-gray-200 flex items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2">
+        <div className="p-4 rounded-2xl bg-[#F5F8F6] border border-gray-200 flex items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2.5">
             <ShieldAlert className="w-4 h-4 text-[#6B7280] shrink-0" />
             <span className="text-[#6B7280]">
               <strong className="text-[#1A1A1A]">B2B Tenant Isolation Active:</strong> Catalogs and wholesale pricing from{' '}
@@ -496,7 +369,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
         </div>
       )}
 
-      {/* 7. Retail-Grade Product Cards Grid */}
+      {/* 8. Truemeds & Netmeds Style Medicine Cards Grid */}
       {filteredMedicines.length === 0 ? (
         <EmptyState
           icon={Pill}
@@ -516,190 +389,14 @@ export const BrowseMedicinesScreen: React.FC = () => {
         />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filteredMedicines.map((med) => {
-            const tenant = tenants.find((t) => t.id === med.tenantId);
-            const totalStock = med.batches.reduce((sum, b) => sum + b.availableQuantity, 0);
-            const fefoBatches = sortBatchesFEFO(med.batches);
-            const activeBatch = fefoBatches.find((b) => b.availableQuantity > 0) || fefoBatches[0];
-            const pricingResult = computeEffectivePrice(med, currentDistributor.id, med.rules.minOrderQty);
-            const distributorPrice = pricingResult.effectiveUnitPrice;
-            const savingsPercent = med.mrp > 0 ? Math.round(((med.mrp - distributorPrice) / med.mrp) * 100) : 0;
-            const isRecalled = med.batches.some((b) => b.lifecycleStatus === 'recalled');
-            const visual = getMedicineVisual(med);
-            const FormulationIcon = visual.icon;
-            const expiry = activeBatch?.expiryDate ? getExpiryStatus(activeBatch.expiryDate) : null;
-
-            // Scheme badge detection
-            const hasSlabs = !!(med.pricing?.slabs && med.pricing.slabs.length > 0);
-            const hasDiscounts = !!(med.pricing?.discounts && med.pricing.discounts.length > 0);
-            const hasMultiples = med.rules.orderMultiple > 1;
-
-            return (
-              <div
-                key={med.id}
-                onClick={() => setDetailModalMedicine(med)}
-                className="bg-white rounded-xl p-4 sm:p-5 border border-gray-200 hover:border-[#1A504C] hover:shadow-md transition-all duration-150 cursor-pointer flex flex-col justify-between group relative overflow-hidden"
-              >
-                <div className="space-y-3">
-                  {/* Product-Image-First Area: Distinct Monogram, Dosage Form & Line Icon */}
-                  <div className={`w-full h-32 rounded-xl ${visual.bgColor} border ${visual.borderColor} flex items-center justify-center relative overflow-hidden transition-colors`}>
-                    {/* Subtle Formulation Icon Watermark */}
-                    <FormulationIcon className={`w-16 h-16 ${visual.textColor} opacity-15 absolute -right-2 -bottom-2 pointer-events-none`} />
-
-                    {/* Distinct 2-Letter Monogram Tile + Dosage Form */}
-                    <div className="flex flex-col items-center justify-center z-10">
-                      <div className={`w-12 h-12 rounded-xl bg-white/90 border ${visual.borderColor} flex items-center justify-center shadow-2xs group-hover:scale-105 transition-transform`}>
-                        <span className={`text-lg font-extrabold tracking-wider ${visual.textColor}`}>
-                          {visual.monogram}
-                        </span>
-                      </div>
-                      <span className={`text-[10px] font-bold mt-1.5 tracking-wider uppercase ${visual.textColor}`}>
-                        {visual.dosageForm}
-                      </span>
-                    </div>
-
-                    {/* Warm Discount / Scheme Badge: Top Right Corner */}
-                    {hasSlabs ? (
-                      <div className="absolute top-2.5 right-2.5 bg-[#EA580C] text-white font-extrabold text-[10px] px-2.5 py-0.5 rounded shadow-xs tracking-wide z-10 flex items-center gap-1">
-                        <Flame className="w-3 h-3 fill-white" />
-                        <span>SLAB TIER</span>
-                      </div>
-                    ) : savingsPercent > 0 ? (
-                      <div className="absolute top-2.5 right-2.5 bg-[#EA580C] text-white font-extrabold text-[10px] px-2.5 py-0.5 rounded shadow-xs tracking-wide z-10">
-                        {discountBasis === 'PTR' ? `${savingsPercent}% OFF` : `${savingsPercent}% MARGIN`}
-                      </div>
-                    ) : null}
-
-                    {/* Schedule & Cold Chain Badge: Top Left Corner */}
-                    <div className="absolute top-2.5 left-2.5 flex flex-col gap-1 z-10">
-                      <div className="px-2 py-0.5 rounded text-[10px] font-bold bg-white/95 backdrop-blur-2xs border border-gray-200 text-purple-800 shadow-2xs">
-                        {med.regulatory.scheduleClassification}
-                      </div>
-                      {med.regulatory.isColdChain && (
-                        <div className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-50/95 border border-blue-200 text-blue-800 flex items-center gap-1 shadow-2xs">
-                          <Snowflake className="w-2.5 h-2.5 text-blue-600" />
-                          <span>2°C-8°C</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Manufacturing Principal Tag: Bottom Left */}
-                    <div className="absolute bottom-2.5 left-2.5 px-2 py-0.5 rounded bg-white/95 backdrop-blur-2xs border border-gray-200 text-[10px] font-bold text-[#1A1A1A] flex items-center gap-1 z-10 shadow-2xs">
-                      <div className={`w-1.5 h-1.5 rounded-full ${tenant?.logoColor || 'bg-gray-400'}`} />
-                      <span className="truncate max-w-[120px]">{tenant?.shortName}</span>
-                    </div>
-
-                    {/* Multiples scheme indicator: Bottom Right */}
-                    {hasMultiples && (
-                      <div className="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded bg-white/95 backdrop-blur-2xs border border-gray-200 text-[10px] font-bold text-[#1A504C] z-10 shadow-2xs">
-                        ×{med.rules.orderMultiple} Multiples
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Product Name & Molecule Composition */}
-                  <div>
-                    <h3 className="font-heading font-bold text-[#1A1A1A] text-base group-hover:text-[#1A504C] transition-colors line-clamp-2 leading-snug">
-                      {med.name}
-                    </h3>
-                    <p className="text-xs text-[#6B7280] truncate mt-0.5 font-medium">
-                      {med.genericName}
-                    </p>
-                  </div>
-
-                  {/* Biddano Price Block: PTR Wholesale + Strikethrough MRP + Margin */}
-                  <div className="pt-1">
-                    <div className="flex items-baseline gap-2 flex-wrap">
-                      <span className="text-2xl font-extrabold text-[#1A1A1A] tabular-nums">
-                        {formatCurrency(distributorPrice)}
-                      </span>
-                      <span className="text-xs font-bold text-[#1A504C] uppercase tracking-wider bg-teal-50 px-1.5 py-0.5 rounded border border-teal-100">
-                        {discountBasis === 'PTR' ? 'PTR Net' : 'Wholesale'}
-                      </span>
-                      {med.mrp > 0 && (
-                        <span className="text-xs text-gray-400 line-through tabular-nums font-normal">
-                          {formatCurrency(med.mrp)} MRP
-                        </span>
-                      )}
-                      {savingsPercent > 0 && (
-                        <span className="text-xs font-bold text-emerald-700">
-                          ({savingsPercent}% {discountBasis === 'PTR' ? 'off' : 'margin'})
-                        </span>
-                      )}
-                    </div>
-                    <span className="text-[10px] text-[#6B7280] block mt-0.5">
-                      + 12% GST Input Tax Credit Eligible
-                    </span>
-                  </div>
-
-                  {/* High-Density Subordinated B2B Specs Row */}
-                  <div className="rounded-lg bg-[#F5F8F6] border border-gray-200/80 p-2.5 text-[11px] divide-y divide-gray-200/60">
-                    <div className="grid grid-cols-2 pb-1.5 divide-x divide-gray-200/60">
-                      <div className="pr-2">
-                        <span className="text-[9px] text-[#6B7280] block font-medium uppercase">Pack</span>
-                        <span className="font-bold text-[#1A1A1A] truncate block">{med.packSize}</span>
-                      </div>
-                      <div className="pl-2">
-                        <span className="text-[9px] text-[#6B7280] block font-medium uppercase">Batch (FEFO)</span>
-                        <span className="font-bold text-[#1A1A1A] truncate block">{activeBatch?.batchNumber || 'N/A'}</span>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-3 pt-1.5 divide-x divide-gray-200/60">
-                      <div className="pr-1.5">
-                        <span className="text-[9px] text-[#6B7280] block font-medium uppercase">Stock</span>
-                        <span className={`font-bold tabular-nums block ${totalStock > 0 ? 'text-emerald-700' : 'text-red-600'}`}>
-                          {totalStock} {med.packagingUnit}s
-                        </span>
-                      </div>
-                      <div className="px-1.5">
-                        <span className="text-[9px] text-[#6B7280] block font-medium uppercase">Expiry</span>
-                        <span className="font-bold text-[#1A1A1A] truncate block">
-                          {activeBatch?.expiryDate ? formatDate(activeBatch.expiryDate) : 'N/A'}
-                        </span>
-                      </div>
-                      <div className="pl-1.5">
-                        <span className="text-[9px] text-[#6B7280] block font-medium uppercase">MOQ</span>
-                        <span className="font-bold text-[#1A1A1A] truncate block">
-                          Min {med.rules.minOrderQty}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Recalled Notice */}
-                  {isRecalled && (
-                    <div className="p-2 rounded-lg bg-red-50 border border-red-200 text-red-700 text-[10px] font-bold flex items-center gap-1.5">
-                      <AlertTriangle className="w-3.5 h-3.5 text-red-600 shrink-0" />
-                      <span>Batch Recall in Effect for this SKU</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Card Action Row: Retail "ADD" button */}
-                <div className="pt-3 mt-3 border-t border-gray-100 flex items-center gap-2">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setDetailModalMedicine(med);
-                    }}
-                    className="flex-1 py-2 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-[#1A1A1A] font-bold text-xs transition-colors text-center"
-                  >
-                    Inspect Batches
-                  </button>
-
-                  <button
-                    onClick={(e) => handleQuickAdd(e, med)}
-                    disabled={totalStock <= 0}
-                    className="px-5 py-2 rounded-lg bg-[#1A504C] hover:bg-[#143F3C] disabled:bg-gray-200 disabled:text-gray-400 text-white font-extrabold text-xs uppercase shadow-xs transition-all flex items-center gap-1.5 active:scale-95 group/btn shrink-0"
-                    title={`Add MOQ (${med.rules.minOrderQty || 10} units) to Cart`}
-                  >
-                    <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-                    <span>ADD</span>
-                  </button>
-                </div>
-              </div>
-            );
-          })}
+          {filteredMedicines.map((med) => (
+            <MedicineCardNetmeds
+              key={med.id}
+              medicine={med}
+              onSelectMedicine={(m) => setDetailModalMedicine(m)}
+              discountBasis={discountBasis}
+            />
+          ))}
         </div>
       )}
 

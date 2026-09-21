@@ -108,6 +108,71 @@ h1, h2, h3, h4 {
   animation: bounce-subtle 0.3s ease-out;
 }
 
+/* 3D Perspective and Transform Utilities for Biddano Pavilion */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.perspective-1500 {
+  perspective: 1500px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+/* Subtle 3D Floating Animation */
+@keyframes float-subtle {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(0.4deg);
+  }
+}
+
+.animate-float-subtle {
+  animation: float-subtle 6s ease-in-out infinite;
+}
+
+/* Pavilion Terminal Screen Illumination Pulse */
+@keyframes terminal-pulse {
+  0%, 100% {
+    box-shadow: 0 4px 20px -2px rgba(26, 80, 76, 0.15), 0 0 12px rgba(26, 80, 76, 0.1);
+  }
+  50% {
+    box-shadow: 0 6px 28px -2px rgba(26, 80, 76, 0.3), 0 0 20px rgba(26, 80, 76, 0.25);
+  }
+}
+
+.animate-terminal-pulse {
+  animation: terminal-pulse 3s ease-in-out infinite;
+}
+
+/* Radar Pulse for Hub & Stockists */
+@keyframes radar-pulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.25;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+}
+
+.animate-radar-pulse {
+  animation: radar-pulse 2.5s infinite;
+}
+
 /* Respect Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
