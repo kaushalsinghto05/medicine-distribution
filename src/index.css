@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color-scheme: light;
   --color-primary: #1A504C;
   --color-primary-hover: #143F3C;
@@ -18,15 +18,41 @@ html, body {
   padding: 0;
   background-color: #FFFFFF;
   color: #1A1A1A;
-  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Headings Typography: Plus Jakarta Sans for H1/H2, Section Titles */
+.font-heading {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  letter-spacing: -0.02em;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  letter-spacing: -0.015em;
 }
 
 /* Tabular Figures for Prices & Quantities */
 .tabular-nums {
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
+}
+
+/* 2-Tier Elevation Hierarchy */
+.surface-elevated {
+  background-color: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+}
+
+.surface-flat {
+  background-color: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 0.5rem; /* 8px radius for operational surfaces */
+  box-shadow: none;
 }
 
 /* Apollo Teal Brand Utility Classes */
@@ -48,18 +74,6 @@ html, body {
 
 .bg-brand-teal-light {
   background-color: #E8F3F1;
-}
-
-/* Clean Retail Badge Pill */
-.retail-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  line-height: 1;
-  padding: 0.25rem 0.5rem;
-  border-radius: 9999px;
 }
 
 /* Clean Retail Discount Ribbon (Coral-Orange Strictly for Savings) */

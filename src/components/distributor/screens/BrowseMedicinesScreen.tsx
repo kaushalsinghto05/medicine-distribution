@@ -5,6 +5,7 @@ import { formatCurrency } from '../../../utils/formatters';
 import { computeEffectivePrice } from '../../../engine/pricingEngine';
 import { validateOrderQuantity } from '../../../engine/rulesEngine';
 import { sortBatchesFEFO } from '../../../engine/inventoryEngine';
+import { getMedicineVisual } from '../../../utils/medicineVisuals';
 import { MedicineDetailModal } from './MedicineDetailModal';
 import { DealsBulkPricingRail } from './DealsBulkPricingRail';
 import { TrustAndCredibilityBar } from '../../common/TrustAndCredibilityBar';
@@ -159,7 +160,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
       {/* 3. Shop by Category: Circular Icon Rail (Apollo / PharmEasy Pattern) */}
       <div className="bg-white rounded-2xl p-5 border border-gray-200 shadow-2xs space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-base font-extrabold text-[#1A1A1A] tracking-tight">
+          <h3 className="font-heading font-bold text-base text-[#1A1A1A] tracking-tight">
             Shop Formulations by Category
           </h3>
           <span className="text-xs text-[#6B7280]">
@@ -285,33 +286,47 @@ export const BrowseMedicinesScreen: React.FC = () => {
             const distributorPrice = pricingResult.effectiveUnitPrice;
             const savingsPercent = med.mrp > 0 ? Math.round(((med.mrp - distributorPrice) / med.mrp) * 100) : 0;
             const isRecalled = med.batches.some((b) => b.lifecycleStatus === 'recalled');
-            const CategoryIcon = getCategoryIcon(med.category);
+            const visual = getMedicineVisual(med);
+            const FormulationIcon = visual.icon;
 
             return (
               <div
                 key={med.id}
                 onClick={() => setDetailModalMedicine(med)}
-                className="bg-white rounded-2xl p-4 sm:p-5 border border-gray-200 hover:border-[#1A504C] hover:shadow-lg transition-all duration-150 cursor-pointer flex flex-col justify-between group relative overflow-hidden"
+                className="bg-white rounded-xl p-4 sm:p-5 border border-gray-200 hover:border-[#1A504C] hover:shadow-md transition-all duration-150 cursor-pointer flex flex-col justify-between group relative overflow-hidden"
               >
                 <div className="space-y-3">
-                  {/* Product-Image-First Area: Soft pastel category placeholder tile */}
-                  <div className="w-full h-36 rounded-xl bg-[#F5F8F6] border border-gray-100 flex items-center justify-center relative overflow-hidden">
-                    <CategoryIcon className="w-12 h-12 text-[#1A504C]/60 group-hover:scale-110 transition-transform duration-200" />
+                  {/* Product-Image-First Area: Distinct Monogram, Dosage Form & Line Icon */}
+                  <div className={`w-full h-32 rounded-xl ${visual.bgColor} border ${visual.borderColor} flex items-center justify-center relative overflow-hidden transition-colors`}>
+                    {/* Subtle Formulation Icon Watermark */}
+                    <FormulationIcon className={`w-16 h-16 ${visual.textColor} opacity-15 absolute -right-2 -bottom-2 pointer-events-none`} />
+
+                    {/* Distinct 2-Letter Monogram Tile + Dosage Form */}
+                    <div className="flex flex-col items-center justify-center z-10">
+                      <div className={`w-12 h-12 rounded-xl bg-white/85 border ${visual.borderColor} flex items-center justify-center shadow-2xs group-hover:scale-105 transition-transform`}>
+                        <span className={`text-lg font-extrabold tracking-wider ${visual.textColor}`}>
+                          {visual.monogram}
+                        </span>
+                      </div>
+                      <span className={`text-[10px] font-bold mt-1.5 tracking-wider uppercase ${visual.textColor}`}>
+                        {visual.dosageForm}
+                      </span>
+                    </div>
 
                     {/* Warm Discount Badge: Top Right Corner */}
                     {savingsPercent > 0 && (
-                      <div className="absolute top-2.5 right-2.5 bg-[#EA580C] text-white font-extrabold text-[10px] px-2.5 py-0.5 rounded shadow-xs tracking-wide">
+                      <div className="absolute top-2.5 right-2.5 bg-[#EA580C] text-white font-extrabold text-[10px] px-2.5 py-0.5 rounded shadow-xs tracking-wide z-10">
                         {savingsPercent}% OFF
                       </div>
                     )}
 
                     {/* Schedule Badge: Top Left Corner */}
-                    <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded text-[10px] font-bold bg-white/90 backdrop-blur-2xs border border-gray-200 text-purple-800">
+                    <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded text-[10px] font-bold bg-white/95 backdrop-blur-2xs border border-gray-200 text-purple-800 z-10 shadow-2xs">
                       {med.regulatory.scheduleClassification}
                     </div>
 
                     {/* Manufacturing Principal Tag: Bottom Left */}
-                    <div className="absolute bottom-2.5 left-2.5 px-2 py-0.5 rounded bg-white/90 backdrop-blur-2xs border border-gray-200 text-[10px] font-bold text-[#1A1A1A] flex items-center gap-1">
+                    <div className="absolute bottom-2.5 left-2.5 px-2 py-0.5 rounded bg-white/95 backdrop-blur-2xs border border-gray-200 text-[10px] font-bold text-[#1A1A1A] flex items-center gap-1 z-10 shadow-2xs">
                       <div className={`w-1.5 h-1.5 rounded-full ${tenant?.logoColor || 'bg-gray-400'}`} />
                       <span className="truncate max-w-[120px]">{tenant?.shortName}</span>
                     </div>
@@ -319,7 +334,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
 
                   {/* Product Name & Molecule Composition */}
                   <div>
-                    <h3 className="font-extrabold text-[#1A1A1A] text-base group-hover:text-[#1A504C] transition-colors line-clamp-2 leading-snug">
+                    <h3 className="font-heading font-bold text-[#1A1A1A] text-base group-hover:text-[#1A504C] transition-colors line-clamp-2 leading-snug">
                       {med.name}
                     </h3>
                     <p className="text-xs text-[#6B7280] truncate mt-0.5 font-medium">

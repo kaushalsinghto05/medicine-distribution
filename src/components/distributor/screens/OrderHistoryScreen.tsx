@@ -97,7 +97,7 @@ export const OrderHistoryScreen: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-xl font-bold text-slate-900">Purchase Orders & Shipments</h1>
+        <h1 className="font-heading font-bold text-xl text-slate-900">Purchase Orders & Shipments</h1>
         <p className="text-xs text-slate-500">
           Track lifecycle stages, freight carrier tracking numbers, and initiate return or cancellation requests.
         </p>
@@ -120,17 +120,15 @@ export const OrderHistoryScreen: React.FC = () => {
             return (
               <div
                 key={ord.id}
-                className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden transition-all duration-150"
+                className="bg-white rounded-lg border border-slate-200 shadow-none overflow-hidden transition-all duration-150"
               >
                 {/* Order Row Header */}
                 <div
                   onClick={() => setExpandedOrderId(isExpanded ? null : ord.id)}
-                  className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer hover:bg-slate-50/60 transition-colors"
+                  className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 cursor-pointer hover:bg-slate-50/60 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700 font-bold shrink-0">
-                      <PackageCheck className="w-5 h-5" />
-                    </div>
+                    <PackageCheck className="w-5 h-5 text-[#1A504C] shrink-0" />
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="font-mono font-bold text-sm text-slate-900">{ord.id}</span>
@@ -158,9 +156,9 @@ export const OrderHistoryScreen: React.FC = () => {
 
                 {/* Expanded Details: Order Lifecycle Stepper & Items */}
                 {isExpanded && (
-                  <div className="p-5 border-t border-slate-100 bg-slate-50/50 space-y-5 animate-fade-slide">
+                  <div className="p-4 border-t border-slate-100 bg-slate-50/50 space-y-4 animate-fade-slide">
                     {/* Unified Order Lifecycle Stepper */}
-                    <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+                    <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-none">
                       <span className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-2">
                         Fulfilment Lifecycle
                       </span>
@@ -168,7 +166,7 @@ export const OrderHistoryScreen: React.FC = () => {
                     </div>
 
                     {/* Items Table */}
-                    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                    <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
                       <div className="p-3 border-b border-slate-100 font-bold text-xs text-slate-700">
                         Order Line Items ({ord.items.length})
                       </div>

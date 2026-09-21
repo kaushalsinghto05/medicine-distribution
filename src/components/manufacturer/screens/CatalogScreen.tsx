@@ -4,6 +4,7 @@ import { Medicine, Batch, ScheduleClassification, MedicineCategory } from '../..
 import { formatCurrency, formatDate, getExpiryStatus } from '../../../utils/formatters';
 import { StatusBadge } from '../../common/StatusBadge';
 import { ConfirmationModal } from '../../common/ConfirmationModal';
+import { getMedicineVisual } from '../../../utils/medicineVisuals';
 import {
   Plus,
   Pill,
@@ -177,7 +178,7 @@ export const CatalogScreen: React.FC = () => {
       {/* Header & Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900">Medicine Catalog Management</h1>
+          <h1 className="font-heading font-bold text-xl text-slate-900">Medicine Catalog Management</h1>
           <p className="text-xs text-slate-500">
             Configure pharmaceutical formulations, active FEFO batches, regulatory compliance, and publish status for {currentTenant.shortName}.
           </p>
@@ -185,7 +186,7 @@ export const CatalogScreen: React.FC = () => {
 
         <button
           onClick={() => setIsCreateMedicineOpen(true)}
-          className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs shadow-xs transition-colors flex items-center gap-1.5 self-start sm:self-auto"
+          className="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs shadow-none transition-colors flex items-center gap-1.5 self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
           Create Medicine Formulation
@@ -193,14 +194,14 @@ export const CatalogScreen: React.FC = () => {
       </div>
 
       {/* Filters & Search Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
+      <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-none flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
         <div className="flex-1">
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search medicine by brand name, generic molecule..."
-            className="w-full text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+            className="w-full text-xs px-3.5 py-2 rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-500"
           />
         </div>
 
@@ -209,7 +210,7 @@ export const CatalogScreen: React.FC = () => {
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-xl whitespace-nowrap transition-colors ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap transition-colors ${
                 selectedCategory === cat
                   ? 'bg-sky-100 text-sky-800 border border-sky-200'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -222,35 +223,36 @@ export const CatalogScreen: React.FC = () => {
       </div>
 
       {/* Catalog Table (Desktop) / Card List (Mobile) */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+      <div className="bg-white rounded-lg border border-slate-200 shadow-none overflow-hidden">
         <div className="hidden lg:block overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 border-b border-slate-100 text-slate-600 font-semibold uppercase tracking-wider">
               <tr>
-                <th className="py-3.5 px-4">Medicine & Formulation</th>
-                <th className="py-3.5 px-4">Category & Schedule</th>
-                <th className="py-3.5 px-4">Packaging & MRP</th>
-                <th className="py-3.5 px-4">Distributor Price</th>
-                <th className="py-3.5 px-4">Batches & Total Stock</th>
-                <th className="py-3.5 px-4">Status</th>
-                <th className="py-3.5 px-4 text-right">Actions</th>
+                <th className="py-3 px-4">Medicine & Formulation</th>
+                <th className="py-3 px-4">Category & Schedule</th>
+                <th className="py-3 px-4">Packaging & MRP</th>
+                <th className="py-3 px-4">Distributor Price</th>
+                <th className="py-3 px-4">Batches & Total Stock</th>
+                <th className="py-3 px-4">Status</th>
+                <th className="py-3 px-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
               {filteredMedicines.map((med) => {
                 const totalStock = med.batches.reduce((sum, b) => sum + b.availableQuantity, 0);
                 const isExpanded = expandedMedicineId === med.id;
+                const visual = getMedicineVisual(med);
 
                 return (
                   <React.Fragment key={med.id}>
                     <tr className="hover:bg-slate-50/70 transition-colors">
-                      <td className="py-4 px-4">
+                      <td className="py-3.5 px-4">
                         <div className="flex items-start gap-2.5">
-                          <div className="p-2 rounded-xl bg-sky-50 text-sky-600 shrink-0">
-                            <Pill className="w-4 h-4" />
+                          <div className={`w-8 h-8 rounded-lg ${visual.bgColor} border ${visual.borderColor} flex items-center justify-center shrink-0`}>
+                            <span className={`text-xs font-extrabold ${visual.textColor}`}>{visual.monogram}</span>
                           </div>
                           <div>
-                            <div className="font-bold text-slate-900 text-sm">{med.name}</div>
+                            <div className="font-heading font-bold text-slate-900 text-sm">{med.name}</div>
                             <div className="text-[11px] text-slate-500 font-medium">
                               Generic: {med.genericName}
                             </div>

@@ -146,7 +146,7 @@ export const OrderManagementScreen: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900">Order Fulfilment & Returns</h1>
+          <h1 className="font-heading font-bold text-xl text-slate-900">Order Fulfilment & Returns</h1>
           <p className="text-xs text-slate-500">
             Manage 8-stage lifecycle progression, carrier dispatch, tracking references, and return restock authorizations.
           </p>
@@ -154,7 +154,7 @@ export const OrderManagementScreen: React.FC = () => {
       </div>
 
       {/* Tabs Bar */}
-      <div className="bg-white p-2 rounded-2xl border border-slate-200/80 shadow-xs flex items-center gap-1.5 overflow-x-auto">
+      <div className="bg-white p-2 rounded-lg border border-slate-200 shadow-none flex items-center gap-1.5 overflow-x-auto">
         {[
           { id: 'all', label: 'All Orders', count: tenantOrders.length },
           { id: 'new', label: 'New', count: tenantOrders.filter((o) => o.status === 'new').length },
@@ -203,9 +203,9 @@ export const OrderManagementScreen: React.FC = () => {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`px-3 py-2 text-xs font-semibold rounded-xl whitespace-nowrap transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-2 text-xs font-semibold rounded-lg whitespace-nowrap transition-all flex items-center gap-1.5 ${
               activeTab === tab.id
-                ? 'bg-sky-600 text-white shadow-xs'
+                ? 'bg-sky-600 text-white shadow-none'
                 : tab.highlight
                 ? 'bg-amber-100 text-amber-900 hover:bg-amber-200 font-bold'
                 : 'text-slate-600 hover:bg-slate-100'
@@ -229,10 +229,10 @@ export const OrderManagementScreen: React.FC = () => {
 
       {/* SPECIAL VIEW: RETURNS & CANCELLATIONS QUEUE (Section 2.6, 6) */}
       {activeTab === 'returns_queue' ? (
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
-          <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+        <div className="bg-white rounded-lg border border-slate-200 shadow-none overflow-hidden">
+          <div className="p-4 border-b border-slate-100 flex items-center justify-between">
             <div>
-              <h3 className="font-bold text-slate-900 text-base">Returns & Cancellations Inbox</h3>
+              <h3 className="font-heading font-bold text-slate-900 text-base">Returns & Cancellations Inbox</h3>
               <p className="text-xs text-slate-500">
                 Incoming distributor claims. Approving a claim immediately updates inventory back into active batch stock and writes an audit log.
               </p>
@@ -392,7 +392,7 @@ export const OrderManagementScreen: React.FC = () => {
         </div>
       ) : (
         /* STANDARD ORDERS TABLE */
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+        <div className="bg-white rounded-lg border border-slate-200 shadow-none overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 border-b border-slate-100 text-slate-600 font-semibold uppercase tracking-wider">

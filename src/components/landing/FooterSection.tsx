@@ -23,60 +23,56 @@ export const FooterSection: React.FC<FooterSectionProps> = () => {
 
   return (
     <footer className="relative bg-[#F9FAFB] text-[#1A1A1A] text-xs border-t border-gray-200">
-      {/* Upper Footer: Regulatory Compliance Cards (Apollo / PharmEasy Light Style) */}
+      {/* Upper Footer: Sleek Horizontal Compliance Badge Strip (No Full Cards, Flat Inline Icons) */}
       <div className="border-b border-gray-200 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            {/* Pillar 1 */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-[#F5F8F6] border border-gray-100">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-xl bg-[#E8F3F1] text-[#1A504C] flex items-center justify-center shrink-0">
-                  <ShieldCheck className="w-5 h-5 stroke-[2]" />
-                </div>
-                <h4 className="font-bold text-sm text-[#1A1A1A]">CDSCO Form 20B/21B</h4>
-              </div>
-              <p className="text-[#6B7280] text-xs leading-relaxed">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
+          <div className="flex flex-wrap items-center justify-center sm:justify-between gap-y-2.5 sm:gap-y-0 sm:divide-x divide-gray-200 text-xs">
+            {/* Badge 1: CDSCO */}
+            <div className="flex items-center gap-2 px-3 sm:px-4 py-1 group relative cursor-help">
+              <ShieldCheck className="w-4 h-4 text-[#1A504C] shrink-0 stroke-[2]" />
+              <span className="font-bold text-xs text-[#1A1A1A]">CDSCO Form 20B/21B Verified</span>
+              
+              {/* Tooltip on hover */}
+              <div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-2 bg-slate-900 text-white text-[11px] rounded-lg shadow-lg z-30 pointer-events-none">
                 Wholesale drug licenses strictly verified against state licensing authority registers before commercial checkout.
-              </p>
+                <div className="w-2 h-2 bg-slate-900 rotate-45 absolute -bottom-1 left-1/2 -translate-x-1/2" />
+              </div>
             </div>
 
-            {/* Pillar 2 */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-[#F5F8F6] border border-gray-100">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-xl bg-[#E8F3F1] text-[#1A504C] flex items-center justify-center shrink-0">
-                  <ThermometerSnowflake className="w-5 h-5 stroke-[2]" />
-                </div>
-                <h4 className="font-bold text-sm text-[#1A1A1A]">Cold Chain 2°C – 8°C</h4>
-              </div>
-              <p className="text-[#6B7280] text-xs leading-relaxed">
+            {/* Badge 2: Cold Chain */}
+            <div className="flex items-center gap-2 px-3 sm:px-4 py-1 group relative cursor-help">
+              <ThermometerSnowflake className="w-4 h-4 text-[#1A504C] shrink-0 stroke-[2]" />
+              <span className="font-bold text-xs text-[#1A1A1A]">Cold Chain 2°C – 8°C Monitored</span>
+
+              {/* Tooltip on hover */}
+              <div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-2 bg-slate-900 text-white text-[11px] rounded-lg shadow-lg z-30 pointer-events-none">
                 Validated thermal packaging with continuous temperature data logger telemetry for biologics, insulins & vaccines.
-              </p>
+                <div className="w-2 h-2 bg-slate-900 rotate-45 absolute -bottom-1 left-1/2 -translate-x-1/2" />
+              </div>
             </div>
 
-            {/* Pillar 3 */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-[#F5F8F6] border border-gray-100">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-xl bg-orange-50 text-[#EA580C] flex items-center justify-center shrink-0">
-                  <RotateCcw className="w-5 h-5 stroke-[2]" />
-                </div>
-                <h4 className="font-bold text-sm text-[#1A1A1A]">CPCB Form 6 Manifest</h4>
-              </div>
-              <p className="text-[#6B7280] text-xs leading-relaxed">
+            {/* Badge 3: CPCB TSDF */}
+            <div className="flex items-center gap-2 px-3 sm:px-4 py-1 group relative cursor-help">
+              <RotateCcw className="w-4 h-4 text-[#EA580C] shrink-0 stroke-[2]" />
+              <span className="font-bold text-xs text-[#1A1A1A]">CPCB Form 6 TSDF Manifest</span>
+
+              {/* Tooltip on hover */}
+              <div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-2 bg-slate-900 text-white text-[11px] rounded-lg shadow-lg z-30 pointer-events-none">
                 Certified bio-hazardous waste destruction manifests and CPCB-authorized TSDF incinerator tracking for expired SKUs.
-              </p>
+                <div className="w-2 h-2 bg-slate-900 rotate-45 absolute -bottom-1 left-1/2 -translate-x-1/2" />
+              </div>
             </div>
 
-            {/* Pillar 4 */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-[#F5F8F6] border border-gray-100">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-xl bg-[#E8F3F1] text-[#1A504C] flex items-center justify-center shrink-0">
-                  <FileCheck2 className="w-5 h-5 stroke-[2]" />
-                </div>
-                <h4 className="font-bold text-sm text-[#1A1A1A]">100% Tax Invoiced</h4>
-              </div>
-              <p className="text-[#6B7280] text-xs leading-relaxed">
+            {/* Badge 4: 100% Tax Invoiced */}
+            <div className="flex items-center gap-2 px-3 sm:px-4 py-1 group relative cursor-help">
+              <FileCheck2 className="w-4 h-4 text-[#1A504C] shrink-0 stroke-[2]" />
+              <span className="font-bold text-xs text-[#1A1A1A]">100% Tax Invoiced with E-Way Bill</span>
+
+              {/* Tooltip on hover */}
+              <div className="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-2 bg-slate-900 text-white text-[11px] rounded-lg shadow-lg z-30 pointer-events-none">
                 Automated GST E-Way bill generation with synchronized Input Tax Credit (ITC) reconciliation for institutional buyers.
-              </p>
+                <div className="w-2 h-2 bg-slate-900 rotate-45 absolute -bottom-1 left-1/2 -translate-x-1/2" />
+              </div>
             </div>
           </div>
         </div>

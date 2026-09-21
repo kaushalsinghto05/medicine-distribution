@@ -5,6 +5,7 @@ import { formatCurrency } from '../../../utils/formatters';
 import { computeEffectivePrice } from '../../../engine/pricingEngine';
 import { validateOrderQuantity } from '../../../engine/rulesEngine';
 import { sortBatchesFEFO } from '../../../engine/inventoryEngine';
+import { getMedicineVisual } from '../../../utils/medicineVisuals';
 import { 
   Clock, 
   Flame, 
@@ -101,7 +102,7 @@ export const DealsBulkPricingRail: React.FC<DealsBulkPricingRailProps> = ({ onSe
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-base sm:text-lg font-extrabold text-[#1A1A1A] tracking-tight">
+              <h3 className="font-heading font-bold text-base sm:text-lg text-[#1A1A1A] tracking-tight">
                 Deals of the Day & Bulk Schemes
               </h3>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[#EA580C] text-white uppercase">
@@ -130,28 +131,42 @@ export const DealsBulkPricingRail: React.FC<DealsBulkPricingRailProps> = ({ onSe
           const pricingResult = computeEffectivePrice(med, currentDistributor.id, med.rules.minOrderQty);
           const distributorPrice = pricingResult.effectiveUnitPrice;
           const savingsPercent = med.mrp > 0 ? Math.round(((med.mrp - distributorPrice) / med.mrp) * 100) : 0;
-          const CategoryIcon = getCategoryIcon(med.category);
+          const visual = getMedicineVisual(med);
+          const FormulationIcon = visual.icon;
 
           return (
             <div
               key={`deal-${med.id}`}
               onClick={() => onSelectMedicine(med)}
-              className="w-68 sm:w-72 shrink-0 bg-white rounded-2xl p-4 border border-gray-200 hover:border-[#1A504C] hover:shadow-md transition-all duration-150 cursor-pointer flex flex-col justify-between group relative overflow-hidden"
+              className="w-68 sm:w-72 shrink-0 bg-white rounded-xl p-4 border border-gray-200 hover:border-[#1A504C] hover:shadow-md transition-all duration-150 cursor-pointer flex flex-col justify-between group relative overflow-hidden"
             >
               <div className="space-y-3">
-                {/* Product Image Tile Area with Category Icon & Warm Discount Badge */}
-                <div className="w-full h-28 rounded-xl bg-[#F5F8F6] border border-gray-100 flex items-center justify-center relative overflow-hidden">
-                  <CategoryIcon className="w-10 h-10 text-[#1A504C]/70 group-hover:scale-105 transition-transform" />
+                {/* Product Visual Area with Distinct Monogram, Dosage Form & Formulation Watermark */}
+                <div className={`w-full h-28 rounded-xl ${visual.bgColor} border ${visual.borderColor} flex items-center justify-center relative overflow-hidden transition-colors`}>
+                  {/* Formulation subtle watermark */}
+                  <FormulationIcon className={`w-14 h-14 ${visual.textColor} opacity-15 absolute -right-2 -bottom-2 pointer-events-none`} />
+
+                  {/* Distinct 2-Letter Monogram Tile + Dosage Form */}
+                  <div className="flex flex-col items-center justify-center z-10">
+                    <div className={`w-10 h-10 rounded-lg bg-white/80 border ${visual.borderColor} flex items-center justify-center shadow-2xs group-hover:scale-105 transition-transform`}>
+                      <span className={`text-base font-extrabold tracking-wider ${visual.textColor}`}>
+                        {visual.monogram}
+                      </span>
+                    </div>
+                    <span className={`text-[10px] font-bold mt-1 tracking-wider uppercase ${visual.textColor}`}>
+                      {visual.dosageForm}
+                    </span>
+                  </div>
                   
                   {/* Warm Discount Tag: Top Right Corner */}
                   {savingsPercent > 0 && (
-                    <div className="absolute top-2 right-2 bg-[#EA580C] text-white font-extrabold text-[10px] px-2 py-0.5 rounded shadow-xs">
+                    <div className="absolute top-2 right-2 bg-[#EA580C] text-white font-extrabold text-[10px] px-2 py-0.5 rounded shadow-xs z-10">
                       {savingsPercent}% OFF
                     </div>
                   )}
 
                   {/* Manufacturer Pill: Bottom Left Corner */}
-                  <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-white/90 backdrop-blur-2xs border border-gray-200 text-[10px] font-bold text-[#1A1A1A] flex items-center gap-1">
+                  <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-white/95 backdrop-blur-2xs border border-gray-200 text-[10px] font-bold text-[#1A1A1A] flex items-center gap-1 z-10 shadow-2xs">
                     <div className={`w-1.5 h-1.5 rounded-full ${tenant?.logoColor || 'bg-gray-400'}`} />
                     <span className="truncate max-w-[90px]">{tenant?.shortName}</span>
                   </div>

@@ -148,7 +148,7 @@ export const WasteReturnScreen: React.FC = () => {
               Separated from standard returns
             </span>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-white mt-2">
+          <h1 className="font-heading font-bold text-2xl tracking-tight text-white mt-2">
             Expired & Unsold Stock Disposal Portal
           </h1>
           <p className="text-xs text-slate-300 mt-1 max-w-2xl">
@@ -158,7 +158,7 @@ export const WasteReturnScreen: React.FC = () => {
 
         <button
           onClick={() => setIsNewRequestOpen(true)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-md transition-colors whitespace-nowrap"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-none transition-colors whitespace-nowrap"
         >
           <RotateCcw className="w-4 h-4" />
           <span>Report Waste / Request Return</span>
@@ -167,7 +167,7 @@ export const WasteReturnScreen: React.FC = () => {
 
       {/* Recalled Batch Alert Notice */}
       {recalledMedicines.length > 0 && (
-        <div className="p-4 rounded-2xl bg-rose-50 border border-rose-300 text-rose-900 space-y-2">
+        <div className="p-4 rounded-lg bg-rose-50 border border-rose-300 text-rose-900 space-y-2">
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-5 h-5 text-rose-600 animate-pulse shrink-0" />
             <h4 className="text-xs font-extrabold uppercase tracking-wider">
@@ -197,7 +197,7 @@ export const WasteReturnScreen: React.FC = () => {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-bold text-slate-900">Your Waste & Expiry Return Requests</h2>
+            <h2 className="font-heading font-bold text-lg text-slate-900">Your Waste & Expiry Return Requests</h2>
             <p className="text-xs text-slate-500">Live regulatory tracking of all submitted claims.</p>
           </div>
           <span className="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1 rounded-full">
@@ -206,10 +206,8 @@ export const WasteReturnScreen: React.FC = () => {
         </div>
 
         {distributorWasteRequests.length === 0 ? (
-          <div className="bg-white p-10 rounded-2xl border border-slate-200 text-center space-y-3 shadow-xs">
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto border border-amber-100">
-              <AlertTriangle className="w-6 h-6" />
-            </div>
+          <div className="bg-white p-8 rounded-lg border border-slate-200 text-center space-y-3 shadow-none">
+            <AlertTriangle className="w-6 h-6 text-amber-600 mx-auto" />
             <h4 className="text-sm font-bold text-slate-800">No Pending Waste or Expiry Claims</h4>
             <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
               You're all caught up! When you identify damaged or expired stock from your received shipments, use "Report Waste / Request Return" above to initiate a regulatory reverse return.
@@ -224,7 +222,7 @@ export const WasteReturnScreen: React.FC = () => {
               return (
                 <div
                   key={req.id}
-                  className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-5 text-xs"
+                  className="bg-white p-4 sm:p-5 rounded-lg border border-slate-200 shadow-none space-y-4 text-xs"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
                     <div>

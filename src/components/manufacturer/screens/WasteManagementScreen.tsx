@@ -260,7 +260,7 @@ export const WasteManagementScreen: React.FC = () => {
             </span>
             <span className="text-xs text-slate-400">CPCB / State Pollution Board Compliance</span>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-white mt-2">
+          <h1 className="font-heading font-bold text-2xl tracking-tight text-white mt-2">
             Waste, Near-Expiry & Recall Operations
           </h1>
           <p className="text-xs text-slate-300 mt-1 max-w-2xl">
@@ -271,7 +271,7 @@ export const WasteManagementScreen: React.FC = () => {
         <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={handleExportComplianceCSV}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold backdrop-blur border border-white/10 transition-colors"
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-semibold backdrop-blur border border-white/10 transition-colors"
           >
             <Download className="w-4 h-4" />
             <span>Export Audit Ledger</span>
@@ -280,7 +280,7 @@ export const WasteManagementScreen: React.FC = () => {
       </div>
 
       {!isAdmin && (
-        <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center justify-between gap-2">
+        <div className="p-3.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-amber-700 shrink-0" />
             <span>
@@ -290,48 +290,45 @@ export const WasteManagementScreen: React.FC = () => {
         </div>
       )}
 
+      {/* 3-Color Semantic Stat Cards: Flat, 8px radius, inline line-icons */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        {/* Near Expiry: Amber */}
+        <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-none border-l-3 border-l-amber-500">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500">Nearing Expiry (&le; {currentTenantWasteConfig.nearExpiryThresholdDays}d)</span>
-            <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center text-amber-700">
-              <Clock className="w-4 h-4" />
-            </div>
+            <Clock className="w-4 h-4 text-amber-600 shrink-0" />
           </div>
           <p className="text-2xl font-extrabold text-slate-900 mt-2">{batchesNearExpiryCount}</p>
           <p className="text-[11px] text-amber-700 font-medium mt-1">Batches priority FEFO clearance</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        {/* Expired Stock Value: Red */}
+        <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-none border-l-3 border-l-rose-500">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500">Expired / Unsold Stock Value</span>
-            <div className="w-8 h-8 rounded-xl bg-rose-100 flex items-center justify-center text-rose-700">
-              <Flame className="w-4 h-4" />
-            </div>
+            <Flame className="w-4 h-4 text-rose-600 shrink-0" />
           </div>
           <p className="text-2xl font-extrabold text-rose-700 mt-2">{formatCurrency(expiredStockValue)}</p>
           <p className="text-[11px] text-slate-500 mt-1">At manufacturing cost base</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        {/* Pending Disposals: Amber */}
+        <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-none border-l-3 border-l-amber-500">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500">Pending Disposals</span>
-            <div className="w-8 h-8 rounded-xl bg-orange-100 flex items-center justify-center text-orange-700">
-              <Truck className="w-4 h-4" />
-            </div>
+            <Truck className="w-4 h-4 text-amber-600 shrink-0" />
           </div>
           <p className="text-2xl font-extrabold text-slate-900 mt-2">{pendingDisposalsCount}</p>
-          <p className="text-[11px] text-orange-700 font-medium mt-1">Scheduled or in transit</p>
+          <p className="text-[11px] text-amber-700 font-medium mt-1">Scheduled or in transit</p>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+        {/* Destruction Certified: Teal */}
+        <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-none border-l-3 border-l-[#1A504C]">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500">Destruction Certified</span>
-            <div className="w-8 h-8 rounded-xl bg-teal-100 flex items-center justify-center text-teal-700">
-              <FileCheck2 className="w-4 h-4" />
-            </div>
+            <FileCheck2 className="w-4 h-4 text-[#1A504C] shrink-0" />
           </div>
-          <p className="text-2xl font-extrabold text-teal-700 mt-2">{completedDisposalsCount}</p>
+          <p className="text-2xl font-extrabold text-[#1A504C] mt-2">{completedDisposalsCount}</p>
           <p className="text-[11px] text-teal-700 font-medium mt-1">Certificates attached to ledger</p>
         </div>
       </div>
