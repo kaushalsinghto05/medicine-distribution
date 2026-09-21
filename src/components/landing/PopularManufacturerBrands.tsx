@@ -15,7 +15,8 @@ export const PopularManufacturerBrands: React.FC<PopularManufacturerBrandsProps>
     activeDistributorTenantFilter,
     setActiveDistributorTenantFilter,
     setPortalMode,
-    addToast
+    addToast,
+    navigateToPage
   } = useStore();
 
   const brandDiscounts: Record<string, { archText: string; discountText: string }> = {
@@ -36,11 +37,8 @@ export const PopularManufacturerBrands: React.FC<PopularManufacturerBrandsProps>
     }
     setActiveDistributorTenantFilter(tenantId);
     setPortalMode('distributor');
+    navigateToPage('marketplace');
     if (onSelectPrincipal) onSelectPrincipal(tenantId);
-    const el = document.getElementById('marketplace-content');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
   };
 
   return (

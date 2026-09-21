@@ -10,6 +10,7 @@ import {
   LogisticsPartner,
   CartItem,
   PortalMode,
+  AppPage,
   PricingConfig,
   OrderingRules,
   DistributorApprovalStatus,
@@ -46,6 +47,9 @@ export interface ToastMessage {
 
 interface StoreContextType {
   // Navigation & Role Context
+  activePage: AppPage;
+  setActivePage: (page: AppPage) => void;
+  navigateToPage: (page: AppPage) => void;
   portalMode: PortalMode;
   setPortalMode: (mode: PortalMode) => void;
   activeTenantId: string;
@@ -217,9 +221,21 @@ function saveToStorage<T>(key: string, value: T): void {
 
 export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // Navigation States
-  const [portalMode, setPortalMode] = useState<PortalMode>(() =>
-    loadFromStorage<PortalMode>('portalMode', 'manufacturer')
+  const [activePage, setActivePage] = useState<AppPage>(() =>
+    loadFromStorage<AppPage>('activePage', 'home')
   );
+  const [portalMode, setPortalMode] = useState<PortalMode>(() =>
+    loadFromStorage<PortalMode>('portalMode', 'distributor')
+  );
+
+  const navigateToPage = (page: AppPage) => {
+    setActivePage(page);
+    saveToStorage('activePage', page);
+    if (page === 'marketplace' || page === 'orders' || page === 'waste' || page === 'licenses' || page === 'credit') {
+      setPortalMode('distributor');
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
   const [activeTenantId, setActiveTenantId] = useState<string>(() =>
     loadFromStorage<string>('activeTenantId', 'mfg-acme')
   );
@@ -1513,6 +1529,9 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         setPresetDemoTarget,
         globalSearchQuery,
         setGlobalSearchQuery,
+        activePage,
+        setActivePage,
+        navigateToPage,
       }}
     >
       {children}

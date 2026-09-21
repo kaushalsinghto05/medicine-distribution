@@ -26,7 +26,8 @@ export const HeroOmnibar: React.FC<HeroOmnibarProps> = ({ onSearchSubmit }) => {
     globalSearchQuery, 
     setGlobalSearchQuery, 
     setPortalMode,
-    addToast 
+    addToast,
+    navigateToPage 
   } = useStore();
 
   const [selectedDepot, setSelectedDepot] = useState(REGIONAL_DEPOTS[0].id);
@@ -37,21 +38,15 @@ export const HeroOmnibar: React.FC<HeroOmnibarProps> = ({ onSearchSubmit }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setPortalMode('distributor');
+    navigateToPage('marketplace');
     if (onSearchSubmit) onSearchSubmit();
-    const el = document.getElementById('marketplace-content');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
   };
 
   const handleMoleculeClick = (molecule: string) => {
     setGlobalSearchQuery(molecule);
     setPortalMode('distributor');
+    navigateToPage('marketplace');
     if (onSearchSubmit) onSearchSubmit();
-    const el = document.getElementById('marketplace-content');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
   };
 
   return (

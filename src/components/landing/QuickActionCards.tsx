@@ -11,15 +11,16 @@ import {
   Sparkles
 } from 'lucide-react';
 
+import { useStore } from '../../context/StoreContext';
+
 interface QuickActionCardsProps {
   onExploreCatalog?: () => void;
   onOpenLicenses?: () => void;
 }
 
-export const QuickActionCards: React.FC<QuickActionCardsProps> = ({
-  onExploreCatalog,
-  onOpenLicenses,
-}) => {
+export const QuickActionCards: React.FC<QuickActionCardsProps> = () => {
+  const { navigateToPage } = useStore();
+
   const actions = [
     {
       title: 'Direct Manufacturer PTR',
@@ -27,7 +28,7 @@ export const QuickActionCards: React.FC<QuickActionCardsProps> = ({
       icon: Pill,
       iconBg: 'bg-emerald-50 text-emerald-700 border-emerald-200',
       actionLabel: 'EXPLORE CATALOG',
-      onClick: onExploreCatalog,
+      onClick: () => navigateToPage('marketplace'),
       tag: 'Save up to 35%',
       tagColor: 'bg-emerald-100 text-emerald-800',
     },
@@ -37,7 +38,7 @@ export const QuickActionCards: React.FC<QuickActionCardsProps> = ({
       icon: Truck,
       iconBg: 'bg-blue-50 text-blue-700 border-blue-200',
       actionLabel: 'COLD-CHAIN FLEET',
-      onClick: onExploreCatalog,
+      onClick: () => navigateToPage('coldchain'),
       tag: 'Monitored FEFO',
       tagColor: 'bg-blue-100 text-blue-800',
     },
@@ -47,7 +48,7 @@ export const QuickActionCards: React.FC<QuickActionCardsProps> = ({
       icon: ShieldCheck,
       iconBg: 'bg-teal-50 text-[#1A504C] border-teal-200',
       actionLabel: 'VERIFY LICENSES',
-      onClick: onOpenLicenses || onExploreCatalog,
+      onClick: () => navigateToPage('licenses'),
       tag: '100% Compliant',
       tagColor: 'bg-teal-100 text-teal-800',
     },
@@ -57,7 +58,7 @@ export const QuickActionCards: React.FC<QuickActionCardsProps> = ({
       icon: CreditCard,
       iconBg: 'bg-amber-50 text-amber-700 border-amber-200',
       actionLabel: 'CREDIT FACILITY',
-      onClick: onExploreCatalog,
+      onClick: () => navigateToPage('credit'),
       tag: 'Institutional Terms',
       tagColor: 'bg-amber-100 text-amber-800',
     },

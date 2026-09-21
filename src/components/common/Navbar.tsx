@@ -46,6 +46,8 @@ export const Navbar: React.FC<NavbarProps> = ({
     currentDistributor,
     tenants,
     distributors,
+    activePage,
+    navigateToPage,
     cart,
     globalSearchQuery,
     setGlobalSearchQuery,
@@ -73,10 +75,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setPortalMode('distributor');
-    const el = document.getElementById('marketplace-content');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
+    navigateToPage('marketplace');
   };
 
   return (
@@ -100,7 +99,8 @@ export const Navbar: React.FC<NavbarProps> = ({
 
               <div
                 className="cursor-pointer"
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                onClick={() => navigateToPage('home')}
+                title="Go to Home"
               >
                 <BrandLogo variant="light" />
               </div>
@@ -437,6 +437,39 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </div>
       </header>
+
+      {/* 3. Secondary Multi-Page B2B Navigation Strip (Biddano & Apollo Pattern) */}
+      <nav className="bg-[#F5F8F6] border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-1 overflow-x-auto py-1.5 scrollbar-none text-xs">
+            {[
+              { id: 'home', label: 'Home' },
+              { id: 'marketplace', label: 'Wholesale Marketplace' },
+              { id: 'pavilion', label: '3D Virtual Pavilion' },
+              { id: 'coldchain', label: 'Cold-Chain Fleet' },
+              { id: 'licenses', label: 'CDSCO Licenses' },
+              { id: 'credit', label: 'Trade Credit' },
+              { id: 'orders', label: 'Orders & Tracking' },
+            ].map((tab) => {
+              const isCurrent = activePage === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => navigateToPage(tab.id as any)}
+                  className={`px-3.5 py-1.5 rounded-lg font-extrabold transition-all whitespace-nowrap text-xs ${
+                    isCurrent
+                      ? 'bg-[#1A504C] text-white shadow-2xs'
+                      : 'text-[#6B7280] hover:text-[#1A1A1A] hover:bg-white'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </nav>
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (

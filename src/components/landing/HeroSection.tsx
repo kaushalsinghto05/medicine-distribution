@@ -30,36 +30,28 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     setPortalMode, 
     currentTenant, 
     currentDistributor,
-    setActiveDistributorTenantFilter
+    setActiveDistributorTenantFilter,
+    navigateToPage
   } = useStore();
   const { switchPredefinedUser } = useAuth();
 
   const handleStartOrder = () => {
     setPortalMode('distributor');
+    navigateToPage('marketplace');
     if (onExploreCatalog) onExploreCatalog();
-    const element = document.getElementById('marketplace-content');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
   };
 
-  const handleSelectTreatmentCategory = (category: string) => {
+  const handleSelectTreatmentCategory = (_category: string) => {
     setPortalMode('distributor');
+    navigateToPage('marketplace');
     if (onExploreCatalog) onExploreCatalog();
-    const element = document.getElementById('marketplace-content');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
   };
 
   const handleSelectPrincipal = (tenantId: string) => {
     setActiveDistributorTenantFilter(tenantId);
     setPortalMode('distributor');
+    navigateToPage('marketplace');
     if (onExploreCatalog) onExploreCatalog();
-    const element = document.getElementById('marketplace-content');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
   };
 
   return (
@@ -194,7 +186,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 const cartBtn = document.querySelector('[data-cart-button]') as HTMLElement;
                 if (cartBtn) cartBtn.click();
               }}
-              onExploreCatalog={handleStartOrder}
+              onExploreCatalog={() => navigateToPage('pavilion')}
             />
           </div>
         </div>

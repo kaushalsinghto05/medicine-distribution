@@ -13,10 +13,21 @@ import { HeroSection } from './components/landing/HeroSection';
 import { FooterSection } from './components/landing/FooterSection';
 import { TitlePlateSplash } from './components/common/TitlePlateSplash';
 import { MobileStickyCartBar } from './components/distributor/screens/MobileStickyCartBar';
+import { MarketplacePage } from './components/distributor/screens/MarketplacePage';
+import { PavilionShowcasePage } from './components/landing/pages/PavilionShowcasePage';
+import { ColdChainPage } from './components/landing/pages/ColdChainPage';
+import { LicensesPage } from './components/landing/pages/LicensesPage';
+import { CreditFacilityPage } from './components/landing/pages/CreditFacilityPage';
 import { ShieldAlert, ArrowRight, Building2, Store, Sparkles } from 'lucide-react';
 
 const AppContent: React.FC = () => {
-  const { portalMode, setPortalMode, setActiveTenantId } = useStore();
+  const { 
+    portalMode, 
+    setPortalMode, 
+    setActiveTenantId,
+    activePage,
+    navigateToPage
+  } = useStore();
   const { currentUser, switchPredefinedUser } = useAuth();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -44,21 +55,8 @@ const AppContent: React.FC = () => {
         onOpenTestLab={() => setIsTestLabOpen(true)}
       />
 
-      {/* Hero Section: Enterprise B2B Medical Distribution Overview */}
-      <HeroSection
-        onOpenLogin={() => setIsLoginModalOpen(true)}
-        onExploreCatalog={() => {
-          setPortalMode('distributor');
-          setDistributorTab('browse');
-          const element = document.getElementById('marketplace-content');
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
-          }
-        }}
-      />
-
-      {/* Main View Portals or RBAC Guard */}
-      <div id="marketplace-content" className="flex-1">
+      {/* Main Multi-Page Body View or RBAC Guard */}
+      <main id="marketplace-content" className="flex-1">
         {isDistributorTryingManufacturer ? (
           <div className="max-w-3xl mx-auto px-4 py-16 text-center">
             <div className="bg-white rounded-3xl p-8 sm:p-12 border border-rose-200 shadow-xl space-y-6">
@@ -96,7 +94,10 @@ const AppContent: React.FC = () => {
                 </button>
 
                 <button
-                  onClick={() => setPortalMode('distributor')}
+                  onClick={() => {
+                    setPortalMode('distributor');
+                    navigateToPage('home');
+                  }}
                   className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition-colors flex items-center justify-center gap-2"
                 >
                   <Store className="w-4 h-4 text-indigo-600" />
@@ -110,21 +111,54 @@ const AppContent: React.FC = () => {
             mobileMenuOpen={mobileMenuOpen}
             setMobileMenuOpen={setMobileMenuOpen}
           />
-        ) : (
+        ) : activePage === 'home' ? (
+          <HeroSection
+            onOpenLogin={() => setIsLoginModalOpen(true)}
+            onExploreCatalog={() => navigateToPage('marketplace')}
+          />
+        ) : activePage === 'marketplace' ? (
+          <MarketplacePage />
+        ) : activePage === 'pavilion' ? (
+          <PavilionShowcasePage />
+        ) : activePage === 'coldchain' ? (
+          <ColdChainPage />
+        ) : activePage === 'licenses' ? (
+          <LicensesPage />
+        ) : activePage === 'credit' ? (
+          <CreditFacilityPage />
+        ) : activePage === 'orders' ? (
           <DistributorPortal
             onOpenCart={() => setIsCartOpen(true)}
-            activeTab={distributorTab}
-            setActiveTab={setDistributorTab}
+            activeTab="orders"
+            setActiveTab={(tab) => {
+              setDistributorTab(tab);
+              if (tab === 'browse') navigateToPage('marketplace');
+              else if (tab === 'orders') navigateToPage('orders');
+              else if (tab === 'waste') navigateToPage('waste');
+            }}
           />
+        ) : activePage === 'waste' ? (
+          <DistributorPortal
+            onOpenCart={() => setIsCartOpen(true)}
+            activeTab="waste"
+            setActiveTab={(tab) => {
+              setDistributorTab(tab);
+              if (tab === 'browse') navigateToPage('marketplace');
+              else if (tab === 'orders') navigateToPage('orders');
+              else if (tab === 'waste') navigateToPage('waste');
+            }}
+          />
+        ) : (
+          <MarketplacePage />
         )}
-      </div>
+      </main>
 
       {/* Cart Drawer for Distributor */}
       <CartDrawer
         isOpen={isCartOpen && portalMode === 'distributor'}
         onClose={() => setIsCartOpen(false)}
         onNavigateToOrders={() => {
-          setDistributorTab('orders');
+          navigateToPage('orders');
           setIsCartOpen(false);
         }}
       />

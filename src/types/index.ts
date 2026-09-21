@@ -4,6 +4,16 @@ export type Role = 'manufacturer' | 'distributor';
 
 export type PortalMode = 'manufacturer' | 'distributor';
 
+export type AppPage = 
+  | 'home' 
+  | 'marketplace' 
+  | 'pavilion' 
+  | 'coldchain' 
+  | 'licenses' 
+  | 'credit' 
+  | 'orders' 
+  | 'waste';
+
 export interface Tenant {
   id: string; // e.g. 'mfg-acme'
   name: string; // e.g. 'Acme Pharma Ltd'
