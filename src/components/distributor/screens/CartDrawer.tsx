@@ -190,10 +190,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
                 <div className="pt-2 border-t border-slate-200 flex justify-between font-bold text-sm text-slate-900">
                   <span>Total Payable:</span>
-                  <span className="text-indigo-600 tabular-nums">{formatCurrency(confirmedOrder.totalAmount)}</span>
+                  <span className="text-[#1A504C] tabular-nums">{formatCurrency(confirmedOrder.totalAmount)}</span>
                 </div>
 
-                <div className="p-2.5 rounded-xl bg-indigo-50/70 border border-indigo-200 text-[11px] text-indigo-900">
+                <div className="p-2.5 rounded-lg bg-[#E8F3F1] border border-[#1A504C]/20 text-[11px] text-[#1A504C]">
                   <strong>Commercial Terms: </strong>
                   {confirmedOrder.paymentMethod === 'credit'
                     ? `Net 30 Credit Terms agreed. Invoice due on ${formatDate(confirmedOrder.creditDueDate)}.`
@@ -253,7 +253,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 return (
                   <div
                     key={tenantId}
-                    className="p-4 rounded-2xl border border-slate-200 bg-slate-50/60 space-y-4 shadow-2xs"
+                    className="p-4 rounded-lg border border-slate-200 bg-slate-50/60 space-y-4 shadow-none"
                   >
                     {/* Manufacturer Section Header */}
                     <div className="flex items-center justify-between border-b border-slate-200/80 pb-2.5">

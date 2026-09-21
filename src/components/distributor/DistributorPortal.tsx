@@ -31,13 +31,13 @@ export const DistributorPortal: React.FC<DistributorPortalProps> = ({
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
       {/* Sub-Navigation Tabs */}
-      <div className="flex items-center justify-between gap-4 border-b border-slate-200 pb-3">
+      <div className="flex items-center justify-between gap-4 border-b border-gray-200 pb-3">
         <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
           <button
             onClick={() => setActiveTab('browse')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all shrink-0 ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all shrink-0 ${
               activeTab === 'browse'
-                ? 'bg-indigo-600 text-white shadow-xs'
+                ? 'bg-[#1A504C] text-white shadow-none'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
@@ -47,9 +47,9 @@ export const DistributorPortal: React.FC<DistributorPortalProps> = ({
 
           <button
             onClick={() => setActiveTab('orders')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all shrink-0 ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all shrink-0 ${
               activeTab === 'orders'
-                ? 'bg-indigo-600 text-white shadow-xs'
+                ? 'bg-[#1A504C] text-white shadow-none'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
@@ -58,7 +58,7 @@ export const DistributorPortal: React.FC<DistributorPortalProps> = ({
             {distributorOrders.length > 0 && (
               <span
                 className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-                  activeTab === 'orders' ? 'bg-indigo-700 text-white' : 'bg-slate-200 text-slate-700'
+                  activeTab === 'orders' ? 'bg-[#143F3C] text-white' : 'bg-slate-200 text-slate-700'
                 }`}
               >
                 {distributorOrders.length}
@@ -68,9 +68,9 @@ export const DistributorPortal: React.FC<DistributorPortalProps> = ({
 
           <button
             onClick={() => setActiveTab('waste')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all shrink-0 ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all shrink-0 ${
               activeTab === 'waste'
-                ? 'bg-amber-600 text-white shadow-xs font-bold'
+                ? 'bg-amber-600 text-white shadow-none font-bold'
                 : 'text-amber-900/80 hover:text-amber-950 hover:bg-amber-50'
             }`}
           >
@@ -89,9 +89,9 @@ export const DistributorPortal: React.FC<DistributorPortalProps> = ({
 
           <button
             onClick={() => setActiveTab('account')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all shrink-0 ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all shrink-0 ${
               activeTab === 'account'
-                ? 'bg-indigo-600 text-white shadow-xs'
+                ? 'bg-[#1A504C] text-white shadow-none'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
@@ -103,7 +103,7 @@ export const DistributorPortal: React.FC<DistributorPortalProps> = ({
         {/* Mobile Sticky Cart Trigger */}
         <button
           onClick={onOpenCart}
-          className="sm:hidden flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold shadow-md shadow-indigo-500/20 shrink-0"
+          className="sm:hidden flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#1A504C] text-white text-xs font-bold shadow-none shrink-0"
         >
           <ShoppingCart className="w-4 h-4" />
           <span>Cart ({cartCount})</span>
