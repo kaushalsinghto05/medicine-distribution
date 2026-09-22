@@ -12,7 +12,8 @@ export type AppPage =
   | 'licenses' 
   | 'credit' 
   | 'orders' 
-  | 'waste';
+  | 'waste'
+  | 'cart';
 
 export interface Tenant {
   id: string; // e.g. 'mfg-acme'
@@ -500,5 +501,18 @@ export interface AuthSession {
   refreshToken: string;
   user: JWTPayload;
   isExpired: boolean;
+}
+
+export interface B2BSignupInput {
+  role: 'distributor' | 'manufacturer';
+  companyName: string;
+  contactName: string;
+  email: string;
+  password?: string;
+  phone?: string;
+  drugLicenseNumber: string; // Form 20B/21B or Form 25/28
+  gstin: string;
+  state: string;
+  city?: string;
 }
 

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { JWTPayload, JWTRole, AuthSession } from '../types';
+import { JWTPayload, JWTRole, AuthSession, B2BSignupInput } from '../types';
 import { signJWT, verifyAndDecodeJWT, canPerformAction } from '../utils/jwt';
 
 export interface PredefinedUser {
@@ -84,6 +84,7 @@ interface AuthContextType {
   isTokenExpired: boolean;
   accessToken: string | null;
   login: (emailOrUser: string | PredefinedUser) => Promise<boolean>;
+  signup: (input: B2BSignupInput) => Promise<boolean>;
   logout: () => void;
   refreshAccessToken: () => Promise<boolean>;
   checkPermission: (action: Parameters<typeof canPerformAction>[1]) => boolean;
@@ -99,10 +100,10 @@ const REFRESH_TOKEN_KEY = 'pharmxpress_jwt_refresh';
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [session, setSession] = useState<AuthSession | null>(null);
 
-  // Initialize session from pre-seeded default (Acme Admin) or localStorage simulation
+  // Initialize session from localStorage simulation or start as authenticated or guest
   useEffect(() => {
     const savedAccess = localStorage.getItem(ACCESS_TOKEN_KEY);
-    if (savedAccess) {
+    if (savedAccess && savedAccess !== 'guest') {
       const verification = verifyAndDecodeJWT(savedAccess);
       if (verification.valid && verification.payload) {
         setSession({
@@ -115,8 +116,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     }
 
-    // Default startup: initialize with Acme Admin
-    const defaultUser = PREDEFINED_USERS[0];
+    if (savedAccess === 'guest') {
+      setSession(null);
+      return;
+    }
+
+    // Default startup: initialize with MedPlus wholesale buyer so marketplace prices/inventory are pre-configured
+    const defaultUser = PREDEFINED_USERS[3]; // Rajesh Sharma (MedPlus Buyer)
     const initialToken = signJWT({
       sub: defaultUser.id,
       email: defaultUser.email,
@@ -191,9 +197,39 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return true;
   };
 
+  const signup = async (input: B2BSignupInput): Promise<boolean> => {
+    const isDist = input.role === 'distributor';
+    const newId = isDist ? `usr-dist-${Date.now()}` : `usr-mfg-${Date.now()}`;
+    const entityId = isDist ? `dist-${Date.now()}` : `mfg-${Date.now()}`;
+    const role: JWTRole = isDist ? 'distributor' : 'manufacturer_admin';
+
+    const token = signJWT({
+      sub: newId,
+      email: input.email,
+      name: input.contactName || input.companyName,
+      role,
+      tenantId: !isDist ? entityId : undefined,
+      distributorId: isDist ? entityId : undefined,
+      authorizedManufacturerIds: isDist ? ['mfg-acme', 'mfg-vitalis'] : [entityId],
+    }, 900); // 15 mins
+
+    const decoded = verifyAndDecodeJWT(token).payload!;
+    const newSession: AuthSession = {
+      accessToken: token,
+      refreshToken: 'rt_mock_' + Math.random().toString(36).substring(2),
+      user: decoded,
+      isExpired: false,
+    };
+
+    setSession(newSession);
+    localStorage.setItem(ACCESS_TOKEN_KEY, token);
+    localStorage.setItem(REFRESH_TOKEN_KEY, newSession.refreshToken);
+    return true;
+  };
+
   const logout = () => {
     setSession(null);
-    localStorage.removeItem(ACCESS_TOKEN_KEY);
+    localStorage.setItem(ACCESS_TOKEN_KEY, 'guest');
     localStorage.removeItem(REFRESH_TOKEN_KEY);
   };
 
@@ -263,6 +299,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         isTokenExpired: !!session?.isExpired,
         accessToken: session?.accessToken || null,
         login,
+        signup,
         logout,
         refreshAccessToken,
         checkPermission,

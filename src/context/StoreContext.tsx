@@ -21,6 +21,7 @@ import {
   ComplianceLedgerEntry,
   ManufacturerWasteConfig,
   AddMedicineInput,
+  B2BSignupInput,
 } from '../types';
 import {
   SEED_TENANTS,
@@ -64,6 +65,15 @@ interface StoreContextType {
   isAddMedicineModalOpen: boolean;
   setIsAddMedicineModalOpen: (open: boolean) => void;
   addNewMedicine: (input: AddMedicineInput) => Medicine;
+  isLoginModalOpen: boolean;
+  setIsLoginModalOpen: (open: boolean) => void;
+  loginPromptMessage: string;
+  setLoginPromptMessage: (msg: string) => void;
+  openLoginModal: (message?: string, pendingItem?: CartItem) => void;
+  pendingAddToCartItem: CartItem | null;
+  setPendingAddToCartItem: (item: CartItem | null) => void;
+  registerNewDistributor: (input: B2BSignupInput) => Distributor;
+  registerNewTenant: (input: B2BSignupInput) => Tenant;
 
   // Active Entities
   currentTenant: Tenant;
@@ -253,6 +263,17 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [activeDistributorTenantFilter, setActiveDistributorTenantFilter] = useState<string>('all');
   const [globalSearchQuery, setGlobalSearchQuery] = useState<string>('');
   const [isAddMedicineModalOpen, setIsAddMedicineModalOpen] = useState<boolean>(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
+  const [loginPromptMessage, setLoginPromptMessage] = useState<string>('');
+  const [pendingAddToCartItem, setPendingAddToCartItem] = useState<CartItem | null>(null);
+
+  const openLoginModal = (message?: string, pendingItem?: CartItem) => {
+    setLoginPromptMessage(message || 'Please log in to your B2B wholesale account to continue.');
+    if (pendingItem) {
+      setPendingAddToCartItem(pendingItem);
+    }
+    setIsLoginModalOpen(true);
+  };
 
   // Interactive Test Preset Helper
   const [presetDemoTarget, setPresetDemoTarget] = useState<{
@@ -532,6 +553,85 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setMedicines((prev) => [created, ...prev]);
     addToast('success', 'Medicine Added to Marketplace', `${created.name} (${created.packSize}) has been registered with ${initialQty} units in Batch ${batchNumber}.`);
     return created;
+  };
+
+  const registerNewDistributor = (input: B2BSignupInput): Distributor => {
+    const distId = `dist-${Date.now()}`;
+    const newDist: Distributor = {
+      id: distId,
+      name: input.companyName,
+      contactPerson: input.contactName,
+      email: input.email,
+      phone: input.phone || '+91 98765 43210',
+      gstin: input.gstin || '27AABCA1234F1Z5',
+      panNumber: 'AAAPL' + Math.floor(1000 + Math.random() * 9000) + 'K',
+      address: `${input.city || 'Central Wholesale Market'}, ${input.state || 'Maharashtra'}`,
+      state: input.state || 'Maharashtra',
+      city: input.city || 'Mumbai Metro',
+      pincode: '400001',
+      accountStatus: 'active',
+      licenses: {
+        form20B: input.drugLicenseNumber || '20B-MH-MZ1-2026-999',
+        form21B: (input.drugLicenseNumber || '20B-MH-MZ1-2026-999').replace('20B', '21B'),
+        validFrom: '2024-01-01',
+        validTo: '2029-12-31',
+        verified: true,
+      },
+      authorizedTenants: {
+        'mfg-acme': {
+          tenantId: 'mfg-acme',
+          status: 'approved',
+          assignedCreditDays: 30,
+          creditLimit: 500000,
+          creditUsed: 0,
+          monthlyQuantityLimit: 5000,
+          monthlyQuantityUsed: 0,
+        },
+        'mfg-vitalis': {
+          tenantId: 'mfg-vitalis',
+          status: 'approved',
+          assignedCreditDays: 30,
+          creditLimit: 500000,
+          creditUsed: 0,
+          monthlyQuantityLimit: 5000,
+          monthlyQuantityUsed: 0,
+        },
+      },
+    };
+
+    setDistributors((prev) => [newDist, ...prev]);
+    setActiveDistributorId(distId);
+    setPortalMode('distributor');
+    addToast('success', 'B2B Wholesale Account Created', `Registered ${newDist.name} with CDSCO Form 20B/21B wholesale license.`);
+    return newDist;
+  };
+
+  const registerNewTenant = (input: B2BSignupInput): Tenant => {
+    const tenantId = `mfg-${Date.now()}`;
+    const newTenant: Tenant = {
+      id: tenantId,
+      name: input.companyName,
+      shortName: input.companyName.split(' ')[0] || 'PharmaMfg',
+      tagline: 'Precision Formulations & B2B Manufacturing',
+      logoColor: 'bg-emerald-700',
+      drugLicenseNumber: input.drugLicenseNumber || 'MFG-MH-2026-0044',
+      gstin: input.gstin || '27AABCM9876F1Z2',
+      panNumber: 'AABCP' + Math.floor(1000 + Math.random() * 9000) + 'L',
+      contactEmail: input.email,
+      contactPhone: input.phone || '+91 98765 00000',
+      address: `${input.city || 'Pharma Industrial Park'}, ${input.state || 'Maharashtra'}`,
+      state: input.state || 'Maharashtra',
+      allowedPaymentTerms: ['online', 'credit'],
+      allowedFulfilmentMethods: ['direct_shipping', 'distributor_pickup', 'logistics_partner'],
+      defaultCreditPeriodDays: 30,
+      minOrderValueDefault: 10000,
+    };
+
+    setTenants((prev) => [newTenant, ...prev]);
+    setActiveTenantId(tenantId);
+    setPortalMode('manufacturer');
+    addToast('success', 'Manufacturing Principal Registered', `Welcome ${newTenant.name}. Manufacturing portal active.`);
+    return newTenant;
   };
 
   const updateMedicine = (updatedMed: Medicine) => {
@@ -1635,6 +1735,15 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         isAddMedicineModalOpen,
         setIsAddMedicineModalOpen,
         addNewMedicine,
+        isLoginModalOpen,
+        setIsLoginModalOpen,
+        loginPromptMessage,
+        setLoginPromptMessage,
+        openLoginModal,
+        pendingAddToCartItem,
+        setPendingAddToCartItem,
+        registerNewDistributor,
+        registerNewTenant,
         activePage,
         setActivePage,
         navigateToPage,

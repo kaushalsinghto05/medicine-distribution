@@ -19,6 +19,7 @@ import { ColdChainPage } from './components/landing/pages/ColdChainPage';
 import { LicensesPage } from './components/landing/pages/LicensesPage';
 import { CreditFacilityPage } from './components/landing/pages/CreditFacilityPage';
 import { AddMedicineModal } from './components/common/AddMedicineModal';
+import { CartPage } from './components/distributor/screens/CartPage';
 import { ShieldAlert, ArrowRight, Building2, Store, Sparkles } from 'lucide-react';
 
 const AppContent: React.FC = () => {
@@ -29,14 +30,15 @@ const AppContent: React.FC = () => {
     activePage,
     navigateToPage,
     isAddMedicineModalOpen,
-    setIsAddMedicineModalOpen
+    setIsAddMedicineModalOpen,
+    isLoginModalOpen,
+    setIsLoginModalOpen,
   } = useStore();
   const { currentUser, switchPredefinedUser } = useAuth();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [distributorTab, setDistributorTab] = useState<'browse' | 'orders' | 'account' | 'waste'>('browse');
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isTestLabOpen, setIsTestLabOpen] = useState(false);
 
   // Route & Action Guarding (RBAC Check)
@@ -151,6 +153,8 @@ const AppContent: React.FC = () => {
               else if (tab === 'waste') navigateToPage('waste');
             }}
           />
+        ) : activePage === 'cart' ? (
+          <CartPage />
         ) : (
           <MarketplacePage />
         )}

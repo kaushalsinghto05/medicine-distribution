@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useStore } from '../../../context/StoreContext';
+import { useAuth } from '../../../context/AuthContext';
 import { Medicine, Batch, CartItem } from '../../../types';
 import { formatCurrency, formatDate, getExpiryStatus } from '../../../utils/formatters';
 import { validateOrderQuantity } from '../../../engine/rulesEngine';
@@ -24,7 +25,9 @@ export const MedicineDetailModal: React.FC<MedicineDetailModalProps> = ({
     addToCart,
     presetDemoTarget,
     setPresetDemoTarget,
+    openLoginModal,
   } = useStore();
+  const { isAuthenticated } = useAuth();
 
   if (!medicine) return null;
 
@@ -98,6 +101,15 @@ export const MedicineDetailModal: React.FC<MedicineDetailModalProps> = ({
       batchNumber: selectedBatch.batchNumber,
       expiryDate: selectedBatch.expiryDate,
     };
+
+    if (!isAuthenticated) {
+      openLoginModal(
+        `Please sign in or create your wholesale account to add ${quantity} ${medicine.packagingUnit}s of ${medicine.name} to cart.`,
+        item
+      );
+      onClose();
+      return;
+    }
 
     addToCart(item);
     if (presetDemoTarget?.medicineId === medicine.id) {

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useStore } from '../../../context/StoreContext';
+import { useAuth } from '../../../context/AuthContext';
 import { CartItem, Order } from '../../../types';
 import { formatCurrency, formatDate } from '../../../utils/formatters';
 import { validateOrderQuantity } from '../../../engine/rulesEngine';
@@ -38,7 +39,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     removeFromCart,
     clearCart,
     checkoutOrder,
+    openLoginModal,
+    navigateToPage,
   } = useStore();
+
+  const { isAuthenticated } = useAuth();
 
   const [checkoutStep, setCheckoutStep] = useState<'cart' | 'confirmation'>('cart');
   const [tenantPaymentMethods, setTenantPaymentMethods] = useState<Record<string, 'online' | 'credit'>>({});
@@ -175,7 +180,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 </div>
 
                 <div className="divide-y divide-slate-200/70">
-                  {confirmedOrder.items.map((it, i) => (
+                  {confirmedOrder.items.map((it: any, i: number) => (
                     <div key={i} className="py-2 flex justify-between">
                       <div>
                         <span className="font-semibold text-slate-900 block">{it.medicineName}</span>
@@ -302,22 +307,56 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     </div>
 
                     {/* Checkout Button per Manufacturer */}
-                    <Button
-                      variant="primary"
-                      size="md"
-                      onClick={() => handleCheckoutTenant(tenantId)}
-                      className="w-full"
-                    >
-                      Checkout with {tenant?.shortName} ({formatCurrency(tenantSubtotal)})
-                    </Button>
+                    {!isAuthenticated ? (
+                      <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs space-y-2">
+                        <div className="flex items-center gap-1.5 font-bold">
+                          <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
+                          <span>Login required to place wholesale order</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onClose();
+                            openLoginModal('Please log in or register your wholesale account to checkout.');
+                          }}
+                          className="w-full py-2 rounded-lg bg-[#20BD5A] hover:bg-[#1CA84F] text-white font-extrabold text-xs shadow-xs"
+                        >
+                          Login to Proceed
+                        </button>
+                      </div>
+                    ) : (
+                      <Button
+                        variant="primary"
+                        size="md"
+                        onClick={() => handleCheckoutTenant(tenantId)}
+                        className="w-full"
+                      >
+                        Checkout with {tenant?.shortName} ({formatCurrency(tenantSubtotal)})
+                      </Button>
+                    )}
                   </div>
                 );
               })}
 
-              {/* Combined Grand Total */}
-              <div className="p-4 rounded-2xl bg-slate-900 text-white flex items-center justify-between text-sm font-bold">
-                <span>Grand Total:</span>
-                <span className="text-lg text-emerald-400 tabular-nums">{formatCurrency(grandTotal)}</span>
+              {/* Combined Grand Total & Full Cart Link */}
+              <div className="space-y-2">
+                <div className="p-4 rounded-2xl bg-[#1A504C] text-white flex items-center justify-between text-sm font-bold">
+                  <span>Grand Total:</span>
+                  <span className="text-lg text-[#4BE1E4] font-black tabular-nums">{formatCurrency(grandTotal)}</span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    navigateToPage('cart');
+                  }}
+                  className="w-full py-3 rounded-2xl bg-white hover:bg-gray-50 border border-gray-200 text-[#1A504C] font-extrabold text-xs transition-colors flex items-center justify-center gap-2 shadow-2xs"
+                >
+                  <ShoppingCart className="w-4 h-4" />
+                  <span>Go to Full Cart & Bag Page</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
               </div>
             </div>
           )}

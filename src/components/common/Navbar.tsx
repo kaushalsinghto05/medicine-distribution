@@ -271,9 +271,9 @@ export const Navbar: React.FC<NavbarProps> = ({
 
                   {/* Cart Button with Retail-Style Orange Badge */}
                   <button
-                    onClick={onOpenCart}
+                    onClick={() => navigateToPage('cart')}
                     className="relative p-2.5 rounded-full border border-gray-200 bg-white hover:bg-gray-50 text-[#1A1A1A] transition-colors"
-                    title="View current cart"
+                    title="View wholesale cart & bag"
                   >
                     <ShoppingCart className="w-4 h-4 text-[#1A504C]" />
                     {cartItemCount > 0 && (
@@ -324,9 +324,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 ) : (
                   <button
                     onClick={onOpenLogin}
-                    className="px-4 py-2 rounded-full bg-[#1A504C] hover:bg-[#143F3C] text-white text-xs font-bold transition-colors shadow-xs"
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#1A504C] hover:bg-[#143F3C] text-white text-xs font-bold transition-colors shadow-xs"
                   >
-                    Sign In
+                    <User className="w-3.5 h-3.5" />
+                    <span>Sign In</span>
                   </button>
                 )}
 

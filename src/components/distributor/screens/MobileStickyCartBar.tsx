@@ -8,7 +8,7 @@ interface MobileStickyCartBarProps {
 }
 
 export const MobileStickyCartBar: React.FC<MobileStickyCartBarProps> = ({ onOpenCart }) => {
-  const { cart } = useStore();
+  const { cart, navigateToPage } = useStore();
 
   if (cart.length === 0) return null;
 
@@ -35,7 +35,7 @@ export const MobileStickyCartBar: React.FC<MobileStickyCartBarProps> = ({ onOpen
 
         {/* View Cart Action Button (Apollo Teal) */}
         <button
-          onClick={onOpenCart}
+          onClick={() => navigateToPage('cart')}
           className="px-4 py-2.5 rounded-xl bg-[#1A504C] hover:bg-[#143F3C] text-white font-bold text-xs uppercase shadow-sm flex items-center gap-1.5 active:scale-95 shrink-0 transition-all"
         >
           <ShoppingCart className="w-4 h-4" />

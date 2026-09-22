@@ -1,6 +1,7 @@
 import React from 'react';
 import { Medicine, CartItem } from '../../../types';
 import { useStore } from '../../../context/StoreContext';
+import { useAuth } from '../../../context/AuthContext';
 import { formatCurrency, formatDate, getExpiryStatus } from '../../../utils/formatters';
 import { computeEffectivePrice } from '../../../engine/pricingEngine';
 import { validateOrderQuantity } from '../../../engine/rulesEngine';
@@ -29,7 +30,8 @@ export const MedicineCardNetmeds: React.FC<MedicineCardNetmedsProps> = ({
   onSelectMedicine,
   discountBasis = 'PTR',
 }) => {
-  const { currentDistributor, tenants, addToCart, addToast } = useStore();
+  const { currentDistributor, tenants, addToCart, addToast, openLoginModal } = useStore();
+  const { isAuthenticated } = useAuth();
 
   const tenant = tenants.find((t) => t.id === med.tenantId);
   const totalStock = med.batches.reduce((sum, b) => sum + b.availableQuantity, 0);
@@ -84,6 +86,14 @@ export const MedicineCardNetmeds: React.FC<MedicineCardNetmedsProps> = ({
       batchNumber: validBatch.batchNumber,
       expiryDate: validBatch.expiryDate,
     };
+
+    if (!isAuthenticated) {
+      openLoginModal(
+        `Sign in or create your wholesale pharmacy account to add ${qty} ${med.packagingUnit}s of ${med.name} to cart.`,
+        item
+      );
+      return;
+    }
 
     addToCart(item);
     addToast('success', 'Added to Cart', `Added ${qty} ${med.packagingUnit}s of ${med.name} at ${formatCurrency(validation.effectivePrice)}/unit.`);
