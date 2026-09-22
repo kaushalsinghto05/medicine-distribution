@@ -9,7 +9,10 @@ import {
   ShieldCheck, 
   CheckCircle2, 
   Sparkles,
-  ChevronDown
+  ChevronDown,
+  Plus,
+  Award,
+  Snowflake
 } from 'lucide-react';
 import { PharmacyPavilion3D } from './PharmacyPavilion3D';
 import { HeroOmnibar } from './HeroOmnibar';
@@ -32,7 +35,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     currentTenant, 
     currentDistributor,
     setActiveDistributorTenantFilter,
-    navigateToPage
+    navigateToPage,
+    setIsAddMedicineModalOpen
   } = useStore();
   const { switchPredefinedUser } = useAuth();
 
@@ -56,8 +60,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   };
 
   return (
-    <section className="bg-gradient-to-b from-[#F5F8F6] via-white to-[#F9FBFA] text-[#1A1A1A] border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-10 sm:space-y-14">
+    <section className="bg-medical-mesh text-[#1A1A1A] border-b border-gray-200 relative overflow-hidden">
+      {/* Ambient background light orb */}
+      <div className="absolute top-0 right-1/4 w-96 h-96 bg-gradient-to-br from-[#4BE1E4]/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-10 left-10 w-80 h-80 bg-gradient-to-tr from-[#EA580C]/5 to-transparent rounded-full blur-2xl pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-10 sm:space-y-14 relative z-10">
         
         {/* Compliance Trust Header Strip */}
         <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-gray-200 text-xs">
@@ -98,14 +106,30 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               <p className="text-sm sm:text-base text-[#6B7280] leading-relaxed max-w-xl">
                 A world of healthcare, connected. Everything your pharmacy needs, within reach. Direct manufacturer wholesale PTR rates, batch-level FEFO auto-allocation, and certified cold-chain logistics.
               </p>
+
+              {/* Floating Trust Pills inspired by Kunal Pharma & Medimny */}
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-emerald-200 text-emerald-800 text-[11px] font-extrabold shadow-2xs">
+                  <Award className="w-3.5 h-3.5 text-emerald-600" />
+                  WHO-GMP Certified
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-blue-200 text-blue-800 text-[11px] font-extrabold shadow-2xs">
+                  <Snowflake className="w-3.5 h-3.5 text-blue-600" />
+                  2°C–8°C Cold Chain
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-purple-200 text-purple-800 text-[11px] font-extrabold shadow-2xs">
+                  <ShieldCheck className="w-3.5 h-3.5 text-purple-600" />
+                  Form 20B/21B Wholesalers
+                </span>
+              </div>
             </div>
 
-            {/* Biddano CTAs: Start your order + Step inside */}
-            <div className="flex flex-wrap items-center gap-4 pt-1">
+            {/* Biddano CTAs: Start your order + Step inside + Add Medicine */}
+            <div className="flex flex-wrap items-center gap-3 pt-1">
               <button
                 type="button"
                 onClick={handleStartOrder}
-                className="px-7 py-3.5 rounded-full bg-[#1A504C] hover:bg-[#143F3C] text-white font-extrabold text-sm shadow-md hover:shadow-lg transition-all flex items-center gap-2 group active:scale-95"
+                className="px-6 py-3.5 rounded-full bg-[#1A504C] hover:bg-[#143F3C] text-white font-extrabold text-sm shadow-md hover:shadow-lg transition-all flex items-center gap-2 group active:scale-95"
               >
                 <span>Start your order</span>
                 <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -113,8 +137,18 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
               <button
                 type="button"
+                onClick={() => setIsAddMedicineModalOpen(true)}
+                className="px-5 py-3.5 rounded-full bg-white hover:bg-emerald-50 text-[#1A504C] font-extrabold text-sm border-2 border-[#1A504C] shadow-xs hover:shadow-md transition-all flex items-center gap-2 group active:scale-95"
+                title="Add a new medicine with packaging picture to the wholesale catalog"
+              >
+                <Plus className="w-4 h-4 stroke-[3] text-emerald-600 group-hover:rotate-90 transition-transform" />
+                <span>+ Add Medicine & Picture</span>
+              </button>
+
+              <button
+                type="button"
                 onClick={handleStartOrder}
-                className="px-4 py-3.5 text-sm font-extrabold text-[#1A1A1A] hover:text-[#1A504C] transition-colors flex items-center gap-2 group"
+                className="px-4 py-3.5 text-sm font-extrabold text-[#1A1A1A] hover:text-[#1A504C] transition-colors flex items-center gap-1.5 group"
               >
                 <span>Step inside</span>
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />

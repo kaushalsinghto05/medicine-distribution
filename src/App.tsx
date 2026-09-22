@@ -18,6 +18,7 @@ import { PavilionShowcasePage } from './components/landing/pages/PavilionShowcas
 import { ColdChainPage } from './components/landing/pages/ColdChainPage';
 import { LicensesPage } from './components/landing/pages/LicensesPage';
 import { CreditFacilityPage } from './components/landing/pages/CreditFacilityPage';
+import { AddMedicineModal } from './components/common/AddMedicineModal';
 import { ShieldAlert, ArrowRight, Building2, Store, Sparkles } from 'lucide-react';
 
 const AppContent: React.FC = () => {
@@ -26,7 +27,9 @@ const AppContent: React.FC = () => {
     setPortalMode, 
     setActiveTenantId,
     activePage,
-    navigateToPage
+    navigateToPage,
+    isAddMedicineModalOpen,
+    setIsAddMedicineModalOpen
   } = useStore();
   const { currentUser, switchPredefinedUser } = useAuth();
 
@@ -42,7 +45,7 @@ const AppContent: React.FC = () => {
     currentUser?.role === 'distributor' && portalMode === 'manufacturer';
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-sky-500 selection:text-white">
+    <div className="min-h-screen bg-medical-mesh text-slate-900 flex flex-col font-sans selection:bg-[#1A504C] selection:text-white relative">
       {/* Title Plate Splash Screen (First Load Once-Per-Session) */}
       <TitlePlateSplash />
 
@@ -167,6 +170,12 @@ const AppContent: React.FC = () => {
       <LoginModal
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
+      />
+
+      {/* Add New Medicine & Packaging Picture Modal */}
+      <AddMedicineModal
+        isOpen={isAddMedicineModalOpen}
+        onClose={() => setIsAddMedicineModalOpen(false)}
       />
 
       {/* Specification Review & Test Lab Modal */}

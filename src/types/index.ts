@@ -191,6 +191,7 @@ export interface Medicine {
   packagingUnit: string; // strip, box, vial, bottle, etc.
   packSize: string; // e.g. '10 x 10 Tablets' or '100ml'
   mrp: number;
+  imageUrl?: string; // Product packaging photo / render
   description: string;
   status: 'draft' | 'published';
   regulatory: RegulatoryCompliance;
@@ -199,6 +200,28 @@ export interface Medicine {
   rules: OrderingRules;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface AddMedicineInput {
+  tenantId?: string;
+  name: string;
+  genericName: string;
+  brandName?: string;
+  category: MedicineCategory;
+  packagingUnit: string;
+  packSize: string;
+  mrp: number;
+  ptrPrice?: number;
+  imageUrl?: string;
+  description?: string;
+  scheduleClassification?: ScheduleClassification;
+  rxRequired?: boolean;
+  isColdChain?: boolean;
+  batchNumber?: string;
+  mfgDate?: string;
+  expDate?: string;
+  initialQuantity?: number;
+  minOrderQty?: number;
 }
 
 export type OrderStatus = 

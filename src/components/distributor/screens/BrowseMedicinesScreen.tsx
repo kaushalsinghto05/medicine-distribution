@@ -29,7 +29,8 @@ import {
   Flame, 
   Percent, 
   Lock, 
-  Clock 
+  Clock,
+  Plus
 } from 'lucide-react';
 
 const DELIVERY_HUBS = [
@@ -52,6 +53,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
     addToast,
     globalSearchQuery,
     setGlobalSearchQuery,
+    setIsAddMedicineModalOpen,
   } = useStore();
 
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -327,16 +329,28 @@ export const BrowseMedicinesScreen: React.FC = () => {
             </button>
           </div>
 
-          {/* In-Stock Only Toggle */}
-          <label className="flex items-center gap-2 text-xs font-bold text-[#1A1A1A] cursor-pointer select-none px-3 py-1.5 rounded-xl hover:bg-gray-50 border border-gray-100">
-            <input
-              type="checkbox"
-              checked={inStockOnly}
-              onChange={(e) => setInStockOnly(e.target.checked)}
-              className="rounded text-[#1A504C] focus:ring-[#1A504C]"
-            />
-            <span>In-Stock Only</span>
-          </label>
+          {/* In-Stock Only & Add Medicine Buttons */}
+          <div className="flex items-center gap-2.5">
+            <label className="flex items-center gap-2 text-xs font-bold text-[#1A1A1A] cursor-pointer select-none px-3 py-1.5 rounded-xl hover:bg-gray-50 border border-gray-100">
+              <input
+                type="checkbox"
+                checked={inStockOnly}
+                onChange={(e) => setInStockOnly(e.target.checked)}
+                className="rounded text-[#1A504C] focus:ring-[#1A504C]"
+              />
+              <span>In-Stock Only</span>
+            </label>
+
+            <button
+              type="button"
+              onClick={() => setIsAddMedicineModalOpen(true)}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#1A504C] to-[#123E3A] hover:from-[#143F3C] hover:to-[#0A2624] text-white text-xs font-black shadow-xs hover:shadow-md transition-all active:scale-95 shrink-0"
+              title="Add a new pharmaceutical formulation with real packaging photo"
+            >
+              <Plus className="w-4 h-4 stroke-[3]" />
+              <span>+ Add Medicine & Picture</span>
+            </button>
+          </div>
         </div>
 
         {/* Global Search query alert if active */}

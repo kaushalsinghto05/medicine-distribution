@@ -97,8 +97,42 @@ export const MedicineCardNetmeds: React.FC<MedicineCardNetmedsProps> = ({
       <div className="space-y-3">
         {/* Pack Visual Container (Netmeds / Truemeds Pattern) */}
         <div className={`w-full h-36 rounded-xl ${visual.bgColor} border ${visual.borderColor} flex items-center justify-center relative overflow-hidden transition-colors`}>
-          {/* Subtle Formulation Icon Watermark */}
-          <FormulationIcon className={`w-20 h-20 ${visual.textColor} opacity-15 absolute -right-3 -bottom-3 pointer-events-none`} />
+          {/* Center: Real Packaging Photo OR Monogram Visual */}
+          {med.imageUrl ? (
+            <div className="absolute inset-0 w-full h-full bg-slate-50 overflow-hidden">
+              <img
+                src={med.imageUrl}
+                alt={med.name}
+                className="w-full h-full object-cover object-center group-hover:scale-108 transition-transform duration-500"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/5 to-transparent pointer-events-none" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                <span className="px-2.5 py-1 rounded-full bg-white/90 text-[#1A504C] font-black text-[10px] shadow-md tracking-wider uppercase backdrop-blur-xs">
+                  View Batch
+                </span>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* Subtle Formulation Icon Watermark */}
+              <FormulationIcon className={`w-20 h-20 ${visual.textColor} opacity-15 absolute -right-3 -bottom-3 pointer-events-none`} />
+
+              {/* Center Monogram Tile + Dosage Form */}
+              <div className="flex flex-col items-center justify-center z-10">
+                <div className={`w-14 h-14 rounded-2xl bg-white/95 border ${visual.borderColor} flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform`}>
+                  <span className={`text-xl font-black tracking-wider ${visual.textColor}`}>
+                    {visual.monogram}
+                  </span>
+                </div>
+                <span className={`text-[10px] font-extrabold mt-1.5 tracking-wider uppercase ${visual.textColor}`}>
+                  {visual.dosageForm}
+                </span>
+              </div>
+            </>
+          )}
 
           {/* Top-Left: Truemeds-Style Green Discount Pill Tag */}
           {hasSlabs ? (
@@ -123,18 +157,6 @@ export const MedicineCardNetmeds: React.FC<MedicineCardNetmedsProps> = ({
                 <span>2°C-8°C</span>
               </span>
             )}
-          </div>
-
-          {/* Center Monogram Tile + Dosage Form */}
-          <div className="flex flex-col items-center justify-center z-10">
-            <div className={`w-14 h-14 rounded-2xl bg-white/95 border ${visual.borderColor} flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform`}>
-              <span className={`text-xl font-black tracking-wider ${visual.textColor}`}>
-                {visual.monogram}
-              </span>
-            </div>
-            <span className={`text-[10px] font-extrabold mt-1.5 tracking-wider uppercase ${visual.textColor}`}>
-              {visual.dosageForm}
-            </span>
           </div>
 
           {/* Bottom-Left: Manufacturer Principal Tag */}

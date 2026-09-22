@@ -21,6 +21,7 @@ export const CatalogScreen: React.FC = () => {
     addBatch,
     publishMedicine,
     addToast,
+    setIsAddMedicineModalOpen,
   } = useStore();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -184,13 +185,24 @@ export const CatalogScreen: React.FC = () => {
           </p>
         </div>
 
-        <button
-          onClick={() => setIsCreateMedicineOpen(true)}
-          className="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs shadow-none transition-colors flex items-center gap-1.5 self-start sm:self-auto"
-        >
-          <Plus className="w-4 h-4" />
-          Create Medicine Formulation
-        </button>
+        <div className="flex flex-wrap items-center gap-2.5 self-start sm:self-auto">
+          <button
+            onClick={() => setIsAddMedicineModalOpen(true)}
+            className="px-4 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-xs transition-all flex items-center gap-1.5 active:scale-95"
+            title="Add a new pharmaceutical product with real packaging photo, FEFO batch, and wholesale PTR rate"
+          >
+            <Plus className="w-4 h-4 stroke-[3]" />
+            <span>+ Add Medicine & Picture</span>
+          </button>
+
+          <button
+            onClick={() => setIsCreateMedicineOpen(true)}
+            className="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs shadow-none transition-colors flex items-center gap-1.5"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Quick Formulation</span>
+          </button>
+        </div>
       </div>
 
       {/* Filters & Search Bar */}
@@ -248,8 +260,12 @@ export const CatalogScreen: React.FC = () => {
                     <tr className="hover:bg-slate-50/70 transition-colors">
                       <td className="py-3.5 px-4">
                         <div className="flex items-start gap-2.5">
-                          <div className={`w-8 h-8 rounded-lg ${visual.bgColor} border ${visual.borderColor} flex items-center justify-center shrink-0`}>
-                            <span className={`text-xs font-extrabold ${visual.textColor}`}>{visual.monogram}</span>
+                          <div className={`w-9 h-9 rounded-lg ${visual.bgColor} border ${visual.borderColor} flex items-center justify-center shrink-0 overflow-hidden shadow-2xs`}>
+                            {med.imageUrl ? (
+                              <img src={med.imageUrl} alt={med.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <span className={`text-xs font-extrabold ${visual.textColor}`}>{visual.monogram}</span>
+                            )}
                           </div>
                           <div>
                             <div className="font-heading font-bold text-slate-900 text-sm">{med.name}</div>

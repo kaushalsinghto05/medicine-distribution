@@ -156,3 +156,70 @@ export function getMedicineVisual(med: Medicine): MedicineVisualConfig {
     borderColor: 'border-gray-200',
   };
 }
+
+export interface MedicinePhotoPreset {
+  id: string;
+  name: string;
+  category: string;
+  url: string;
+  thumbnail: string;
+}
+
+export const PHARMACEUTICAL_PHOTO_PRESETS: MedicinePhotoPreset[] = [
+  {
+    id: 'blister-tablets',
+    name: 'Tablets Blister Strip (Paracetamol / Dolo style)',
+    category: 'Analgesics & Antipyretics',
+    url: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600&auto=format&fit=crop&q=80',
+    thumbnail: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=150&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'antibiotic-box',
+    name: 'Antibiotic Box & Capsules (Azithromycin style)',
+    category: 'Antibiotics',
+    url: 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=600&auto=format&fit=crop&q=80',
+    thumbnail: 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=150&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'pharma-strips',
+    name: 'Aluminum Foil Strips (Amoxyclav / Panto style)',
+    category: 'Antibiotics',
+    url: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=600&auto=format&fit=crop&q=80',
+    thumbnail: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=150&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'injection-vial',
+    name: 'Sterile Injection Vial & Ampoule (Ceftriaxone style)',
+    category: 'Critical Care',
+    url: 'https://images.unsplash.com/photo-1628771065518-0d82f1938462?w=600&auto=format&fit=crop&q=80',
+    thumbnail: 'https://images.unsplash.com/photo-1628771065518-0d82f1938462?w=150&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'syrup-bottle',
+    name: 'Amber Glass Oral Suspension Bottle (Cough / Pediatric)',
+    category: 'Respiratory',
+    url: 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=600&auto=format&fit=crop&q=80',
+    thumbnail: 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=150&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'coldchain-vial',
+    name: 'Cold-Chain 2°C–8°C Biologic / Vaccine Vial',
+    category: 'Cold-Chain',
+    url: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=600&auto=format&fit=crop&q=80',
+    thumbnail: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=150&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'softgel-capsules',
+    name: 'Nutraceutical Softgel Capsules (Omega / Vitamin)',
+    category: 'Nutritional & Vitamins',
+    url: 'https://images.unsplash.com/photo-1577401239170-897942555fb3?w=600&auto=format&fit=crop&q=80',
+    thumbnail: 'https://images.unsplash.com/photo-1577401239170-897942555fb3?w=150&auto=format&fit=crop&q=80',
+  },
+  {
+    id: 'gastro-capsules',
+    name: 'Enteric Coated Gastro Capsules (Pantoprazole / Omez)',
+    category: 'Gastrointestinal',
+    url: 'https://images.unsplash.com/photo-1550572017-ed200f5e6343?w=600&auto=format&fit=crop&q=80',
+    thumbnail: 'https://images.unsplash.com/photo-1550572017-ed200f5e6343?w=150&auto=format&fit=crop&q=80',
+  },
+];

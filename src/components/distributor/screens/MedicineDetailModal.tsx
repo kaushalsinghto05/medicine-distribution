@@ -169,6 +169,29 @@ export const MedicineDetailModal: React.FC<MedicineDetailModalProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Left Column: Batches & Pricing Tiers */}
           <div className="space-y-4">
+            {/* Real Product Packaging Photo Showcase */}
+            {medicine.imageUrl && (
+              <div className="w-full h-48 rounded-2xl overflow-hidden border border-gray-200 relative bg-slate-100 shadow-xs group">
+                <img
+                  src={medicine.imageUrl}
+                  alt={medicine.name}
+                  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute bottom-2.5 left-3 right-3 flex items-center justify-between text-white text-xs">
+                  <span className="font-extrabold uppercase tracking-wider text-[10px] bg-black/60 px-2 py-0.5 rounded backdrop-blur-xs">
+                    {medicine.packagingUnit} • {medicine.packSize}
+                  </span>
+                  <span className="font-black text-[10px] text-[#4BE1E4] tracking-wide uppercase bg-black/60 px-2 py-0.5 rounded backdrop-blur-xs">
+                    Authentic Pack Photo
+                  </span>
+                </div>
+              </div>
+            )}
+
             {/* Batch Selection with FEFO Recommendation */}
             <div>
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">

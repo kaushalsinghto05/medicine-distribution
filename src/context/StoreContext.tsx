@@ -20,6 +20,7 @@ import {
   WasteReturnRequest,
   ComplianceLedgerEntry,
   ManufacturerWasteConfig,
+  AddMedicineInput,
 } from '../types';
 import {
   SEED_TENANTS,
@@ -60,6 +61,9 @@ interface StoreContextType {
   setActiveDistributorTenantFilter: (id: string) => void;
   globalSearchQuery: string;
   setGlobalSearchQuery: (query: string) => void;
+  isAddMedicineModalOpen: boolean;
+  setIsAddMedicineModalOpen: (open: boolean) => void;
+  addNewMedicine: (input: AddMedicineInput) => Medicine;
 
   // Active Entities
   currentTenant: Tenant;
@@ -248,6 +252,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   );
   const [activeDistributorTenantFilter, setActiveDistributorTenantFilter] = useState<string>('all');
   const [globalSearchQuery, setGlobalSearchQuery] = useState<string>('');
+  const [isAddMedicineModalOpen, setIsAddMedicineModalOpen] = useState<boolean>(false);
 
   // Interactive Test Preset Helper
   const [presetDemoTarget, setPresetDemoTarget] = useState<{
@@ -433,6 +438,100 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     };
     setMedicines((prev) => [created, ...prev]);
     addToast('success', 'Medicine Added', `${created.name} was successfully created as Draft.`);
+  };
+
+  const addNewMedicine = (input: AddMedicineInput): Medicine => {
+    const tenantId = input.tenantId || activeTenantId || 'mfg-acme';
+    const medId = `med-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+    const batchId = `batch-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+    const now = new Date().toISOString();
+    const batchNumber = input.batchNumber?.trim() || `BAT-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const mfgDate = input.mfgDate || '2026-03-01';
+    const expDate = input.expDate || '2028-06-30';
+    const initialQty = input.initialQuantity || 5000;
+    const ptrPrice = input.ptrPrice || Math.round(input.mrp * 0.7);
+
+    const initialBatch: Batch = {
+      id: batchId,
+      medicineId: medId,
+      tenantId,
+      batchNumber,
+      manufacturingDate: mfgDate,
+      expiryDate: expDate,
+      initialQuantity: initialQty,
+      availableQuantity: initialQty,
+      packagingUnit: input.packagingUnit || 'strip',
+      mrp: input.mrp,
+      costPrice: Math.round(ptrPrice * 0.8),
+      status: 'active',
+      lifecycleStatus: 'active',
+      location: 'manufacturer_warehouse',
+    };
+
+    const targetTenant = tenants.find((t) => t.id === tenantId) || currentTenant;
+
+    const created: Medicine = {
+      id: medId,
+      tenantId,
+      name: input.name,
+      genericName: input.genericName,
+      brandName: input.brandName || input.name,
+      category: input.category,
+      packagingUnit: input.packagingUnit || 'strip',
+      packSize: input.packSize || '10 x 10 Tablets',
+      mrp: input.mrp,
+      imageUrl: input.imageUrl,
+      description: input.description || `${input.name} (${input.genericName}) manufactured under strict WHO-GMP compliance.`,
+      status: 'published',
+      regulatory: {
+        scheduleClassification: input.scheduleClassification || 'Schedule H',
+        rxRequired: input.rxRequired ?? true,
+        drugLicenseNumber: targetTenant.drugLicenseNumber,
+        composition: `${input.genericName} pharmaceutical grade formulation`,
+        storageConditions: input.isColdChain ? 'Store between 2°C to 8°C. Do not freeze.' : 'Store below 25°C in a dry place',
+        isColdChain: input.isColdChain ?? false,
+        isRestrictedSale: false,
+        standardPackagingUnit: input.packagingUnit || 'strip',
+      },
+      batches: [initialBatch],
+      pricing: {
+        medicineId: medId,
+        tenantId,
+        standardDistributorPrice: ptrPrice,
+        distributorOverrides: {},
+        slabs: [
+          { minQty: (input.minOrderQty || 10) * 5, maxQty: (input.minOrderQty || 10) * 10, pricePerUnit: Math.round(ptrPrice * 0.95) },
+          { minQty: (input.minOrderQty || 10) * 10 + 1, maxQty: Infinity, pricePerUnit: Math.round(ptrPrice * 0.9) },
+        ],
+        discounts: [],
+      },
+      rules: {
+        medicineId: medId,
+        tenantId,
+        minOrderQty: input.minOrderQty || 10,
+        orderMultiple: 10,
+        maxOrderQty: 1000,
+        maxDistributorCap: 5000,
+        dailyLimit: 1000,
+        weeklyLimit: 2500,
+        monthlyLimit: 5000,
+        shortageBehavior: 'reject',
+        distributorEligibility: {
+          approvalRequired: true,
+          licenseVerifiedRequired: true,
+          activeAccountOnly: true,
+          restrictedScheduleAllowed: false,
+        },
+        applicablePaymentTerms: ['online', 'credit'],
+        creditTermsDays: 30,
+      },
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    setMedicines((prev) => [created, ...prev]);
+    addToast('success', 'Medicine Added to Marketplace', `${created.name} (${created.packSize}) has been registered with ${initialQty} units in Batch ${batchNumber}.`);
+    return created;
   };
 
   const updateMedicine = (updatedMed: Medicine) => {
@@ -1533,6 +1632,9 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         setPresetDemoTarget,
         globalSearchQuery,
         setGlobalSearchQuery,
+        isAddMedicineModalOpen,
+        setIsAddMedicineModalOpen,
+        addNewMedicine,
         activePage,
         setActivePage,
         navigateToPage,

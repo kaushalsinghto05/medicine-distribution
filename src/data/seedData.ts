@@ -214,6 +214,7 @@ export const SEED_MEDICINES: Medicine[] = [
     packagingUnit: 'strip',
     packSize: '10 x 10 Tablets (100 Strips/Outer Box)',
     mrp: 120, // MRP: ₹120 as specified
+    imageUrl: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600&auto=format&fit=crop&q=80',
     description: 'First-line antipyretic and analgesic tablet formulated with fast-dissolve technology for acute fever and mild-to-moderate pain management.',
     status: 'published',
     regulatory: {
@@ -349,6 +350,7 @@ export const SEED_MEDICINES: Medicine[] = [
     packagingUnit: 'vial',
     packSize: '1 Vial + 10ml SWFI Ampoule',
     mrp: 185,
+    imageUrl: 'https://images.unsplash.com/photo-1628771065518-0d82f1938462?w=600&auto=format&fit=crop&q=80',
     description: 'PDF Requirement 2 Reference: 5,000 units available. Max 100 units/order, 500 units/month, MOQ 10 units, restricted to multiples of 10.',
     status: 'published',
     regulatory: {
@@ -422,6 +424,7 @@ export const SEED_MEDICINES: Medicine[] = [
     packagingUnit: 'strip',
     packSize: '1 x 3 Tablets',
     mrp: 280,
+    imageUrl: 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=600&auto=format&fit=crop&q=80',
     description: 'Broad-spectrum macrolide antibiotic indicated for respiratory tract infections, enteric fever, and skin/soft tissue infections.',
     status: 'published',
     regulatory: {
@@ -494,6 +497,7 @@ export const SEED_MEDICINES: Medicine[] = [
     packagingUnit: 'strip',
     packSize: '10 x 10 Tablets',
     mrp: 190,
+    imageUrl: 'https://images.unsplash.com/photo-1577401239170-897942555fb3?w=600&auto=format&fit=crop&q=80',
     description: 'Leukotriene receptor antagonist for prophylaxis and chronic treatment of asthma in adults and pediatric patients.',
     status: 'draft',
     regulatory: {
@@ -562,8 +566,9 @@ export const SEED_MEDICINES: Medicine[] = [
     brandName: 'Vitalis Clavamox-625',
     category: 'Antibiotics',
     packagingUnit: 'box',
-    packSize: '10 x 1 x 10 Strips per Box',
+    packSize: '10 x 10 Strips per Box',
     mrp: 210,
+    imageUrl: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=600&auto=format&fit=crop&q=80',
     description: 'Gold-standard penicillin antibiotic combined with beta-lactamase inhibitor for resistant bacterial infections.',
     status: 'published',
     regulatory: {
@@ -635,6 +640,7 @@ export const SEED_MEDICINES: Medicine[] = [
     packagingUnit: 'strip',
     packSize: '10 x 10 Tablets',
     mrp: 160,
+    imageUrl: 'https://images.unsplash.com/photo-1550572017-ed200f5e6343?w=600&auto=format&fit=crop&q=80',
     description: 'Angiotensin II receptor antagonist (ARB) for the treatment of essential hypertension and cardiovascular risk reduction.',
     status: 'published',
     regulatory: {
