@@ -59,6 +59,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     logout,
     refreshAccessToken,
     expireTokenNowForTesting,
+    switchPredefinedUser,
   } = useAuth();
 
   const [tenantDropdownOpen, setTenantDropdownOpen] = useState(false);
@@ -75,6 +76,23 @@ export const Navbar: React.FC<NavbarProps> = ({
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setPortalMode('distributor');
+    navigateToPage('marketplace');
+  };
+
+  const handleSwitchToManufacturer = () => {
+    setPortalMode('manufacturer');
+    if (currentUser?.role !== 'manufacturer_admin' && currentUser?.role !== 'manufacturer_staff') {
+      switchPredefinedUser('usr-acme-admin-01');
+      setActiveTenantId('mfg-acme');
+    }
+  };
+
+  const handleSwitchToDistributor = () => {
+    setPortalMode('distributor');
+    if (currentUser?.role !== 'distributor') {
+      switchPredefinedUser('usr-dist-medplus-01');
+      setActiveDistributorId('dist-medplus');
+    }
     navigateToPage('marketplace');
   };
 
@@ -129,7 +147,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Role Switcher: Segmented Rounded Pill Switcher */}
             <div className="hidden lg:flex items-center p-1 bg-[#F5F8F6] rounded-full border border-gray-200 text-xs shrink-0">
               <button
-                onClick={() => setPortalMode('manufacturer')}
+                type="button"
+                onClick={handleSwitchToManufacturer}
                 className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full font-bold transition-all ${
                   portalMode === 'manufacturer'
                     ? 'bg-[#1A504C] text-white shadow-xs'
@@ -141,7 +160,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
 
               <button
-                onClick={() => setPortalMode('distributor')}
+                type="button"
+                onClick={handleSwitchToDistributor}
                 className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full font-bold transition-all ${
                   portalMode === 'distributor'
                     ? 'bg-[#1A504C] text-white shadow-xs'
@@ -502,8 +522,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </span>
                 <div className="grid grid-cols-2 gap-2 p-1 bg-[#F5F8F6] rounded-xl border border-gray-200">
                   <button
+                    type="button"
                     onClick={() => {
-                      setPortalMode('manufacturer');
+                      handleSwitchToManufacturer();
                       setMobileMenuOpen(false);
                     }}
                     className={`py-2 rounded-lg text-xs font-bold transition-colors ${
@@ -514,8 +535,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                   </button>
 
                   <button
+                    type="button"
                     onClick={() => {
-                      setPortalMode('distributor');
+                      handleSwitchToDistributor();
                       setMobileMenuOpen(false);
                     }}
                     className={`py-2 rounded-lg text-xs font-bold transition-colors ${

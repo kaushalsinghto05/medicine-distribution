@@ -165,10 +165,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* 1. Trust & Credibility Stats Strip */}
-      <TrustAndCredibilityBar variant="distributor" />
-
-      {/* 2. Biddano-Inspired Delivery Hub & Trade Discount Basis Bar */}
+      {/* 1. Regional Fulfillment Hub & Trade Pricing Controls */}
       <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-2xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         {/* Left: Regional Fulfillment Depot Selector */}
         <div className="flex flex-wrap items-center gap-3">
@@ -204,53 +201,61 @@ export const BrowseMedicinesScreen: React.FC = () => {
           </div>
         </div>
 
-        {/* Right: Biddano-Style Discount Basis Toggle: PTR vs MRP */}
-        <div className="flex items-center gap-2 self-start lg:self-auto">
-          <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#6B7280]">
-            Discount Basis:
-          </span>
-          <div className="inline-flex rounded-xl p-0.5 bg-[#F5F8F6] border border-gray-200">
-            <button
-              onClick={() => setDiscountBasis('PTR')}
-              className={`px-3 py-1 text-xs font-black rounded-lg transition-all ${
-                discountBasis === 'PTR'
-                  ? 'bg-[#1A504C] text-white shadow-2xs'
-                  : 'text-[#6B7280] hover:text-[#1A1A1A]'
-              }`}
-              title="Price to Retailer wholesale rate comparison"
-            >
-              PTR (Wholesale)
-            </button>
-            <button
-              onClick={() => setDiscountBasis('MRP')}
-              className={`px-3 py-1 text-xs font-black rounded-lg transition-all ${
-                discountBasis === 'MRP'
-                  ? 'bg-[#1A504C] text-white shadow-2xs'
-                  : 'text-[#6B7280] hover:text-[#1A1A1A]'
-              }`}
-              title="Maximum Retail Price margin comparison"
-            >
-              MRP (Margin)
-            </button>
+        {/* Right: Discount Basis Toggle + In-Stock Toggle + Add Medicine Button */}
+        <div className="flex flex-wrap items-center gap-3 self-start lg:self-auto">
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#6B7280]">
+              Basis:
+            </span>
+            <div className="inline-flex rounded-xl p-0.5 bg-[#F5F8F6] border border-gray-200">
+              <button
+                onClick={() => setDiscountBasis('PTR')}
+                className={`px-3 py-1 text-xs font-black rounded-lg transition-all ${
+                  discountBasis === 'PTR'
+                    ? 'bg-[#1A504C] text-white shadow-2xs'
+                    : 'text-[#6B7280] hover:text-[#1A1A1A]'
+                }`}
+                title="Price to Retailer wholesale rate comparison"
+              >
+                PTR (Wholesale)
+              </button>
+              <button
+                onClick={() => setDiscountBasis('MRP')}
+                className={`px-3 py-1 text-xs font-black rounded-lg transition-all ${
+                  discountBasis === 'MRP'
+                    ? 'bg-[#1A504C] text-white shadow-2xs'
+                    : 'text-[#6B7280] hover:text-[#1A1A1A]'
+                }`}
+                title="Maximum Retail Price margin comparison"
+              >
+                MRP (Margin)
+              </button>
+            </div>
           </div>
-          <span className="hidden md:inline text-[11px] text-[#6B7280] font-medium">
-            Live GST 12% ITC
-          </span>
+
+          <label className="flex items-center gap-2 text-xs font-bold text-[#1A1A1A] cursor-pointer select-none px-3 py-1.5 rounded-xl bg-[#F5F8F6] hover:bg-gray-100 border border-gray-200">
+            <input
+              type="checkbox"
+              checked={inStockOnly}
+              onChange={(e) => setInStockOnly(e.target.checked)}
+              className="rounded text-[#1A504C] focus:ring-[#1A504C]"
+            />
+            <span>In-Stock Only</span>
+          </label>
+
+          <button
+            type="button"
+            onClick={() => setIsAddMedicineModalOpen(true)}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#1A504C] hover:bg-[#143F3C] text-white text-xs font-black shadow-xs hover:shadow-md transition-all active:scale-95 shrink-0"
+            title="Add a new pharmaceutical formulation with real packaging photo"
+          >
+            <Plus className="w-4 h-4 stroke-[3]" />
+            <span>+ Add Medicine & Picture</span>
+          </button>
         </div>
       </div>
 
-      {/* 3. Apollo Popular Manufacturer Brands Showcase */}
-      <PopularManufacturerBrands
-        onSelectPrincipal={(tenantId) => setActiveDistributorTenantFilter(tenantId)}
-      />
-
-      {/* 4. Deals of the Day & Bulk Pricing Rail */}
-      <DealsBulkPricingRail onSelectMedicine={(med) => setDetailModalMedicine(med)} />
-
-      {/* 5. Netmeds & Truemeds Curated Treatment Formulations Rail */}
-      <CuratedTreatmentsRail onSelectCategory={(cat) => setSelectedCategory(cat)} />
-
-      {/* 5B. Find by Health Need: Easy Visual Ailment Rail */}
+      {/* 2. Find by Health Need: Easy Visual Ailment Rail (Simple for anyone to understand!) */}
       <div className="bg-white rounded-3xl p-5 sm:p-6 border border-gray-200 shadow-xs space-y-3.5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
@@ -308,52 +313,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
         </div>
       </div>
 
-      {/* 6. Shop by Category: Circular Icon Rail */}
-      <div className="bg-white rounded-2xl p-5 border border-gray-200 shadow-2xs space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="font-heading font-extrabold text-base text-[#1A1A1A] tracking-tight">
-            Shop Formulations by Molecule Classification
-          </h3>
-          <span className="text-xs text-[#6B7280] font-medium">
-            {filteredMedicines.length} Formulations Available
-          </span>
-        </div>
-
-        {/* Circular Category Buttons */}
-        <div className="flex items-center gap-3 sm:gap-5 overflow-x-auto pb-2 pt-1 scrollbar-thin scrollbar-thumb-gray-200">
-          {categoryDefinitions.map((cat) => {
-            const Icon = cat.icon;
-            const isSelected = selectedCategory === cat.name;
-
-            return (
-              <button
-                key={cat.name}
-                onClick={() => setSelectedCategory(cat.name)}
-                className="flex flex-col items-center gap-2 shrink-0 group focus:outline-none"
-              >
-                <div
-                  className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center transition-all duration-150 ${
-                    isSelected
-                      ? 'bg-[#1A504C] text-white shadow-md ring-2 ring-[#1A504C] ring-offset-2 scale-105'
-                      : 'bg-[#F5F8F6] text-[#1A504C] group-hover:bg-[#E8F3F1] group-hover:scale-102 border border-gray-200'
-                  }`}
-                >
-                  <Icon className="w-6 h-6 stroke-[1.75]" />
-                </div>
-                <span
-                  className={`text-[11px] sm:text-xs font-semibold text-center max-w-[84px] line-clamp-1 leading-tight ${
-                    isSelected ? 'text-[#1A504C] font-extrabold' : 'text-[#6B7280] group-hover:text-[#1A1A1A]'
-                  }`}
-                >
-                  {cat.name}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* 7. Smart Collection Pills & Filter Toolbar */}
+      {/* 3. Smart Collection Pills & Filter Results Bar */}
       <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-2xs space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           {/* Smart Collection Pills */}
@@ -366,7 +326,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
                   : 'bg-[#F5F8F6] text-[#6B7280] hover:bg-gray-100 hover:text-[#1A1A1A]'
               }`}
             >
-              All Formulations
+              All Formulations ({filteredMedicines.length})
             </button>
             <button
               onClick={() => setActiveCollection('schemes')}
@@ -414,27 +374,8 @@ export const BrowseMedicinesScreen: React.FC = () => {
             </button>
           </div>
 
-          {/* In-Stock Only & Add Medicine Buttons */}
-          <div className="flex items-center gap-2.5">
-            <label className="flex items-center gap-2 text-xs font-bold text-[#1A1A1A] cursor-pointer select-none px-3 py-1.5 rounded-xl hover:bg-gray-50 border border-gray-100">
-              <input
-                type="checkbox"
-                checked={inStockOnly}
-                onChange={(e) => setInStockOnly(e.target.checked)}
-                className="rounded text-[#1A504C] focus:ring-[#1A504C]"
-              />
-              <span>In-Stock Only</span>
-            </label>
-
-            <button
-              type="button"
-              onClick={() => setIsAddMedicineModalOpen(true)}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#1A504C] to-[#123E3A] hover:from-[#143F3C] hover:to-[#0A2624] text-white text-xs font-black shadow-xs hover:shadow-md transition-all active:scale-95 shrink-0"
-              title="Add a new pharmaceutical formulation with real packaging photo"
-            >
-              <Plus className="w-4 h-4 stroke-[3]" />
-              <span>+ Add Medicine & Picture</span>
-            </button>
+          <div className="text-xs text-[#6B7280] font-semibold">
+            Showing <strong className="text-[#1A1A1A]">{filteredMedicines.length}</strong> verified formulations
           </div>
         </div>
 
@@ -454,21 +395,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
         )}
       </div>
 
-      {/* Multi-Tenancy Isolation Alert */}
-      {unauthorizedTenants.length > 0 && (
-        <div className="p-4 rounded-2xl bg-[#F5F8F6] border border-gray-200 flex items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2.5">
-            <ShieldAlert className="w-4 h-4 text-[#6B7280] shrink-0" />
-            <span className="text-[#6B7280]">
-              <strong className="text-[#1A1A1A]">B2B Tenant Isolation Active:</strong> Catalogs and wholesale pricing from{' '}
-              <strong className="text-[#1A1A1A]">{unauthorizedTenants.map((t) => t.shortName).join(', ')}</strong>{' '}
-              remain strictly isolated until your Form 20B/21B wholesale license access request is approved.
-            </span>
-          </div>
-        </div>
-      )}
-
-      {/* 8. Truemeds & Netmeds Style Medicine Cards Grid */}
+      {/* 4. FRONT AND CENTER: Truemeds & Netmeds Style Medicine Cards Grid */}
       {filteredMedicines.length === 0 ? (
         <EmptyState
           icon={Pill}
@@ -482,6 +409,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
           onAction={() => {
             setGlobalSearchQuery('');
             setSelectedCategory('All');
+            setSelectedHealthNeed('all');
             setActiveCollection('all');
             setInStockOnly(false);
           }}
@@ -498,6 +426,79 @@ export const BrowseMedicinesScreen: React.FC = () => {
           ))}
         </div>
       )}
+
+      {/* 5. Deals of the Day & Bulk Pricing Rail (Placed after catalog) */}
+      <DealsBulkPricingRail onSelectMedicine={(med) => setDetailModalMedicine(med)} />
+
+      {/* 6. Apollo Popular Manufacturer Brands Showcase */}
+      <PopularManufacturerBrands
+        onSelectPrincipal={(tenantId) => setActiveDistributorTenantFilter(tenantId)}
+      />
+
+      {/* 7. Netmeds & Truemeds Curated Treatment Formulations Rail */}
+      <CuratedTreatmentsRail onSelectCategory={(cat) => setSelectedCategory(cat)} />
+
+      {/* 8. Shop Formulations by Molecule Classification */}
+      <div className="bg-white rounded-2xl p-5 border border-gray-200 shadow-2xs space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="font-heading font-extrabold text-base text-[#1A1A1A] tracking-tight">
+            Shop Formulations by Molecule Classification
+          </h3>
+          <span className="text-xs text-[#6B7280] font-medium">
+            {filteredMedicines.length} Formulations Available
+          </span>
+        </div>
+
+        {/* Circular Category Buttons */}
+        <div className="flex items-center gap-3 sm:gap-5 overflow-x-auto pb-2 pt-1 scrollbar-thin scrollbar-thumb-gray-200">
+          {categoryDefinitions.map((cat) => {
+            const Icon = cat.icon;
+            const isSelected = selectedCategory === cat.name;
+
+            return (
+              <button
+                key={cat.name}
+                onClick={() => setSelectedCategory(cat.name)}
+                className="flex flex-col items-center gap-2 shrink-0 group focus:outline-none"
+              >
+                <div
+                  className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center transition-all duration-150 ${
+                    isSelected
+                      ? 'bg-[#1A504C] text-white shadow-md ring-2 ring-[#1A504C] ring-offset-2 scale-105'
+                      : 'bg-[#F5F8F6] text-[#1A504C] group-hover:bg-[#E8F3F1] group-hover:scale-102 border border-gray-200'
+                  }`}
+                >
+                  <Icon className="w-6 h-6 stroke-[1.75]" />
+                </div>
+                <span
+                  className={`text-[11px] sm:text-xs font-semibold text-center max-w-[84px] line-clamp-1 leading-tight ${
+                    isSelected ? 'text-[#1A504C] font-extrabold' : 'text-[#6B7280] group-hover:text-[#1A1A1A]'
+                  }`}
+                >
+                  {cat.name}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 9. Multi-Tenancy Isolation Alert */}
+      {unauthorizedTenants.length > 0 && (
+        <div className="p-4 rounded-2xl bg-[#F5F8F6] border border-gray-200 flex items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2.5">
+            <ShieldAlert className="w-4 h-4 text-[#6B7280] shrink-0" />
+            <span className="text-[#6B7280]">
+              <strong className="text-[#1A1A1A]">B2B Tenant Isolation Active:</strong> Catalogs and wholesale pricing from{' '}
+              <strong className="text-[#1A1A1A]">{unauthorizedTenants.map((t) => t.shortName).join(', ')}</strong>{' '}
+              remain strictly isolated until your Form 20B/21B wholesale license access request is approved.
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* 10. Trust & Credibility Stats Strip */}
+      <TrustAndCredibilityBar variant="distributor" />
 
       {/* Medicine Detail Modal */}
       {detailModalMedicine && (
