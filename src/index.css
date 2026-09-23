@@ -215,3 +215,20 @@ h1, h2, h3, h4 {
   transform: translateY(-2px);
   box-shadow: 0 12px 28px -6px rgba(26, 80, 76, 0.12), 0 4px 12px -2px rgba(0, 0, 0, 0.06);
 }
+
+@keyframes float-gentle {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px);
+  }
+  33% {
+    transform: translateY(-8px) translateX(4px);
+  }
+  66% {
+    transform: translateY(4px) translateX(-4px);
+  }
+}
+
+.animate-float-gentle {
+  animation: float-gentle 8s ease-in-out infinite;
+}
+

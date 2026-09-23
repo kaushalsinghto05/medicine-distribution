@@ -193,6 +193,10 @@ export interface Medicine {
   packSize: string; // e.g. '10 x 10 Tablets' or '100ml'
   mrp: number;
   imageUrl?: string; // Product packaging photo / render
+  indication?: string; // Plain-English indication, e.g. "Fever, Headache & Body Pain"
+  indicationIcon?: string; // Visual icon emoji, e.g. "🩺"
+  dosageFormLabel?: string; // Friendly dosage form, e.g. "Tablets", "Syrup", "Injection", "Capsules"
+  primaryNeed?: string; // Category for quick illness filter, e.g. "fever", "antibiotic", "bp", "diabetes", etc.
   description: string;
   status: 'draft' | 'published';
   regulatory: RegulatoryCompliance;

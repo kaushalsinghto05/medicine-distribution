@@ -289,9 +289,23 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [distributors, setDistributors] = useState<Distributor[]>(() =>
     loadFromStorage<Distributor[]>('distributors', SEED_DISTRIBUTORS)
   );
-  const [medicines, setMedicines] = useState<Medicine[]>(() =>
-    loadFromStorage<Medicine[]>('medicines', SEED_MEDICINES)
-  );
+  const [medicines, setMedicines] = useState<Medicine[]>(() => {
+    const stored = loadFromStorage<Medicine[]>('medicines', SEED_MEDICINES);
+    if (stored && Array.isArray(stored)) {
+      const storedIds = new Set(stored.map((m) => m.id));
+      const missing = SEED_MEDICINES.filter((m) => !storedIds.has(m.id));
+      // Also update existing seed medicines if they lack indication/picture
+      const updated = stored.map((item) => {
+        const seed = SEED_MEDICINES.find((s) => s.id === item.id);
+        if (seed && (!item.indication || !item.imageUrl)) {
+          return { ...item, indication: seed.indication, indicationIcon: seed.indicationIcon, dosageFormLabel: seed.dosageFormLabel, primaryNeed: seed.primaryNeed, imageUrl: item.imageUrl || seed.imageUrl };
+        }
+        return item;
+      });
+      return [...updated, ...missing];
+    }
+    return SEED_MEDICINES;
+  });
   const [orders, setOrders] = useState<Order[]>(() =>
     loadFromStorage<Order[]>('orders', SEED_ORDERS)
   );

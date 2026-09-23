@@ -223,3 +223,237 @@ export const PHARMACEUTICAL_PHOTO_PRESETS: MedicinePhotoPreset[] = [
     thumbnail: 'https://images.unsplash.com/photo-1550572017-ed200f5e6343?w=150&auto=format&fit=crop&q=80',
   },
 ];
+
+export interface MedicineIndicationInfo {
+  label: string;
+  icon: string;
+  badgeBg: string;
+  badgeText: string;
+  badgeBorder: string;
+  formLabel: string;
+  primaryNeed: string;
+}
+
+export function getMedicineIndication(med: Medicine): MedicineIndicationInfo {
+  if (med.indication) {
+    return {
+      label: med.indication,
+      icon: med.indicationIcon || '🩺',
+      badgeBg: 'bg-emerald-50',
+      badgeText: 'text-emerald-800',
+      badgeBorder: 'border-emerald-200',
+      formLabel: med.dosageFormLabel || (med.packagingUnit ? med.packagingUnit.toUpperCase() : 'PACK'),
+      primaryNeed: med.primaryNeed || 'general',
+    };
+  }
+
+  const name = (med.name + ' ' + med.genericName).toLowerCase();
+
+  if (name.includes('paracetamol') || name.includes('dolo') || name.includes('crocin') || name.includes('calpol')) {
+    return {
+      label: 'Fever, Headache & Body Pain',
+      icon: '🩺',
+      badgeBg: 'bg-blue-50',
+      badgeText: 'text-blue-800',
+      badgeBorder: 'border-blue-200',
+      formLabel: 'Tablets',
+      primaryNeed: 'fever',
+    };
+  }
+
+  if (name.includes('azithromycin') || name.includes('azithro')) {
+    return {
+      label: 'Throat, Lung & Chest Infection',
+      icon: '🦠',
+      badgeBg: 'bg-purple-50',
+      badgeText: 'text-purple-800',
+      badgeBorder: 'border-purple-200',
+      formLabel: 'Tablets',
+      primaryNeed: 'antibiotic',
+    };
+  }
+
+  if (name.includes('amox') || name.includes('clav')) {
+    return {
+      label: 'Broad-Spectrum Antibiotic for Infections',
+      icon: '🦠',
+      badgeBg: 'bg-emerald-50',
+      badgeText: 'text-emerald-800',
+      badgeBorder: 'border-emerald-200',
+      formLabel: 'Tablets',
+      primaryNeed: 'antibiotic',
+    };
+  }
+
+  if (name.includes('ceftriaxone') || name.includes('xyz')) {
+    return {
+      label: 'Severe Bacterial Infection (Hospital IV/IM)',
+      icon: '💉',
+      badgeBg: 'bg-rose-50',
+      badgeText: 'text-rose-800',
+      badgeBorder: 'border-rose-200',
+      formLabel: 'Injection Vial',
+      primaryNeed: 'antibiotic',
+    };
+  }
+
+  if (name.includes('pantoprazole') || name.includes('panto') || name.includes('omez') || name.includes('rabeprazole')) {
+    return {
+      label: 'Acidity, Gas & Heartburn Relief',
+      icon: '🧪',
+      badgeBg: 'bg-amber-50',
+      badgeText: 'text-amber-800',
+      badgeBorder: 'border-amber-200',
+      formLabel: 'Gastro Tablets',
+      primaryNeed: 'acidity',
+    };
+  }
+
+  if (name.includes('telmisartan') || name.includes('telma') || name.includes('amlodipine')) {
+    return {
+      label: 'High Blood Pressure (BP) Control',
+      icon: '🫀',
+      badgeBg: 'bg-red-50',
+      badgeText: 'text-red-800',
+      badgeBorder: 'border-red-200',
+      formLabel: 'Tablets',
+      primaryNeed: 'bp',
+    };
+  }
+
+  if (name.includes('metformin') || name.includes('glimepiride') || name.includes('glycomet')) {
+    return {
+      label: 'Type 2 Diabetes Blood Sugar Control',
+      icon: '🩸',
+      badgeBg: 'bg-teal-50',
+      badgeText: 'text-teal-800',
+      badgeBorder: 'border-teal-200',
+      formLabel: 'PR Tablets',
+      primaryNeed: 'diabetes',
+    };
+  }
+
+  if (name.includes('syrup') || name.includes('cough') || name.includes('dextromethorphan')) {
+    return {
+      label: 'Dry & Wet Cough, Sore Throat Relief',
+      icon: '🍯',
+      badgeBg: 'bg-orange-50',
+      badgeText: 'text-orange-800',
+      badgeBorder: 'border-orange-200',
+      formLabel: 'Syrup Bottle',
+      primaryNeed: 'cough',
+    };
+  }
+
+  if (name.includes('insulin')) {
+    return {
+      label: 'Diabetes Insulin Therapy (2°C-8°C)',
+      icon: '❄️',
+      badgeBg: 'bg-cyan-50',
+      badgeText: 'text-cyan-800',
+      badgeBorder: 'border-cyan-200',
+      formLabel: 'Cold-Chain Vial',
+      primaryNeed: 'cold_chain',
+    };
+  }
+
+  if (name.includes('montelukast') || name.includes('cetirizine') || name.includes('levocetirizine')) {
+    return {
+      label: 'Asthma, Allergy & Runny Nose Relief',
+      icon: '💨',
+      badgeBg: 'bg-indigo-50',
+      badgeText: 'text-indigo-800',
+      badgeBorder: 'border-indigo-200',
+      formLabel: 'Tablets',
+      primaryNeed: 'cough',
+    };
+  }
+
+  if (name.includes('vitamin') || name.includes('calcium') || name.includes('d3')) {
+    return {
+      label: 'Bone Strength & Immunity Booster',
+      icon: '🦴',
+      badgeBg: 'bg-lime-50',
+      badgeText: 'text-lime-800',
+      badgeBorder: 'border-lime-200',
+      formLabel: 'Softgels',
+      primaryNeed: 'vitamins',
+    };
+  }
+
+  if (name.includes('diclofenac') || name.includes('gel') || name.includes('pain')) {
+    return {
+      label: 'Joint & Muscle Pain Relief',
+      icon: '🩹',
+      badgeBg: 'bg-yellow-50',
+      badgeText: 'text-yellow-800',
+      badgeBorder: 'border-yellow-200',
+      formLabel: 'Topical Gel',
+      primaryNeed: 'fever',
+    };
+  }
+
+  // Fallback based on category
+  const cat = med.category;
+  if (cat === 'Antibiotics') {
+    return { label: 'Bacterial Infections & Healing', icon: '🦠', badgeBg: 'bg-emerald-50', badgeText: 'text-emerald-800', badgeBorder: 'border-emerald-200', formLabel: 'Tablets', primaryNeed: 'antibiotic' };
+  }
+  if (cat === 'Analgesics & Antipyretics') {
+    return { label: 'Pain & Fever Management', icon: '🩺', badgeBg: 'bg-blue-50', badgeText: 'text-blue-800', badgeBorder: 'border-blue-200', formLabel: 'Tablets', primaryNeed: 'fever' };
+  }
+  if (cat === 'Cardiovascular') {
+    return { label: 'Cardiovascular & Heart Health', icon: '🫀', badgeBg: 'bg-rose-50', badgeText: 'text-rose-800', badgeBorder: 'border-rose-200', formLabel: 'Tablets', primaryNeed: 'bp' };
+  }
+  if (cat === 'Gastrointestinal') {
+    return { label: 'Digestive & Gastric Relief', icon: '🧪', badgeBg: 'bg-amber-50', badgeText: 'text-amber-800', badgeBorder: 'border-amber-200', formLabel: 'Gastro', primaryNeed: 'acidity' };
+  }
+  if (cat === 'Respiratory') {
+    return { label: 'Respiratory & Bronchial Care', icon: '💨', badgeBg: 'bg-indigo-50', badgeText: 'text-indigo-800', badgeBorder: 'border-indigo-200', formLabel: 'Tablets', primaryNeed: 'cough' };
+  }
+  if (cat === 'Antidiabetic') {
+    return { label: 'Blood Glucose Regulation', icon: '🩸', badgeBg: 'bg-teal-50', badgeText: 'text-teal-800', badgeBorder: 'border-teal-200', formLabel: 'Tablets', primaryNeed: 'diabetes' };
+  }
+  if (cat === 'Nutritional & Vitamins') {
+    return { label: 'Essential Daily Wellness', icon: '⚡', badgeBg: 'bg-orange-50', badgeText: 'text-orange-800', badgeBorder: 'border-orange-200', formLabel: 'Capsules', primaryNeed: 'vitamins' };
+  }
+
+  return {
+    label: med.genericName || 'General Formulation',
+    icon: '💊',
+    badgeBg: 'bg-gray-50',
+    badgeText: 'text-gray-800',
+    badgeBorder: 'border-gray-200',
+    formLabel: med.packagingUnit || 'Pack',
+    primaryNeed: 'general',
+  };
+}
+
+export function getFallbackMedicineImage(med: Medicine): string {
+  if (med.imageUrl) return med.imageUrl;
+  const name = (med.name + ' ' + med.genericName).toLowerCase();
+  if (name.includes('paracetamol') || name.includes('dolo') || name.includes('pcm')) {
+    return 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600&auto=format&fit=crop&q=80';
+  }
+  if (name.includes('azithromycin') || name.includes('capsule')) {
+    return 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=600&auto=format&fit=crop&q=80';
+  }
+  if (name.includes('amox') || name.includes('strip')) {
+    return 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=600&auto=format&fit=crop&q=80';
+  }
+  if (name.includes('inj') || name.includes('vial') || name.includes('ceft')) {
+    return 'https://images.unsplash.com/photo-1628771065518-0d82f1938462?w=600&auto=format&fit=crop&q=80';
+  }
+  if (name.includes('syrup') || name.includes('liquid') || name.includes('suspension')) {
+    return 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=600&auto=format&fit=crop&q=80';
+  }
+  if (name.includes('insulin') || med.regulatory?.isColdChain) {
+    return 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=600&auto=format&fit=crop&q=80';
+  }
+  if (name.includes('vitamin') || name.includes('softgel')) {
+    return 'https://images.unsplash.com/photo-1577401239170-897942555fb3?w=600&auto=format&fit=crop&q=80';
+  }
+  if (name.includes('panto') || name.includes('gastro')) {
+    return 'https://images.unsplash.com/photo-1550572017-ed200f5e6343?w=600&auto=format&fit=crop&q=80';
+  }
+  return 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600&auto=format&fit=crop&q=80';
+}

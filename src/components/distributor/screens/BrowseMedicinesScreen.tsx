@@ -4,6 +4,7 @@ import { Medicine } from '../../../types';
 import { getExpiryStatus } from '../../../utils/formatters';
 import { sortBatchesFEFO } from '../../../engine/inventoryEngine';
 import { computeEffectivePrice } from '../../../engine/pricingEngine';
+import { getMedicineIndication } from '../../../utils/medicineVisuals';
 import { MedicineDetailModal } from './MedicineDetailModal';
 import { DealsBulkPricingRail } from './DealsBulkPricingRail';
 import { MedicineCardNetmeds } from './MedicineCardNetmeds';
@@ -57,11 +58,24 @@ export const BrowseMedicinesScreen: React.FC = () => {
   } = useStore();
 
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedHealthNeed, setSelectedHealthNeed] = useState<string>('all');
   const [inStockOnly, setInStockOnly] = useState(false);
   const [selectedHub, setSelectedHub] = useState(DELIVERY_HUBS[0].id);
   const [discountBasis, setDiscountBasis] = useState<'PTR' | 'MRP'>('PTR');
   const [activeCollection, setActiveCollection] = useState<'all' | 'schemes' | 'high_margin' | 'cold_chain' | 'fefo'>('all');
   const [detailModalMedicine, setDetailModalMedicine] = useState<Medicine | null>(null);
+
+  const HEALTH_NEEDS = [
+    { id: 'all', name: 'All Medicines', icon: '💊' },
+    { id: 'fever', name: 'Fever & Pain', icon: '🩺' },
+    { id: 'antibiotic', name: 'Infections (Antibiotics)', icon: '🦠' },
+    { id: 'acidity', name: 'Acidity & Gas Relief', icon: '🧪' },
+    { id: 'cough', name: 'Cough, Cold & Allergy', icon: '💨' },
+    { id: 'bp', name: 'Blood Pressure (BP)', icon: '🫀' },
+    { id: 'diabetes', name: 'Diabetes & Sugar', icon: '🩸' },
+    { id: 'cold_chain', name: 'Cold Chain (2°C–8°C)', icon: '❄️' },
+    { id: 'vitamins', name: 'Vitamins & Bone Health', icon: '🦴' },
+  ];
 
   // Auto-open modal if preset demo target is active
   React.useEffect(() => {
@@ -93,15 +107,28 @@ export const BrowseMedicinesScreen: React.FC = () => {
     (t) => currentDistributor.authorizedTenants[t.id]?.status !== 'approved'
   );
 
-  // Filter medicines based on search, category, stock, and smart collection
+  // Filter medicines based on search, category, health need, stock, and smart collection
   const filteredMedicines = distributorMedicines.filter((med) => {
     const query = globalSearchQuery.trim().toLowerCase();
+    const indication = getMedicineIndication(med);
+
     const matchesSearch =
       !query ||
       med.name.toLowerCase().includes(query) ||
       med.genericName.toLowerCase().includes(query) ||
+      (med.brandName && med.brandName.toLowerCase().includes(query)) ||
+      indication.label.toLowerCase().includes(query) ||
+      (med.primaryNeed && med.primaryNeed.toLowerCase().includes(query)) ||
+      (med.description && med.description.toLowerCase().includes(query)) ||
       med.regulatory.composition.toLowerCase().includes(query);
+
     const matchesCat = selectedCategory === 'All' || med.category === selectedCategory;
+
+    const matchesNeed =
+      selectedHealthNeed === 'all' ||
+      (selectedHealthNeed === 'cold_chain'
+        ? !!med.regulatory.isColdChain
+        : med.primaryNeed === selectedHealthNeed || indication.primaryNeed === selectedHealthNeed);
 
     const totalStock = med.batches.reduce((sum, b) => sum + b.availableQuantity, 0);
     const matchesStock = !inStockOnly || totalStock > 0;
@@ -133,7 +160,7 @@ export const BrowseMedicinesScreen: React.FC = () => {
       }
     }
 
-    return matchesSearch && matchesCat && matchesStock && matchesCollection;
+    return matchesSearch && matchesCat && matchesNeed && matchesStock && matchesCollection;
   });
 
   return (
@@ -222,6 +249,64 @@ export const BrowseMedicinesScreen: React.FC = () => {
 
       {/* 5. Netmeds & Truemeds Curated Treatment Formulations Rail */}
       <CuratedTreatmentsRail onSelectCategory={(cat) => setSelectedCategory(cat)} />
+
+      {/* 5B. Find by Health Need: Easy Visual Ailment Rail */}
+      <div className="bg-white rounded-3xl p-5 sm:p-6 border border-gray-200 shadow-xs space-y-3.5">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-black uppercase tracking-wider text-[#1A504C] bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-200">
+                Simple & Easy to Understand
+              </span>
+              <span className="text-xs text-emerald-700 font-extrabold flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                Real Packaging Photos Verified
+              </span>
+            </div>
+            <h3 className="font-heading font-black text-lg sm:text-xl text-[#1A1A1A] mt-1 tracking-tight">
+              Find Medicines by Health Need
+            </h3>
+            <p className="text-xs text-[#6B7280]">
+              Click any ailment below to see verified medicines with clear indications, authentic packaging pictures, and direct manufacturer rates.
+            </p>
+          </div>
+          {selectedHealthNeed !== 'all' && (
+            <button
+              onClick={() => setSelectedHealthNeed('all')}
+              className="text-xs font-black text-[#EA580C] hover:underline bg-orange-50 px-3 py-1.5 rounded-xl border border-orange-200"
+            >
+              Show All Formulations (Reset)
+            </button>
+          )}
+        </div>
+
+        {/* Health Need Pill Buttons */}
+        <div className="flex items-center gap-2.5 overflow-x-auto pb-2 pt-1 scrollbar-thin scrollbar-thumb-gray-200">
+          {HEALTH_NEEDS.map((need) => {
+            const isSelected = selectedHealthNeed === need.id;
+            return (
+              <button
+                key={need.id}
+                type="button"
+                onClick={() => {
+                  setSelectedHealthNeed(need.id);
+                  if (need.id !== 'all') {
+                    setSelectedCategory('All');
+                  }
+                }}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-xs font-extrabold shrink-0 transition-all active:scale-95 shadow-2xs ${
+                  isSelected
+                    ? 'bg-[#1A504C] border-[#1A504C] text-white shadow-md ring-2 ring-[#1A504C]/30 scale-102'
+                    : 'bg-white border-gray-200 text-[#1A1A1A] hover:bg-[#F5F8F6] hover:border-[#1A504C]'
+                }`}
+              >
+                <span className="text-base">{need.icon}</span>
+                <span>{need.name}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
       {/* 6. Shop by Category: Circular Icon Rail */}
       <div className="bg-white rounded-2xl p-5 border border-gray-200 shadow-2xs space-y-3">
